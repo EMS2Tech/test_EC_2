@@ -40,3 +40,8 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+
+Route::get('/viewprofile', function () {
+    return view('frontend.profile');
+});
