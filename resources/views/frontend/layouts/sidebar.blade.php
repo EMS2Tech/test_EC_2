@@ -5,23 +5,15 @@
                 <div id="sidebar-menu">
 
                     <div class="logo-box">
-                        <a class='logo logo-light' href='index.html'>
+                        <a class='logo logo-dark' href='/profile'>
                             <span class="logo-sm">
-                                <img src="{{ asset('frontend/assets/images/logo-sm.png') }}" alt="" height="22">
+                                <img src="{{ asset('frontend/assets/images/ec_logo.webp') }}" alt="" height="30">
                             </span>
                             <span class="logo-lg">
-                                <img src="{{ asset('frontend/assets/images/logo-light.png') }}" alt="" height="24">
+                                <img src="{{ asset('frontend/assets/images/ec_logo.webp') }}" alt="" height="40">
                             </span>
                         </a>
-                        <a class='logo logo-dark' href='index.html'>
-                            <span class="logo-sm">
-                                <img src="{{ asset('frontend/assets/images/logo-sm.png') }}" alt="" height="22">
-                            </span>
-                            <span class="logo-lg">
-                                <img src="{{ asset('frontend/assets/images/logo-dark.png') }}" alt="" height="24">
-                            </span>
-                        </a>
-                    </div>
+                    </div><br><br>
 
                     <ul id="side-menu">
 
