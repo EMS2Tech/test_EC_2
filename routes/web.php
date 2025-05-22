@@ -42,3 +42,6 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 
 
+Route::get('/course', function () {
+    return view('frontend.course-apply');
+});

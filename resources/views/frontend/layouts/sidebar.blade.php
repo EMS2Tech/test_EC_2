@@ -18,15 +18,15 @@
                     <ul id="side-menu">
 
                         <li>
-                            <a href="#sidebarProfile" data-bs-toggle="collapse">
+                            <a href="/profile">
                                 <i data-feather="user"></i>
                                 <span> Profile </span>
                             </a>
-                            <div class="collapse" id="sidebarDashboards"> </div>
+                            <div class="collapse"> </div>
                         </li>
 
                         <li>
-                            <a href="#sidebarApplication" data-bs-toggle="collapse">
+                            <a href="/user/dashboard">
                                 <i data-feather="file-text"></i>
                                 <span> Application </span>
                             </a>
@@ -52,11 +52,11 @@
                         </li>
 
                         <li>
-                            <a href="#sidebarDashboards" data-bs-toggle="collapse">
+                            <a href="/course">
                                 <i data-feather="book"></i>
                                 <span> Courses </span>
                             </a>
-                            <div class="collapse" id="sidebarDashboards"> </div>
+                            <div class="collapse"> </div>
                         </li>
 
                     </ul>
