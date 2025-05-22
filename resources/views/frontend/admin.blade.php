@@ -250,7 +250,7 @@
                                                 <a href="javascript:void(0);" class="text-dark">00010</a>
                                             </td>
                                             <td class="d-flex align-items-center">
-                                                <img src="assets/images/users/user-12.jpg"
+                                                <img src={{ asset('frontend/assets/images/users/user-12.jpg') }}
                                                     class="avatar avatar-sm rounded-circle me-3" />
                                                 <div>
                                                     <p class="mb-0 fw-medium fs-14">Richard Dom</p>
@@ -294,7 +294,7 @@
                                                 <a href="javascript:void(0);" class="text-dark">00010</a>
                                             </td>
                                             <td class="d-flex align-items-center">
-                                                <img src="assets/images/users/user-12.jpg"
+                                                <img src={{ asset('frontend/assets/images/users/user-12.jpg') }}
                                                     class="avatar avatar-sm rounded-circle me-3" />
                                                 <div>
                                                     <p class="mb-0 fw-medium fs-14">Richard Dom</p>
