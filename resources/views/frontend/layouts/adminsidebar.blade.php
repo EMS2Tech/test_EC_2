@@ -5,23 +5,31 @@
         <div id="sidebar-menu">
 
             <div class="logo-box">
-                        <a class='logo logo-dark' href='/profile'>
-                            <span class="logo-sm">
-                                <img src="{{ asset('frontend/assets/images/ec_logo.webp') }}" alt="" height="30">
-                            </span>
-                            <span class="logo-lg">
-                                <img src="{{ asset('frontend/assets/images/ec_logo.webp') }}" alt="" height="40">
-                            </span>
-                        </a>
-                    </div><br><br>
+                <a class='logo logo-dark'>
+                    <span class="logo-sm">
+                        <img src="{{ asset('frontend/assets/images/ec_logo.webp') }}" alt="" height="30">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="{{ asset('frontend/assets/images/ec_logo.webp') }}" alt="" height="40">
+                    </span>
+                </a>
+            </div><br><br>
 
             <ul id="side-menu">
                 <li>
-                    <a href="#sidebarDashbord" data-bs-toggle="collapse">
+                    <a href="/admin/dashboard">
                         <i data-feather="home"></i>
                         <span> Dashboard </span>
                     </a>
                     <div class="collapse" id="sidebarDashboards"> </div>
+                </li>
+
+                <li>
+                    <a href="/profile">
+                        <i data-feather="user"></i>
+                        <span> Profile </span>
+                    </a>
+                    <div class="collapse"> </div>
                 </li>
 
                 <li>

@@ -5,7 +5,7 @@
                 <div id="sidebar-menu">
 
                     <div class="logo-box">
-                        <a class='logo logo-dark' href='/profile'>
+                        <a class='logo logo-dark'>
                             <span class="logo-sm">
                                 <img src="{{ asset('frontend/assets/images/ec_logo.webp') }}" alt="" height="30">
                             </span>
