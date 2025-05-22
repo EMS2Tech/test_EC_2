@@ -24,8 +24,6 @@
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 </head>
 
-<!-- body start -->
-
 <body data-menu-color="light" data-sidebar="default">
 
     <!-- Begin page -->
@@ -36,7 +34,17 @@
         <!-- end Topbar -->
 
         <!-- Left Sidebar Start -->
-        @include('frontend.layouts.sidebar')
+        @if (Auth::check())
+            @if (Auth::user()->isAdmin())
+                @include('frontend.layouts.adminsidebar')
+            @elseif (Auth::user()->isManager())
+                @include('frontend.layouts.managersidebar')
+            @else
+                @include('frontend.layouts.sidebar')
+            @endif
+        @else
+            @include('frontend.layouts.sidebar')
+        @endif
         <!-- Left Sidebar End -->
 
         <!-- content Start -->
@@ -49,9 +57,6 @@
 
     </div>
     <!-- End Page content -->
-
-    <!-- /div -->
-    <!-- END wrapper -->
 
     <!-- Vendor -->
     <script src="{{ asset('frontend/assets/libs/jquery/jquery.min.js') }}"></script>
