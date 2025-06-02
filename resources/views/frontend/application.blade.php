@@ -3,18 +3,14 @@
 @section('title', 'Application')
 
 @section('content')
-
     <div class="content-page">
         <div class="content">
-
             <!-- Start Content-->
             <div class="container-fluid">
-
                 <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column">
                     <div class="flex-grow-1">
                         <h4 class="fs-18 fw-semibold m-0">Personal Details</h4>
                     </div>
-
                 </div>
             </div> <!-- container-fluid -->
 
@@ -22,103 +18,101 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card">
-
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Input Type</h5>
+                            <h5 class="card-title mb-0">Application Form</h5>
                         </div><!-- end card header -->
 
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-lg-6">
-                                    <form class="needs-validation" novalidate>
+                                    <form class="needs-validation" novalidate method="POST" action="{{ route('application.store') }}" enctype="multipart/form-data">
+                                        @csrf
 
                                         <!-- Title -->
                                         <fieldset class="row mb-3">
                                             <legend class="col-form-label col-sm-2 pt-0">Title</legend>
                                             <div class="col-sm-10 d-flex gap-3">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="title" id="titleMr"
-                                                        value="Mr" required>
+                                                    <input class="form-check-input" type="radio" name="title" id="titleMr" value="Mr" {{ old('title', $application->title ?? '') === 'Mr' ? 'checked' : '' }} required>
                                                     <label class="form-check-label" for="titleMr">Mr</label>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="title" id="titleMrs"
-                                                        value="Mrs" required>
+                                                    <input class="form-check-input" type="radio" name="title" id="titleMrs" value="Mrs" {{ old('title', $application->title ?? '') === 'Mrs' ? 'checked' : '' }} required>
                                                     <label class="form-check-label" for="titleMrs">Mrs</label>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="title" id="titleRev"
-                                                        value="Rev" required>
+                                                    <input class="form-check-input" type="radio" name="title" id="titleMiss" value="Miss" {{ old('title', $application->title ?? '') === 'Miss' ? 'checked' : '' }} required>
+                                                    <label class="form-check-label" for="titleMiss">Miss</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="title" id="titleRev" value="Rev" {{ old('title', $application->title ?? '') === 'Rev' ? 'checked' : '' }} required>
                                                     <label class="form-check-label" for="titleRev">Rev</label>
                                                 </div>
+                                                <x-input-error :messages="$errors->get('title')" class="mt-2" />
                                             </div>
                                         </fieldset>
 
                                         <!-- Full Name -->
                                         <div class="mb-3">
-                                            <label for="fullName" class="form-label">Full Name</label>
-                                            <input type="text" class="form-control" id="fullName" required>
-                                            <div class="invalid-feedback">Please enter your full name.</div>
-                                            <small id="photoHelp" class="form-text text-muted">Use Block Letters</small>
+                                            <label for="full_name" class="form-label">Full Name</label>
+                                            <x-text-input id="full_name" name="full_name" type="text" class="form-control" :value="old('full_name', $application->full_name ?? '')" required autocomplete="name" />
+                                            <x-input-error :messages="$errors->get('full_name')" class="mt-2" />
+                                            <small class="form-text text-muted">Use Block Letters</small>
                                         </div>
 
                                         <!-- Name with Initials -->
                                         <div class="mb-3">
-                                            <label for="initials" class="form-label">Name With Initials</label>
-                                            <input type="text" class="form-control" id="initials" required>
-                                            <div class="invalid-feedback">Please enter name with initials.</div>
-                                            <small id="photoHelp" class="form-text text-muted">Use Block Letters</small>
+                                            <label for="name_with_initials" class="form-label">Name With Initials</label>
+                                            <x-text-input id="name_with_initials" name="name_with_initials" type="text" class="form-control" :value="old('name_with_initials', $application->name_with_initials ?? '')" required />
+                                            <x-input-error :messages="$errors->get('name_with_initials')" class="mt-2" />
+                                            <small class="form-text text-muted">Use Block Letters</small>
                                         </div>
 
                                         <!-- Birth Day -->
                                         <div class="mb-3">
-                                            <label for="birthDay" class="form-label">Birth Day</label>
-                                            <input type="date" class="form-control" id="birthDay" required>
-                                            <div class="invalid-feedback">Please select your birthday.</div>
+                                            <label for="birthday" class="form-label">Birth Day</label>
+                                            <x-text-input id="birthday" name="birthday" type="date" class="form-control" :value="old('birthday', $application->birthday ?? '')" required />
+                                            <x-input-error :messages="$errors->get('birthday')" class="mt-2" />
                                         </div>
 
                                         <!-- Nationality -->
                                         <div class="mb-3">
-                                            <label for="example-select" class="form-label">Nationality</label>
-                                            <select class="form-select" id="example-select" required
-                                                onchange="handleNationalityChange()">
-                                                <option value="">-- Select Nationality --</option>
-                                                <option value="sri_lankan">Sri Lankan</option>
-                                                <option value="other">Other</option>
+                                            <label for="nationality" class="form-label">Nationality</label>
+                                            <select class="form-select" id="nationality" name="nationality" required onchange="handleNationalityChange()">
+                                                <option value="" disabled {{ !old('nationality', $application->nationality ?? '') ? 'selected' : '' }}>-- Select Nationality --</option>
+                                                <option value="Sri Lanka" {{ old('nationality', $application->nationality ?? '') === 'Sri Lanka' ? 'selected' : '' }}>Sri Lankan</option>
+                                                <option value="Other" {{ old('nationality', $application->nationality ?? '') === 'Other' ? 'selected' : '' }}>Other</option>
                                             </select>
-                                            <div class="invalid-feedback">Please select your nationality.</div>
+                                            <x-input-error :messages="$errors->get('nationality')" class="mt-2" />
                                         </div>
 
                                         <!-- Sri Lankan Section -->
-                                        <div id="sriLankanFields" style="display: none;">
+                                        <div id="sriLankanFields" style="display: {{ old('nationality', $application->nationality ?? 'Sri Lanka') === 'Sri Lanka' ? 'block' : 'none' }};">
                                             <div class="mb-3">
-                                                <label for="nicNumber" class="form-label">National ID Card Number</label>
-                                                <input type="text" id="nicNumber" class="form-control" required>
-                                                <small class="form-text text-muted">Old ID Format - 000000000V<br>New ID
-                                                    Format - 000000000000</small>
+                                                <label for="nic_number" class="form-label">National ID Card Number</label>
+                                                <x-text-input id="nic_number" name="nic_number" type="text" class="form-control" :value="old('nic_number', $application->nic_number ?? '')" />
+                                                <x-input-error :messages="$errors->get('nic_number')" class="mt-2" />
+                                                <small class="form-text text-muted">Old ID Format - 123456789V<br>New ID Format - 123456789012</small>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="nicFile" class="form-label">Scan Copy of National ID
-                                                    Card</label>
-                                                <input class="form-control" type="file" id="nicFile" required>
-                                                <div class="invalid-feedback">Scan Copy of National ID Card</div>
+                                                <label for="nic_photo" class="form-label">Scan Copy of National ID Card</label>
+                                                <input class="form-control" type="file" id="nic_photo" name="nic_photo" accept="image/*" />
+                                                <x-input-error :messages="$errors->get('nic_photo')" class="mt-2" />
                                             </div>
                                         </div>
 
                                         <!-- Other Nationality Section -->
-                                        <div id="otherNationalityFields" style="display: none;">
+                                        <div id="otherNationalityFields" style="display: {{ old('nationality', $application->nationality ?? 'Sri Lanka') === 'Other' ? 'block' : 'none' }};">
                                             <div class="mb-3">
-                                                <label for="otherNationality" class="form-label">Nationality</label>
-                                                <input type="text" id="otherNationality" class="form-control"
-                                                    placeholder="Nationality" required>
-                                                <div class="invalid-feedback">Please select your nationality.</div>
-
+                                                <label for="other_nationality" class="form-label">Nationality</label>
+                                                <x-text-input id="other_nationality" name="other_nationality" type="text" class="form-control" :value="old('other_nationality', $application->other_nationality ?? '')" placeholder="Enter Nationality" />
+                                                <x-input-error :messages="$errors->get('other_nationality')" class="mt-2" />
                                             </div>
                                             <div class="mb-3">
-                                                <label for="passportScan" class="form-label">Scan Copy Passport</label>
-                                                <input class="form-control" type="file" id="passportScan" required>
-                                                <div class="invalid-feedback">Scan Copy Passport</div>
-                                                <small id="photoHelp" class="form-text text-muted">Maximum Size 4MB</small>
+                                                <label for="passport_photo" class="form-label">Scan Copy Passport</label>
+                                                <input class="form-control" type="file" id="passport_photo" name="passport_photo" accept="image/*" />
+                                                <x-input-error :messages="$errors->get('passport_photo')" class="mt-2" />
+                                                <small class="form-text text-muted">Maximum Size 4MB</small>
                                             </div>
                                         </div>
 
@@ -126,19 +120,19 @@
 
                                         <!-- Photograph -->
                                         <div class="mb-3">
-                                            <label for="photo" class="form-label">Photograph</label>
-                                            <input class="form-control" type="file" id="photo" required>
-                                            <small id="photoHelp" class="form-text text-muted">Maximum Size 4MB</small>
-                                            <div class="invalid-feedback">Please upload your photo.</div>
+                                            <label for="photograph" class="form-label">Photograph</label>
+                                            <input class="form-control" type="file" id="photograph" name="photograph" accept="image/*" required />
+                                            <x-input-error :messages="$errors->get('photograph')" class="mt-2" />
+                                            <small class="form-text text-muted">Maximum Size 4MB</small>
                                         </div>
                                         <hr>
 
                                         <!-- Address -->
                                         <div class="mb-3">
                                             <label for="address" class="form-label">Address</label>
-                                            <textarea class="form-control" id="address" rows="2" required></textarea>
-                                            <div class="invalid-feedback">Please enter your address.</div>
-                                            <small id="photoHelp" class="form-text text-muted">Capital Block Letters</small>
+                                            <textarea class="form-control" id="address" name="address" rows="2" required>{{ old('address', $application->address ?? '') }}</textarea>
+                                            <x-input-error :messages="$errors->get('address')" class="mt-2" />
+                                            <small class="form-text text-muted">Capital Block Letters</small>
                                         </div>
 
                                         <!-- Contact Phone -->
@@ -149,10 +143,8 @@
                                                     <span class="input-group-text">
                                                         <i data-feather="phone" style="width: 16px; height: 16px;"></i>
                                                     </span>
-                                                    <input class="form-control" type="tel" name="contactPhone"
-                                                        placeholder="07XXXXXXXX" required pattern="^07[0-9]{8}$">
-                                                    <div class="invalid-feedback">Enter a valid phone number starting with
-                                                        07 and 10 digits total.</div>
+                                                    <x-text-input class="form-control" type="tel" name="contact_number" placeholder="07XXXXXXXX" :value="old('contact_number', $application->contact_number ?? '')" required pattern="^07[0-9]{8}$" />
+                                                    <x-input-error :messages="$errors->get('contact_number')" class="mt-2" />
                                                 </div>
                                             </div>
                                         </div>
@@ -163,13 +155,10 @@
                                             <div class="col-lg-12 col-xl-12">
                                                 <div class="input-group has-validation">
                                                     <span class="input-group-text">
-                                                        <i data-feather="message-circle"
-                                                            style="width: 16px; height: 16px;"></i>
+                                                        <i data-feather="message-circle" style="width: 16px; height: 16px;"></i>
                                                     </span>
-                                                    <input class="form-control" type="tel" name="whatsappPhone"
-                                                        placeholder="07XXXXXXXX" required pattern="^07[0-9]{8}$">
-                                                    <div class="invalid-feedback">Enter a valid WhatsApp number starting
-                                                        with 07 and 10 digits total.</div>
+                                                    <x-text-input class="form-control" type="tel" name="whatsapp_number" placeholder="07XXXXXXXX" :value="old('whatsapp_number', $application->whatsapp_number ?? '')" pattern="^07[0-9]{8}$" />
+                                                    <x-input-error :messages="$errors->get('whatsapp_number')" class="mt-2" />
                                                 </div>
                                             </div>
                                         </div>
@@ -182,55 +171,52 @@
                                                     <span class="input-group-text">
                                                         <i data-feather="mail" style="width: 16px; height: 16px;"></i>
                                                     </span>
-                                                    <input type="email" class="form-control" name="email"
-                                                        placeholder="example@email.com" required>
-                                                    <div class="invalid-feedback">Enter a valid email address.</div>
+                                                    <x-text-input type="email" class="form-control" name="email_address" placeholder="example@email.com" :value="old('email_address', $application->email_address ?? Auth::user()->email)" required />
+                                                    <x-input-error :messages="$errors->get('email_address')" class="mt-2" />
                                                 </div>
                                             </div>
                                         </div>
+
                                         <!-- Submit Button -->
-                                        <button class="btn btn-primary" type="submit">Submit</button>
+                                        <x-primary-button class="btn btn-primary">Submit</x-primary-button>
                                     </form>
                                 </div>
                             </div>
                         </div>
 
                         <!-- JavaScript Section -->
-                        <script>
-                            function handleNationalityChange() {
-                                const selectedValue = document.getElementById("example-select").value;
-                                const sriLankanFields = document.getElementById("sriLankanFields");
-                                const otherNationalityFields = document.getElementById("otherNationalityFields");
+                        @section('scripts')
+                            <script>
+                                function handleNationalityChange() {
+                                    const nationality = document.getElementById('nationality').value;
+                                    const sriLankanFields = document.getElementById('sriLankanFields');
+                                    const otherNationalityFields = document.getElementById('otherNationalityFields');
 
-                                sriLankanFields.style.display = "none";
-                                otherNationalityFields.style.display = "none";
-
-                                if (selectedValue === "sri_lankan") {
-                                    sriLankanFields.style.display = "block";
-                                } else if (selectedValue === "other") {
-                                    otherNationalityFields.style.display = "block";
+                                    sriLankanFields.style.display = nationality === 'Sri Lanka' ? 'block' : 'none';
+                                    otherNationalityFields.style.display = nationality === 'Other' ? 'block' : 'none';
                                 }
-                            }
 
-                            // Bootstrap Validation
-                            document.addEventListener('DOMContentLoaded', function () {
-                                const form = document.querySelector('.needs-validation');
+                                // Bootstrap Validation
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    const form = document.querySelector('.needs-validation');
 
-                                form.addEventListener('submit', function (event) {
-                                    if (!form.checkValidity()) {
-                                        event.preventDefault();
-                                        event.stopPropagation();
-                                    }
+                                    form.addEventListener('submit', function (event) {
+                                        if (!form.checkValidity()) {
+                                            event.preventDefault();
+                                            event.stopPropagation();
+                                        }
 
-                                    form.classList.add('was-validated');
-                                }, false);
-                            });
-                        </script>
+                                        form.classList.add('was-validated');
+                                    }, false);
 
+                                    // Initialize nationality fields visibility
+                                    handleNationalityChange();
+                                });
+                            </script>
+                        @endsection
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 @endsection

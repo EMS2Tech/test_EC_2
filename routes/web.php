@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Redirect;
@@ -35,12 +36,14 @@ Route::middleware('auth')->group(function () {
     })->name('user.dashboard');
 
     Route::get('/manager/dashboard', function () {
-        return view('frontend.manager');
+        return view('dashboards.manager');
     })->name('manager.dashboard');
+
+    Route::get('/application', [ApplicationController::class, 'create'])->name('application.create');
+    Route::post('/application', [ApplicationController::class, 'store'])->name('application.store');
 });
 
 require __DIR__.'/auth.php';
-
 
 Route::get('/course', function () {
     return view('frontend.course-apply');
