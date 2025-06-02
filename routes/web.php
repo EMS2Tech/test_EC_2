@@ -45,6 +45,5 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-Route::get('/course', function () {
-    return view('frontend.course-apply');
-});
+Route::get('/course', [App\Http\Controllers\CourseApplicationController::class, 'create'])->middleware(['auth'])->name('course.apply');
+Route::post('/course', [App\Http\Controllers\CourseApplicationController::class, 'store'])->middleware(['auth'])->name('course.store');

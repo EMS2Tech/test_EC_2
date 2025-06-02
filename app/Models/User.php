@@ -54,4 +54,14 @@ class User extends Authenticatable
     {
         return $this->type === 'manager';
     }
+
+    public function application()
+    {
+        return $this->hasOne(Application::class);
+    }
+
+    public function courseApplications()
+    {
+        return $this->hasMany(CourseApplication::class);
+    }
 }

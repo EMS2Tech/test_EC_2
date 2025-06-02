@@ -3,7 +3,6 @@
 @section('title', 'Application')
 
 @section('content')
-
     <div class="content-page">
         <div class="content">
             <!-- Start Content-->
@@ -12,7 +11,6 @@
                     <div class="flex-grow-1">
                         <h4 class="fs-18 fw-semibold m-0">Course Registration</h4>
                     </div>
-
                 </div>
             </div>
             <!-- container-fluid -->
@@ -23,25 +21,28 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-lg-6">
-                                    <form class="needs-validation" novalidate>
+                                    <form class="needs-validation" novalidate method="POST" action="{{ route('course.store') }}" enctype="multipart/form-data">
+                                        @csrf
                                         <div class="mb-3">
                                             <label class="form-label">Study Programme</label>
-                                            <select class="form-select" id="studyProgramme" required>
+                                            <select class="form-select" id="studyProgramme" name="study_programme" required>
                                                 <option value="">-- Select Study Programme --</option>
                                                 <option value="bachelors">Bachelor’s Degree</option>
                                                 <option value="higher_diploma">Higher Diploma</option>
                                                 <option value="diploma">Diploma</option>
                                                 <option value="postgraduate_diploma">Postgraduate Diploma</option>
                                             </select>
+                                            <x-input-error :messages="$errors->get('study_programme')" class="mt-2" />
                                             <div class="invalid-feedback">Please select a study programme.</div>
                                         </div>
                                         <!-- Course Dropdown (hidden by default) -->
                                         <div class="mb-3" id="courseWrapper" style="display: none;">
                                             <label class="form-label">Course</label>
-                                            <select class="form-select" id="course" required>
+                                            <select class="form-select" id="course" name="course" required>
                                                 <option value="">-- Select Course --</option>
                                                 <!-- Options will be populated dynamically -->
                                             </select>
+                                            <x-input-error :messages="$errors->get('course')" class="mt-2" />
                                             <div class="invalid-feedback">Please select a course.</div>
                                         </div>
                                         <hr>
@@ -49,44 +50,49 @@
                                         <div id="uploads" style="display: none;">
                                             <div class="mb-3" id="olUpload" style="display: none;">
                                                 <label class="form-label">G.C.E Ordinary Level Certificate</label>
-                                                <input type="file" class="form-control" name="ol_certificate" required>
+                                                <input type="file" class="form-control" name="ol_certificate">
                                                 <small class="form-text text-muted">Max Size 4MB - Double Side</small>
-                                                <div class="invalid-feedback">Please uplode.</div>
+                                                <x-input-error :messages="$errors->get('ol_certificate')" class="mt-2" />
+                                                <div class="invalid-feedback">Please upload.</div>
                                             </div>
                                             <div class="mb-3" id="alUpload" style="display: none;">
                                                 <label class="form-label">G.C.E Advanced Level Certificate</label>
-                                                <input type="file" class="form-control" name="al_certificate" required>
+                                                <input type="file" class="form-control" name="al_certificate">
                                                 <small class="form-text text-muted">Max Size 4MB - Double Side</small>
+                                                <x-input-error :messages="$errors->get('al_certificate')" class="mt-2" />
+                                                <div class="invalid-feedback">Please upload.</div>
                                             </div>
                                             <div class="mb-3" id="diplomaUpload" style="display: none;">
                                                 <label class="form-label">Diploma Certificate(s)</label>
-                                                <input type="file" class="form-control" id="diplomaCertificates"
-                                                    name="diploma_certificates[]" multiple>
+                                                <input type="file" class="form-control" id="diplomaCertificates" name="diploma_certificates[]" multiple>
                                                 <small class="form-text text-muted">Max Size 4MB - Double Side</small>
+                                                <x-input-error :messages="$errors->get('diploma_certificates.*')" class="mt-2" />
                                                 <ul id="diplomaFileList" class="mt-2"></ul>
                                             </div>
                                             <div class="mb-3" id="degreeUpload" style="display: none;">
                                                 <label class="form-label">University Degree Certificate</label>
-                                                <input type="file" class="form-control" name="degree_certificate" required>
+                                                <input type="file" class="form-control" name="degree_certificate">
                                                 <small class="form-text text-muted">Max Size 4MB - Double Side</small>
+                                                <x-input-error :messages="$errors->get('degree_certificate')" class="mt-2" />
+                                                <div class="invalid-feedback">Please upload.</div>
                                             </div>
                                             <div class="mb-3" id="transcriptUpload" style="display: none;">
                                                 <label class="form-label">University Transcript</label>
-                                                <input type="file" class="form-control" name="transcript_certificate"
-                                                    required>
+                                                <input type="file" class="form-control" name="transcript_certificate">
                                                 <small class="form-text text-muted">Max Size 4MB - Double Side</small>
+                                                <x-input-error :messages="$errors->get('transcript_certificate')" class="mt-2" />
+                                                <div class="invalid-feedback">Please upload.</div>
                                             </div>
                                             <div id="otherCertificatesUpload" class="mb-3">
-                                                <label for="otherCertificates" class="form-label">Other Documents (if
-                                                    any)</label>
-                                                <input type="file" class="form-control" id="otherCertificates" multiple>
-                                                <div class="invalid-feedback">You can upload additional certificates here.
-                                                </div>
+                                                <label for="otherCertificates" class="form-label">Other Certificates (if any)</label>
+                                                <input type="file" class="form-control" id="otherCertificates" name="other_certificates[]" multiple>
+                                                <x-input-error :messages="$errors->get('other_certificates.*')" class="mt-2" />
+                                                <div class="invalid-feedback">You can upload additional certificates here.</div>
                                                 <ul id="otherCertificatesFileList" class="mt-2"></ul>
                                             </div>
                                         </div>
                                         <!-- Submit Button -->
-                                        <button class="btn btn-primary" type="submit">Submit</button>
+                                        <button class="btn btn-primary" type="submit">Apply Now</button>
                                     </form>
                                 </div>
                             </div>
@@ -143,7 +149,6 @@
                             const transcriptUpload = document.getElementById("transcriptUpload");
                             const diplomaCertificates = document.getElementById("diplomaCertificates");
                             const diplomaFileList = document.getElementById("diplomaFileList");
-
 
                             // When programme changes
                             studyProgramme.addEventListener("change", function () {
@@ -245,7 +250,6 @@
                                 }, false);
                             });
 
-
                             const selectedOtherFiles = [];
                             const otherCertificates = document.getElementById("otherCertificates");
                             const otherCertificatesFileList = document.getElementById("otherCertificatesFileList");
@@ -303,5 +307,4 @@
             </div>
         </div>
     </div>
-
 @endsection
