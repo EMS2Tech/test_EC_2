@@ -10,56 +10,90 @@ use Illuminate\Support\Facades\Storage;
 
 class ApplicationController extends Controller
 {
+    public function __construct()
+    {
+        // Middleware applied in routes/web.php
+    }
+
     public function create()
     {
-        return view('application.form');
+        $user = Auth::user();
+        $application = Application::where('user_id', $user->id)->first();
+
+        if ($application && $application->application_completed) {
+            return redirect()->route('profile.edit')->with('error', 'You have already submitted an application.');
+        }
+
+        $application = $application ?? new Application(['user_id' => $user->id]);
+        return view('application.application', compact('application'));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => ['required', 'in:Mr,Ms,Mrs,Dr'],
-            'full_name' => ['required', 'string', 'max:255'],
-            'name_with_initials' => ['required', 'string', 'max:255'],
-            'birthday' => ['required', 'date'],
-            'nationality' => ['required', 'string', 'max:255'],
-            'nic_number' => ['required', 'string', 'max:255', 'unique:applications'],
-            'nic_photo' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
-            'other_nationality' => ['nullable', 'string', 'max:255'],
-            'passport_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
-            'photograph' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
-            'address' => ['required', 'string', 'max:500'],
-            'contact_number' => ['required', 'string', 'max:20'],
-            'whatsapp_number' => ['nullable', 'string', 'max:20'],
-            'email_address' => ['required', 'email', 'max:255', 'unique:applications'],
-            'application_completed' => ['boolean'],
+        $user = Auth::user();
+
+        // Check if application already completed
+        if (Application::where('user_id', $user->id)->where('application_completed', true)->exists()) {
+            return redirect()->route('profile.edit')->with('error', 'You have already submitted an application.');
+        }
+
+        $rules = [
+            'title' => 'required|in:Mr,Mrs,Miss,Rev',
+            'full_name' => 'required|string|max:255',
+            'name_with_initials' => 'required|string|max:255',
+            'birthday' => 'required|date|before:today',
+            'nationality' => 'required|in:Sri Lanka,Other',
+            'address' => 'required|string',
+            'contact_number' => 'required|string|max:10|regex:/^07[0-9]{8}$/',
+            'whatsapp_number' => 'nullable|string|max:10|regex:/^07[0-9]{8}$/',
+            'email_address' => 'required|email|max:255',
+            'photograph' => 'required|image|mimes:jpeg,png,jpg|max:4096',
+        ];
+
+        // Conditional validation based on nationality
+        if ($request->nationality === 'Sri Lanka') {
+            $rules['nic_number'] = 'required|string|max:12';
+            $rules['nic_photo'] = 'required|image|mimes:jpeg,png,jpg|max:4096';
+        } else {
+            $rules['other_nationality'] = 'required|string|max:255';
+            $rules['passport_photo'] = 'required|image|mimes:jpeg,png,jpg|max:4096';
+        }
+
+        $request->validate($rules);
+
+        $application = Application::where('user_id', $user->id)->first() ?? new Application(['user_id' => $user->id]);
+
+        // Handle file uploads
+        if ($request->hasFile('nic_photo')) {
+            $application->nic_photo = $request->file('nic_photo')->store('applications/nic', 'public');
+        }
+        if ($request->hasFile('passport_photo')) {
+            $application->passport_photo = $request->file('passport_photo')->store('applications/passport', 'public');
+        }
+        if ($request->hasFile('photograph')) {
+            $application->photograph = $request->file('photograph')->store('applications/photos', 'public');
+        }
+
+        // Fill application data
+        $application->fill([
+            'title' => $request->title,
+            'full_name' => $request->full_name,
+            'name_with_initials' => $request->name_with_initials,
+            'birthday' => $request->birthday,
+            'nationality' => $request->nationality,
+            'nic_number' => $request->nationality === 'Sri Lanka' ? $request->nic_number : null,
+            'other_nationality' => $request->nationality === 'Other' ? $request->other_nationality : null,
+            'address' => $request->address,
+            'contact_number' => $request->contact_number,
+            'whatsapp_number' => $request->whatsapp_number,
+            'email_address' => $request->email_address,
+            'application_completed' => true,
         ]);
 
-        try {
-            $applicationData = $validated;
-            $applicationData['user_id'] = Auth::id();
+        $application->save();
 
-            // Handle file uploads
-            if ($request->hasFile('nic_photo')) {
-                $applicationData['nic_photo'] = $request->file('nic_photo')->store('applications/nic', 'public');
-            }
-            if ($request->hasFile('passport_photo')) {
-                $applicationData['passport_photo'] = $request->file('passport_photo')->store('applications/passport', 'public');
-            }
-            if ($request->hasFile('photograph')) {
-                $applicationData['photograph'] = $request->file('photograph')->store('applications/photos', 'public');
-            }
+        Log::info('Application completed', ['user_id' => $user->id]);
 
-            $applicationData['application_completed'] = true;
-
-            Application::create($applicationData);
-
-            Log::info('Application submitted successfully', ['user_id' => Auth::id(), 'email' => $validated['email_address']]);
-
-            return redirect()->route('user.dashboard')->with('status', 'Application submitted successfully!');
-        } catch (\Exception $e) {
-            Log::error('Application submission failed', ['user_id' => Auth::id(), 'error' => $e->getMessage()]);
-            return back()->with('error', 'Failed to submit application. Please try again.');
-        }
+        return redirect()->route('profile.edit')->with('status', 'Application submitted successfully!');
     }
 }
