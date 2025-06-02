@@ -96,4 +96,35 @@ class ApplicationController extends Controller
 
         return redirect()->route('profile.edit')->with('status', 'Application submitted successfully!');
     }
+
+    public function updatePhotograph(Request $request)
+    {
+        $user = Auth::user();
+        $application = Application::where('user_id', $user->id)->first();
+
+        if (!$application) {
+            return response()->json(['success' => false, 'message' => 'No application found for this user.'], 404);
+        }
+
+        $request->validate([
+            'photograph' => 'required|image|mimes:jpeg,png,jpg|max:4096',
+        ]);
+
+        // Delete old photograph if exists
+        if ($application->photograph) {
+            Storage::disk('public')->delete($application->photograph);
+        }
+
+        // Store new photograph
+        $path = $request->file('photograph')->store('applications/photos', 'public');
+        $application->photograph = $path;
+        $application->save();
+
+        Log::info('Profile photograph updated', ['user_id' => $user->id, 'path' => $path]);
+
+        return response()->json([
+            'success' => true,
+            'newPhotographUrl' => asset('storage/' . $path)
+        ]);
+    }
 }

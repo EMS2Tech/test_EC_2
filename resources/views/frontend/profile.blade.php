@@ -23,10 +23,12 @@
                                         <div class="hando-profile-main">
                                             <img src="{{ Auth::user()->application && Auth::user()->application->photograph ? asset('storage/' . Auth::user()->application->photograph) : asset('frontend/assets/images/users/default.jpg') }}"
                                                 class="rounded-circle img-fluid avatar-xxl img-thumbnail float-start"
-                                                alt="image profile">
-                                            <span class="sil-profile_main-pic-change img-thumbnail">
+                                                alt="image profile"
+                                                id="profile-image">
+                                            <span class="sil-profile_main-pic-change img-thumbnail" onclick="document.getElementById('photograph-input').click();">
                                                 <i class="mdi mdi-camera text-white"></i>
                                             </span>
+                                            <input type="file" id="photograph-input" name="photograph" accept="image/*" style="display: none;" onchange="updateProfilePicture(this)">
                                         </div>
                                         <div class="overflow-hidden ms-md-4 ms-0">
                                             <h4 class="m-0 text-dark fs-20 mt-2 mt-md-0">{{ Auth::user()->name }}</h4>
@@ -421,4 +423,53 @@
             </div>
         </div>
     </div>
+                @section('scripts')
+                <!-- Include SweetAlert2 CDN -->
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                <script>
+                    function updateProfilePicture(input) {
+                        if (input.files && input.files[0]) {
+                            let formData = new FormData();
+                            formData.append('photograph', input.files[0]);
+                            formData.append('_token', '{{ csrf_token() }}');
+
+                            fetch('{{ route("profile.photograph") }}', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    document.getElementById('profile-image').src = data.newPhotographUrl;
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Success!',
+                                        text: 'Profile picture updated successfully!',
+                                        confirmButtonColor: '#3085d6',
+                                        confirmButtonText: 'OK'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error!',
+                                        text: data.message || 'Failed to update profile picture.',
+                                        confirmButtonColor: '#d33',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'An error occurred while updating the profile picture.',
+                                    confirmButtonColor: '#d33',
+                                    confirmButtonText: 'OK'
+                                });
+                            });
+                        }
+                    }
+                </script>
+            @endsection
 @endsection
