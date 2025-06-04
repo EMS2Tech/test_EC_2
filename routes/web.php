@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Redirect;
@@ -29,9 +30,7 @@ Route::middleware('auth')->group(function () {
         return view('auth.lock-screen');
     })->name('lock-screen');
 
-    Route::get('/admin/dashboard', function () {
-        return view('frontend.admin');
-    })->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
     Route::get('/user/dashboard', function () {
         return view('frontend.application');
@@ -43,6 +42,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/application', [ApplicationController::class, 'create'])->name('application.create');
     Route::post('/application', [ApplicationController::class, 'store'])->name('application.store');
+    Route::get('/admin/applications', [AdminController::class, 'index'])->name('admin.applications');
 });
 
 require __DIR__.'/auth.php';

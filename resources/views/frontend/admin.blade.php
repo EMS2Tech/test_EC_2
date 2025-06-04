@@ -220,160 +220,109 @@
                 <!-- End Main Widgets -->
 
                 <!-- Start Product Orders -->
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card overflow-hidden">
-                            <div class="card-header">
-                                <div class="d-flex align-items-center">
-                                    <h5 class="card-title mb-0">Applications</h5>
-                                </div>
-                            </div>
-
-                            <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-traffic mb-0">
-
-                                        <thead>
-                                            <tr>
-                                                <th>Application No</th>
-                                                <th>Applicant Name</th>
-                                                <th>Study Programme </th>
-                                                <th>Course</th>
-                                                <th>Application Status</th>
-                                                <th>Payment Status</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-
-                                        <tr>
-                                            <td>
-                                                <a href="javascript:void(0);" class="text-dark">00010</a>
-                                            </td>
-                                            <td class="d-flex align-items-center">
-                                                <img src={{ asset('frontend/assets/images/users/user-12.jpg') }}
-                                                    class="avatar avatar-sm rounded-circle me-3" />
-                                                <div>
-                                                    <p class="mb-0 fw-medium fs-14">Richard Dom</p>
-                                                    <p class="text-muted fs-13 mb-0">richard@api.com</p>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <p class="mb-0 text-muted">Diploma</p>
-                                            </td>
-                                            <td>
-                                                <p class="mb-0 text-muted">Diploma in ICT</p>
-                                            </td>
-                                            <td>
-                                                <span
-                                                    class="badge bg-primary-subtle text-primary fw-semibold">Complete</span>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-danger-subtle text-danger fw-semibold">Pending</span>
-                                            </td>
-
-                                            <td>
-                                                <a aria-label="anchor" class="btn btn-icon btn-sm bg-info-subtle me-1"
-                                                    data-bs-toggle="tooltip" data-bs-original-title="View">
-                                                    <i class="mdi mdi-eye-outline fs-14 text-info"></i>
-                                                </a>
-
-                                                <a aria-label="Approve" class="btn btn-icon btn-sm bg-success-subtle me-1"
-                                                    data-bs-toggle="tooltip" data-bs-original-title="Approve">
-                                                    <i class="mdi mdi-check-circle-outline fs-14 text-success"></i>
-                                                </a>
-                                                <a aria-label="Not Approve"
-                                                    class="btn btn-icon btn-sm bg-danger-subtle me-1"
-                                                    data-bs-toggle="tooltip" data-bs-original-title="Not Approve">
-                                                    <i class="mdi mdi-close-circle-outline fs-14 text-danger"></i>
-                                                </a>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <a href="javascript:void(0);" class="text-dark">00010</a>
-                                            </td>
-                                            <td class="d-flex align-items-center">
-                                                <img src={{ asset('frontend/assets/images/users/user-12.jpg') }}
-                                                    class="avatar avatar-sm rounded-circle me-3" />
-                                                <div>
-                                                    <p class="mb-0 fw-medium fs-14">Richard Dom</p>
-                                                    <p class="text-muted fs-13 mb-0">richard@api.com</p>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <p class="mb-0 text-muted">Diploma</p>
-                                            </td>
-                                            <td>
-                                                <p class="mb-0 text-muted">Diploma In Teaching Chinese as a Foreign Language
-                                                </p>
-                                            </td>
-                                            <td>
-                                                <span
-                                                    class="badge bg-primary-subtle text-primary fw-semibold">Complete</span>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-danger-subtle text-danger fw-semibold">Pending</span>
-                                            </td>
-
-                                            <td>
-                                                <a aria-label="anchor" class="btn btn-icon btn-sm bg-info-subtle me-1"
-                                                    data-bs-toggle="tooltip" data-bs-original-title="View">
-                                                    <i class="mdi mdi-eye-outline fs-14 text-info"></i>
-                                                </a>
-
-                                                <a aria-label="Approve" class="btn btn-icon btn-sm bg-success-subtle me-1"
-                                                    data-bs-toggle="tooltip" data-bs-original-title="Approve">
-                                                    <i class="mdi mdi-check-circle-outline fs-14 text-success"></i>
-                                                </a>
-                                                <a aria-label="Not Approve"
-                                                    class="btn btn-icon btn-sm bg-danger-subtle me-1"
-                                                    data-bs-toggle="tooltip" data-bs-original-title="Not Approve">
-                                                    <i class="mdi mdi-close-circle-outline fs-14 text-danger"></i>
-                                                </a>
-
-                                            </td>
-                                        </tr>
-
-                                    </table>
-                                </div>
-                            </div>
-
-                            <div class="card-footer py-0 border-top">
-                                <div class="row align-items-center">
-                                    <div class="col-sm">
-                                        <div class="text-block text-center text-sm-start">
-                                            <span class="fw-medium">1 of 3</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-auto mt-3 mt-sm-0">
-                                        <div class="pagination gap-2 justify-content-center py-3 ps-0 pe-3">
-                                            <ul class="pagination mb-0">
-                                                <li class="page-item disabled">
-                                                    <a class="page-link me-2 rounded-2" href="javascript:void(0);"> Prev
-                                                    </a>
-                                                </li>
-                                                <li class="page-item active">
-                                                    <a class="page-link rounded-2 me-2" href="#" data-i="1"
-                                                        data-page="5">1</a>
-                                                </li>
-                                                <li class="page-item">
-                                                    <a class="page-link me-2 rounded-2" href="#" data-i="2"
-                                                        data-page="5">2</a>
-                                                </li>
-                                                <li class="page-item">
-                                                    <a class="page-link text-primary rounded-2" href="javascript:void(0);">
-                                                        next </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- End Recent Order -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card overflow-hidden">
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <h5 class="card-title mb-0">Applications</h5>
                 </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-traffic mb-0">
+                        <thead>
+                            <tr>
+                                <th>Application No</th>
+                                <th>Applicant Name</th>
+                                <th>Study Programme</th>
+                                <th>Course</th>
+                                <th>Application Status</th>
+                                <th>Payment Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($applications as $application)
+                                <tr>
+                                    <td>
+                                        <a href="javascript:void(0);" class="text-dark">{{ sprintf('%.5d', $application->application_id ?? $application->user_id) }}</a>
+                                    </td>
+                                    <td class="d-flex align-items-center">
+                                        <img src="{{ ($app = \App\Models\Application::where('user_id', $application->user_id)->first()) && $app->photograph ? asset('storage/' . $app->photograph) : asset('frontend/assets/images/users/default.jpg') }}"
+                                             class="avatar avatar-sm rounded-circle me-3"
+                                             alt="user-image" />
+                                        <div>
+                                            <p class="mb-0 fw-medium fs-14">{{ $application->full_name }}</p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p class="mb-0 text-muted">{{ $application->study_programme ?? 'N/A' }}</p>
+                                    </td>
+                                    <td>
+                                        <p class="mb-0 text-muted">{{ $application->course ?? 'N/A' }}</p>
+                                    </td>
+                                    <td>
+                                        @if (is_null($application->application_completed))
+                                            <span class="badge bg-secondary-subtle text-secondary fw-semibold">Not Complete</span>
+                                        @else
+                                            <span class="badge {{ $application->application_completed ? 'bg-primary-subtle text-primary' : 'bg-warning-subtle text-warning' }} fw-semibold">
+                                                {{ $application->application_completed ? 'Complete' : 'Pending' }}
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-danger-subtle text-danger fw-semibold">Pending</span>
+                                    </td>
+                                    <td>
+                                        <a aria-label="anchor" class="btn btn-icon btn-sm bg-info-subtle me-1" data-bs-toggle="tooltip" data-bs-original-title="View">
+                                            <i class="mdi mdi-eye-outline fs-12 text-info"></i>
+                                        </a>
+                                        <a aria-label="Approve" class="btn btn-icon btn-sm bg-success-subtle me-1" data-bs-toggle="tooltip" data-bs-original-title="Approve">
+                                            <i class="mdi mdi-check-circle-outline fs-12 text-success"></i>
+                                        </a>
+                                        <a aria-label="Not Approve" class="btn btn-icon btn-sm bg-danger-subtle me-1" data-bs-toggle="tooltip" data-bs-original-title="Not Approve">
+                                            <i class="mdi mdi-close-circle-outline fs-12 text-danger"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+           <div class="card-footer py-0 border-top">
+    <div class="row align-items-center">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="text-block text-muted">
+                    <span class="fw-medium">{{ $applications->firstItem() }} - {{ $applications->lastItem() }} of {{ $applications->total() }}</span>
+                </div>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li class="page-item {{ $currentPage == 1 ? 'disabled' : '' }}">
+                            <a class="page-link" href="{{ $applications->url($currentPage - 1) }}" tabindex="-1" aria-disabled="{{ $currentPage == 1 ? 'true' : 'false' }}">Previous</a>
+                        </li>
+                        @for ($i = max(1, $currentPage - 1); $i <= min($lastPage, $currentPage + 1); $i++)
+                            <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
+                                <a class="page-link" href="{{ $applications->url($i) }}">{{ $i }}</a>
+                            </li>
+                        @endfor
+                        <li class="page-item {{ $currentPage == $lastPage ? 'disabled' : '' }}">
+                            <a class="page-link" href="{{ $applications->url($currentPage + 1) }}" aria-disabled="{{ $currentPage == $lastPage ? 'true' : 'false' }}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+    </div>
+    <!-- End Recent Order -->
+</div>
             </div>
             <!-- container-fluid -->
         </div>
