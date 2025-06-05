@@ -80,7 +80,7 @@
 
                                             @if ($application)
                                                 <div class="row g-4">
-                                                    <!-- Personall Information -->
+                                                    <!-- Personal Information -->
                                                     <div class="col-12 col-md-6">
                                                         <div class="card border-0 shadow-sm">
                                                             <div class="card-header bg-primary text-white">
