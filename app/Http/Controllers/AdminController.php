@@ -29,4 +29,33 @@ class AdminController extends Controller
 
         return view('frontend.admin', compact('applications', 'currentPage', 'lastPage'));
     }
+    
+    public function applications(Request $request)
+    {
+        $query = Application::select(
+            'user_id',
+            'full_name',
+            'nationality',
+            'other_nationality',
+            'nic_number',
+            'contact_number',
+            'email_address'
+        );
+
+        // Search logic
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nic_number', 'like', "%{$search}%")
+                  ->orWhere('user_id', 'like', "%{$search}%")
+                  ->orWhere('email_address', 'like', "%{$search}%");
+            });
+        }
+
+        $applications = $query->paginate(5);
+
+        $currentPage = $applications->currentPage();
+        $lastPage = $applications->lastPage();
+
+        return view('frontend.admin-application', compact('applications', 'currentPage', 'lastPage'));
+    }
 }

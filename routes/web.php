@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
     })->name('lock-screen');
 
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/applications', [AdminController::class, 'applications'])->name('admin.applications');
 
     Route::get('/user/dashboard', function () {
         return view('frontend.application');
@@ -42,10 +43,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/application', [ApplicationController::class, 'create'])->name('application.create');
     Route::post('/application', [ApplicationController::class, 'store'])->name('application.store');
-    Route::get('/admin/applications', [AdminController::class, 'index'])->name('admin.applications');
 });
 
 require __DIR__.'/auth.php';
 
-Route::get('/course', [App\Http\Controllers\CourseApplicationController::class, 'create'])->middleware(['auth'])->name('course.apply');
-Route::post('/course', [App\Http\Controllers\CourseApplicationController::class, 'store'])->middleware(['auth'])->name('course.store');
+Route::get('/course', [App\Http\Controllers\CourseApplicationController::class, 'create'])->name('course.apply');
+Route::post('/course', [App\Http\Controllers\CourseApplicationController::class, 'store'])->name('course.store');

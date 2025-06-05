@@ -54,7 +54,7 @@
                 </li>
 
                 <li>
-                    <a href="#sidebarApplication" data-bs-toggle="collapse">
+                    <a href="/admin/applications">
                         <i data-feather="file-text"></i>
                         <span> Application </span>
                     </a>
