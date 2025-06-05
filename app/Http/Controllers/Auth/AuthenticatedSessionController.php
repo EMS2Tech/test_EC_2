@@ -24,8 +24,17 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-        Log::info('User logged in', ['user_id' => $user->id, 'type' => $user->type ?? 'null']);
 
+        // Validate user type
+        if (is_null($user->type)) {
+            Log::warning('User type is null during login', ['user_id' => $user->id]);
+            // Optionally set a default type or handle the error
+            return redirect()->route('login')->with('error', 'User type is not set. Please contact support.');
+        }
+
+        Log::info('User logged in', ['user_id' => $user->id, 'type' => $user->type]);
+
+        // Redirect based on user type
         $redirect = match ($user->type) {
             'admin' => route('admin.dashboard'),
             'user' => route('user.dashboard'),
