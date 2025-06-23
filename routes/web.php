@@ -52,6 +52,12 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/payment', [PaymentController::class, 'verify'])->name('payment.verify');
     Route::post('/payment', [PaymentController::class, 'store'])->name('payment.store');
+
+    // Admin payment status update
+    Route::post('/admin/payment/{userId}/status', [AdminController::class, 'updatePaymentStatus'])->name('admin.payment.status')->middleware(RestrictType::class . ':admin');
+
+    // View application details (placeholder)
+    Route::get('/admin/application/{id}/view', [AdminController::class, 'viewApplication'])->name('admin.application.view')->middleware(RestrictType::class . ':admin');
 });
 
 require __DIR__.'/auth.php';
