@@ -3,6 +3,7 @@
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Middleware\RestrictType;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Redirect;
@@ -48,6 +49,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/application', [ApplicationController::class, 'create'])->name('application.create');
     Route::post('/application', [ApplicationController::class, 'store'])->name('application.store');
+
+    Route::get('/payment', [PaymentController::class, 'verify'])->name('payment.verify');
+    Route::post('/payment', [PaymentController::class, 'store'])->name('payment.store');
 });
 
 require __DIR__.'/auth.php';
