@@ -3,6 +3,7 @@
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Middleware\RestrictType;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Redirect;
@@ -48,6 +49,15 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/application', [ApplicationController::class, 'create'])->name('application.create');
     Route::post('/application', [ApplicationController::class, 'store'])->name('application.store');
+
+    Route::get('/payment', [PaymentController::class, 'verify'])->name('payment.verify');
+    Route::post('/payment', [PaymentController::class, 'store'])->name('payment.store');
+
+    // Admin payment status update
+    Route::post('/admin/payment/{userId}/status', [AdminController::class, 'updatePaymentStatus'])->name('admin.payment.status')->middleware(RestrictType::class . ':admin');
+
+    // View application details (placeholder)
+    Route::get('/admin/application/{id}/view', [AdminController::class, 'viewApplication'])->name('admin.application.view')->middleware(RestrictType::class . ':admin');
 });
 
 require __DIR__.'/auth.php';

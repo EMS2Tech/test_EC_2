@@ -17,9 +17,9 @@ class RestrictType
 
         $user = Auth::user();
 
-        if ($user->type !== $type) {
-            abort(403, 'You do not have permission to access this page.');
-        }
+        //if ($user->type !== $type) {
+          //  abort(403, 'You do not have permission to access this page.');
+        //}
 
         return $next($request);
     }
