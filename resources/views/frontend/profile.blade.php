@@ -63,6 +63,13 @@
                                         </a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="nav-link p-2" id="portfolio_payment_tab" data-bs-toggle="tab"
+                                            href="#profile_payment" role="tab">
+                                            <span class="d-block d-sm-none"><i class="mdi mdi-school"></i></span>
+                                            <span class="d-none d-sm-block">Payment</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="nav-link p-2" id="setting_tab" data-bs-toggle="tab"
                                             href="#profile_setting" role="tab">
                                             <span class="d-block d-sm-none"><i class="mdi mdi-information"></i></span>
@@ -247,6 +254,62 @@
                                                     <h5 class="alert-heading">No Course Applications Found</h5>
                                                     <p>Please apply for a course to view your application details.</p>
                                                     <a href="{{ route('course.apply') }}" class="btn btn-primary">Apply for a Course</a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <div class="tab-pane pt-4" id="profile_payment" role="tabpanel">
+                                        <div class="container-fluid">
+                                            @php
+                                                $payments = \App\Models\Payment::where('user_id', auth()->id())->get();
+                                            @endphp
+
+                                            @if ($payments && $payments->isNotEmpty())
+                                                <div class="row g-4">
+                                                    <div class="col-12">
+                                                        <div class="card border-0 shadow-sm">
+                                                            <div class="card-header bg-primary text-white">
+                                                                <h5 class="card-title mb-0">Payment History</h5>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <div class="table-responsive">
+                                                                    <table class="table table-hover table-bordered">
+                                                                        <thead class="table-light">
+                                                                            <tr>
+                                                                                <th scope="col">Slip</th>
+                                                                                <th scope="col">Uploaded At</th>
+                                                                                <th scope="col">Status</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            @foreach ($payments as $payment)
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        @if ($payment->payment_slip)
+                                                                                            <a href="{{ Storage::url($payment->payment_slip) }}" target="_blank" class="btn btn-sm btn-info">
+                                                                                                View Slip
+                                                                                            </a>
+                                                                                        @else
+                                                                                            <span class="text-muted">Not uploaded</span>
+                                                                                        @endif
+                                                                                    </td>
+                                                                                    <td>{{ $payment->created_at ?? 'N/A' }}</td>
+                                                                                    <td>{{ $payment->status ?? 'Pending' }}</td>
+                                                                                </tr>
+                                                                            @endforeach
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <div class="alert alert-info text-center" role="alert">
+                                                    <h5 class="alert-heading">No Payment Found</h5>
+                                                    <p>Please make a payment to view your payment history.</p>
+                                                    <a href="{{ route('payment.verify') }}" class="btn btn-primary">Make Payment</a>
                                                 </div>
                                             @endif
                                         </div>

@@ -34,21 +34,11 @@
                         </li>
 
                         <li>
-                            <a href="#sidebarDashboards" data-bs-toggle="collapse">
+                            <a href="/payment">
                                 <i data-feather="dollar-sign"></i>
                                 <span> Payments </span>
-                                <span class="menu-arrow"></span>
                             </a>
-                            <div class="collapse" id="sidebarDashboards">
-                                <ul class="nav-second-level">
-                                    <li>
-                                        <a class='tp-link' href='index.html'>Registration Payment</a>
-                                    </li>
-                                    <li>
-                                        <a class='tp-link' href='analytics.html'>Course Payments</a>
-                                    </li>
-                                </ul>
-                            </div>
+                            <div class="collapse"> </div>
                         </li>
 
                         <li>
