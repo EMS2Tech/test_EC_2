@@ -61,40 +61,6 @@
                                         <hr>
                                     </div>
 
-                                    <!-- Payment History -->
-                                    @if (isset($payments) && $payments->isNotEmpty())
-                                        <h5 class="fw-semibold mb-3">Payment History</h5>
-                                        <div class="table-responsive">
-                                            <table class="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Status</th>
-                                                        <th>Slip</th>
-                                                        <th>Uploaded At</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach ($payments as $payment)
-                                                        <tr>
-                                                            <td>{{ $payment->status }}</td>
-                                                            <td>
-                                                                @if ($payment->payment_slip)
-                                                                    <a href="{{ Storage::url($payment->payment_slip) }}" target="_blank" class="btn btn-sm btn-info">
-                                                                        View Slip
-                                                                    </a>
-                                                                @else
-                                                                    Not uploaded
-                                                                @endif
-                                                            </td>
-                                                            <td>{{ $payment->created_at }}</td>
-                                                        </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <hr>
-                                    @endif
-
                                     <form class="needs-validation" novalidate method="POST" action="{{ route('payment.store') }}" enctype="multipart/form-data">
                                         @csrf
                                         <!-- Upload Payment Slip -->
