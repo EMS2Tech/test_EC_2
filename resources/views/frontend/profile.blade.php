@@ -10,13 +10,11 @@
                     <div class="flex-grow-1">
                         <h4 class="fs-18 fw-semibold m-0">Profile</h4>
                     </div>
-
                 </div>
 
                 <div class="row">
                     <div class="col-12">
                         <div class="card shadow sm:rounded-lg">
-
                             <div class="card-body">
                                 <div class="align-items-center">
                                     <div class="hando-main-sections">
@@ -83,6 +81,7 @@
                                         <div class="container-fluid">
                                             @php
                                                 $application = App\Models\Application::where('user_id', Auth::id())->first();
+                                                $student = App\Models\Student::where('user_id', Auth::id())->first(); // Fetch student record
                                             @endphp
 
                                             @if ($application)
@@ -97,6 +96,10 @@
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">Full Name</label>
                                                                     <p class="text-muted mb-1">{{ $application->full_name }}</p>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="fw-semibold">Student ID</label>
+                                                                    <p class="text-muted mb-1">{{ $student ? $student->student_id : 'Not Available' }}</p>
                                                                 </div>
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">Name with Initials</label>
@@ -482,7 +485,6 @@
                                                         </form>
                                                     </div>
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
@@ -494,53 +496,53 @@
             </div>
         </div>
     </div>
-                @section('scripts')
-                <!-- Include SweetAlert2 CDN -->
-                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-                <script>
-                    function updateProfilePicture(input) {
-                        if (input.files && input.files[0]) {
-                            let formData = new FormData();
-                            formData.append('photograph', input.files[0]);
-                            formData.append('_token', '{{ csrf_token() }}');
+    @section('scripts')
+    <!-- Include SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function updateProfilePicture(input) {
+            if (input.files && input.files[0]) {
+                let formData = new FormData();
+                formData.append('photograph', input.files[0]);
+                formData.append('_token', '{{ csrf_token() }}');
 
-                            fetch('{{ route("profile.photograph") }}', {
-                                method: 'POST',
-                                body: formData
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    document.getElementById('profile-image').src = data.newPhotographUrl;
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Success!',
-                                        text: 'Profile picture updated successfully!',
-                                        confirmButtonColor: '#3085d6',
-                                        confirmButtonText: 'OK'
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error!',
-                                        text: data.message || 'Failed to update profile picture.',
-                                        confirmButtonColor: '#d33',
-                                        confirmButtonText: 'OK'
-                                    });
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Oops...',
-                                    text: 'An error occurred while updating the profile picture.',
-                                    confirmButtonColor: '#d33',
-                                    confirmButtonText: 'OK'
-                                });
-                            });
-                        }
+                fetch('{{ route("profile.photograph") }}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('profile-image').src = data.newPhotographUrl;
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Profile picture updated successfully!',
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: data.message || 'Failed to update profile picture.',
+                            confirmButtonColor: '#d33',
+                            confirmButtonText: 'OK'
+                        });
                     }
-                </script>
-            @endsection
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'An error occurred while updating the profile picture.',
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            }
+        }
+    </script>
+    @endsection
 @endsection

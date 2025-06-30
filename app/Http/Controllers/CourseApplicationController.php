@@ -111,14 +111,15 @@ class CourseApplicationController extends Controller
         $application = Application::where('user_id', $user->id)->first();
         $course = Course::find($request->course);
         $batch = $course->batches()->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
-        $fullName = $application->full_name ?? 'Unknown'; // Fetch full_name from applications table
+        $fullName = $application->full_name ?? 'Unknown';
         $shortName = $course->short_name;
-        $batchNo = $batch ? $batch->batch_no : '01'; // Default to '01' if no active batch
+        $batchNo = $batch ? $batch->batch_no : '01';
         $currentYear = date('Y');
         $applicationNo = $application->id;
 
         $studentId = "EC/{$shortName}/{$batchNo}/{$currentYear}/{$applicationNo}";
         Student::create([
+            'user_id' => $user->id, // Add user_id here
             'student_id' => $studentId,
             'full_name' => $fullName,
         ]);
