@@ -14,11 +14,11 @@ class AdminController extends Controller
     {
         $applications = User::select(
             'users.id as user_id',
-            \DB::raw('COALESCE(applications.full_name, CONCAT(users.name)) as full_name'),
-            'applications.id as application_id',
-            'applications.application_completed',
-            'study_programs.program_name as study_programme_name',
-            'courses.course_name as course_name',
+            \DB::raw('COALESCE(MAX(applications.full_name), users.name) as full_name'),
+            \DB::raw('MAX(applications.id) as application_id'),
+            \DB::raw('MAX(applications.application_completed) as application_completed'),
+            \DB::raw('MAX(study_programs.program_name) as study_programme_name'),
+            \DB::raw('MAX(courses.course_name) as course_name'),
             \DB::raw('(
                 SELECT CASE
                     WHEN MAX(payments.payment_slip) IS NULL THEN "Not Complete"
@@ -28,15 +28,16 @@ class AdminController extends Controller
                 END
                 FROM payments
                 WHERE payments.user_id = users.id
-            ) as payment_status'
-            )
+            ) as payment_status'),
+            \DB::raw('COALESCE(MAX(students.student_id), "N/A") as student_id')
         )
         ->where('users.type', 'student')
         ->leftJoin('applications', 'users.id', '=', 'applications.user_id')
         ->leftJoin('course_applications', 'users.id', '=', 'course_applications.user_id')
         ->leftJoin('study_programs', 'course_applications.study_programme_id', '=', 'study_programs.id')
         ->leftJoin('courses', 'course_applications.course_id', '=', 'courses.id')
-        ->groupBy('users.id', 'users.name', 'applications.full_name', 'applications.id', 'applications.application_completed', 'study_programs.program_name', 'courses.course_name')
+        ->leftJoin('students', 'users.id', '=', 'students.user_id')
+        ->groupBy('users.id', 'users.name')
         ->paginate(5); // 5 items per page
 
         $currentPage = $applications->currentPage();
@@ -96,8 +97,8 @@ class AdminController extends Controller
     {
         $application = Application::where('id', $id)->orWhere('user_id', $id)->firstOrFail();
         $payments = Payment::where('user_id', $application->user_id)->get();
-        $courseApplication = CourseApplication::where('user_id', $application->user_id)->first();
+        $courseApplications = CourseApplication::where('user_id', $application->user_id)->get();
 
-        return view('frontend.application-view', compact('application', 'payments', 'courseApplication'));
+        return view('frontend.application-view', compact('application', 'payments', 'courseApplications'));
     }
 }

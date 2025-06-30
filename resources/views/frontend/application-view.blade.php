@@ -42,28 +42,34 @@
                             </tr>
                         </table>
 
-                        @if ($courseApplication)
-                            <h5 class="fw-semibold mt-4 mb-3">Course Application</h5>
+                        @if ($courseApplications->isNotEmpty())
+                            <h5 class="fw-semibold mt-4 mb-3">Course Applications</h5>
                             <table class="table table-bordered">
-                                <tr>
-                                    <th>Study Programme</th>
-                                    <td>{{ $courseApplication->studyProgram->program_name ?? 'N/A' }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Course</th>
-                                    <td>{{ $courseApplication->course->course_name ?? 'N/A' }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Batch No</th>
-                                    <td>
-                                        @if ($courseApplication->course->batches->isNotEmpty())
-                                            {{ $courseApplication->course->batches->pluck('batch_no')->join(', ') }}
-                                        @else
-                                            No active batches
-                                        @endif
-                                    </td>
-                                </tr>
+                                <thead>
+                                    <tr>
+                                        <th>Study Programme</th>
+                                        <th>Course</th>
+                                        <th>Batch No</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($courseApplications as $courseApplication)
+                                        <tr>
+                                            <td>{{ $courseApplication->studyProgram->program_name ?? 'N/A' }}</td>
+                                            <td>{{ $courseApplication->course->course_name ?? 'N/A' }}</td>
+                                            <td>
+                                                @if ($courseApplication->course->batches->isNotEmpty())
+                                                    {{ $courseApplication->course->batches->pluck('batch_no')->join(', ') }}
+                                                @else
+                                                    No active batches
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
                             </table>
+                        @else
+                            <p class="text-muted">No course applications found.</p>
                         @endif
 
                         @if ($payments->isNotEmpty())

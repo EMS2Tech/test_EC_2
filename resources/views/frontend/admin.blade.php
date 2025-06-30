@@ -179,9 +179,7 @@
                                             <tr>
                                                 <th>Application No</th>
                                                 <th>Applicant Name</th>
-                                                <th>Study Programme</th>
-                                                <th>Course</th>
-                                                <th>Batch(s)</th>
+                                                <th>Student ID</th>
                                                 <th>Application Status</th>
                                                 <th>Payment Status</th>
                                                 <th>Action</th>
@@ -202,17 +200,7 @@
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <p class="mb-0 text-muted">{{ $application->study_programme_name ?? 'N/A' }}</p>
-                                                    </td>
-                                                    <td>
-                                                        <p class="mb-0 text-muted">{{ $application->course_name ?? 'N/A' }}</p>
-                                                    </td>
-                                                    <td>
-                                                        @php
-                                                            $courseApplication = \App\Models\CourseApplication::where('user_id', $application->user_id)->first();
-                                                            $batches = $courseApplication ? $courseApplication->course->batches->pluck('batch_no')->join(', ') : 'N/A';
-                                                        @endphp
-                                                        <p class="mb-0 text-muted">{{ $batches }}</p>
+                                                        <p class="mb-0 text-muted">{{ $application->student_id }}</p>
                                                     </td>
                                                     <td>
                                                         @if (is_null($application->application_completed))
