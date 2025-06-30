@@ -6,6 +6,9 @@ use App\Models\CourseApplication;
 use App\Models\StudyProgram;
 use App\Models\Course;
 use App\Models\Batch;
+use App\Models\Student;
+use App\Models\User;
+use App\Models\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -38,7 +41,6 @@ class CourseApplicationController extends Controller
                   ->where('end_date', '>=', $today);
         }])->get();
 
-        // Debug: Log the fetched courses and batches
         Log::info('Fetched courses for studyProgramId: ' . $studyProgramId, ['courses' => $courses->toArray()]);
 
         $courseOptions = $courses->mapWithKeys(function ($course) {
@@ -47,10 +49,9 @@ class CourseApplicationController extends Controller
                     return $batch->batch_no;
                 })->join(', ')
                 : 'No active batches';
-            return [$course->id => "{$course->course_name} - Batch: {$batchInfo}"];
+            return [$course->id => "{$course->course_name} (Batch(s): {$batchInfo})"];
         })->all();
 
-        // Debug: Log the final course options
         Log::info('Course options for studyProgramId: ' . $studyProgramId, ['options' => $courseOptions]);
 
         return response()->json($courseOptions);
@@ -106,7 +107,23 @@ class CourseApplicationController extends Controller
 
         $courseApplication->save();
 
-        Log::info('Course application submitted', ['user_id' => $user->id, 'course_application_id' => $courseApplication->id]);
+        // Generate student_id
+        $application = Application::where('user_id', $user->id)->first();
+        $course = Course::find($request->course);
+        $batch = $course->batches()->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
+        $fullName = $application->full_name ?? 'Unknown'; // Fetch full_name from applications table
+        $shortName = $course->short_name;
+        $batchNo = $batch ? $batch->batch_no : '01'; // Default to '01' if no active batch
+        $currentYear = date('Y');
+        $applicationNo = $application->id;
+
+        $studentId = "EC/{$shortName}/{$batchNo}/{$currentYear}/{$applicationNo}";
+        Student::create([
+            'student_id' => $studentId,
+            'full_name' => $fullName,
+        ]);
+
+        Log::info('Course application submitted', ['user_id' => $user->id, 'course_application_id' => $courseApplication->id, 'student_id' => $studentId]);
 
         return redirect()->route('profile.edit')->with('status', 'Course application submitted successfully!');
     }
