@@ -212,52 +212,60 @@
                                     </div>
 
                                     <div class="tab-pane pt-4" id="profile_education" role="tabpanel">
-                                        <div class="container-fluid">
-                                            @php
-                                                $courseApplications = App\Models\CourseApplication::where('user_id', Auth::id())->get();
-                                            @endphp
+    <div class="container-fluid">
+        @php
+            $courseApplications = App\Models\CourseApplication::with(['studyProgram', 'course.batches'])->where('user_id', Auth::id())->get();
+        @endphp
 
-                                            @if ($courseApplications->isNotEmpty())
-                                                <div class="row g-4">
-                                                    <div class="col-12">
-                                                        <div class="card border-0 shadow-sm">
-                                                            <div class="card-header bg-primary text-white">
-                                                                <h5 class="card-title mb-0">Course Applications</h5>
-                                                            </div>
-                                                            <div class="card-body">
-                                                                <div class="table-responsive">
-                                                                    <table class="table table-hover table-bordered">
-                                                                        <thead class="table-light">
-                                                                            <tr>
-                                                                                <th scope="col">Study Programme</th>
-                                                                                <th scope="col">Course</th>
-                                                                                <th scope="col">Apply Date</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            @foreach ($courseApplications as $application)
-                                                                                <tr>
-                                                                                    <td>{{ $application->study_programme ?? 'N/A' }}</td>
-                                                                                    <td>{{ $application->course ?? 'N/A' }}</td>
-                                                                                    <td>{{ $application->created_at->format('F j, Y h:i A') }}</td>
-                                                                                </tr>
-                                                                            @endforeach
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @else
-                                                <div class="alert alert-info text-center" role="alert">
-                                                    <h5 class="alert-heading">No Course Applications Found</h5>
-                                                    <p>Please apply for a course to view your application details.</p>
-                                                    <a href="{{ route('course.apply') }}" class="btn btn-primary">Apply for a Course</a>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
+        @if ($courseApplications->isNotEmpty())
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">Course Applications</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th scope="col">Study Programme</th>
+                                            <th scope="col">Course</th>
+                                            <th scope="col">Batch(s)</th>
+                                            <th scope="col">Apply Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($courseApplications as $application)
+                                            <tr>
+                                                <td>{{ $application->studyProgram->program_name ?? 'N/A' }}</td>
+                                                <td>{{ $application->course->course_name ?? 'N/A' }}</td>
+                                                <td>
+                                                    @if ($application->course->batches->isNotEmpty())
+                                                        {{ $application->course->batches->pluck('batch_no')->join(', ') }}
+                                                    @else
+                                                        No active batches
+                                                    @endif
+                                                </td>
+                                                <td>{{ $application->created_at->format('F j, Y h:i A') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @else
+            <div class="alert alert-info text-center" role="alert">
+                <h5 class="alert-heading">No Course Applications Found</h5>
+                <p>Please apply for a course to view your application details.</p>
+                <a href="{{ route('course.apply') }}" class="btn btn-primary">Apply for a Course</a>
+            </div>
+        @endif
+    </div>
+</div>
 
                                     <div class="tab-pane pt-4" id="profile_payment" role="tabpanel">
                                         <div class="container-fluid">

@@ -47,11 +47,21 @@
                             <table class="table table-bordered">
                                 <tr>
                                     <th>Study Programme</th>
-                                    <td>{{ $courseApplication->study_programme ?? 'N/A' }}</td>
+                                    <td>{{ $courseApplication->studyProgram->program_name ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
                                     <th>Course</th>
-                                    <td>{{ $courseApplication->course ?? 'N/A' }}</td>
+                                    <td>{{ $courseApplication->course->course_name ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Batch No</th>
+                                    <td>
+                                        @if ($courseApplication->course->batches->isNotEmpty())
+                                            {{ $courseApplication->course->batches->pluck('batch_no')->join(', ') }}
+                                        @else
+                                            No active batches
+                                        @endif
+                                    </td>
                                 </tr>
                             </table>
                         @endif

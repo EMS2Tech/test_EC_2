@@ -28,7 +28,8 @@ class AdminController extends Controller
                 END
                 FROM payments
                 WHERE payments.user_id = users.id
-            ) as payment_status')
+            ) as payment_status'
+            )
         )
         ->where('users.type', 'student')
         ->leftJoin('applications', 'users.id', '=', 'applications.user_id')
