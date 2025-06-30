@@ -44,10 +44,13 @@
                                 <a class='tp-link' href='analytics.html'>Course Details</a>
                             </li>
                             <li>
-                                <a class='tp-link' href='index.html'>Add New Course</a>
+                                <a class='tp-link' href='/add-studyprogram'>Study Program</a>
                             </li>
                             <li>
-                                <a class='tp-link' href='analytics.html'>Add New Batch</a>
+                                <a class='tp-link' href='/add-course'>Courses</a>
+                            </li>
+                            <li>
+                                <a class='tp-link' href='analytics.html'>Batches</a>
                             </li>
                         </ul>
                     </div>

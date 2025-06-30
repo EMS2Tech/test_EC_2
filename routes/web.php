@@ -4,6 +4,8 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\StudyProgramController;
+use App\Http\Controllers\CourseController;
 use App\Http\Middleware\RestrictType;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Redirect;
@@ -58,6 +60,14 @@ Route::middleware('auth')->group(function () {
 
     // View application details (placeholder)
     Route::get('/admin/application/{id}/view', [AdminController::class, 'viewApplication'])->name('admin.application.view')->middleware(RestrictType::class . ':admin');
+
+    Route::middleware(['auth', RestrictType::class . ':admin'])->group(function () {
+    Route::get('/add-studyprogram', [StudyProgramController::class, 'index'])->name('admin.add-studyprogram');
+    Route::post('/study-programs', [StudyProgramController::class, 'store'])->name('study-programs.store');});
+
+    Route::middleware(['auth', RestrictType::class . ':admin'])->group(function () {
+    Route::get('/add-course', [CourseController::class, 'index'])->name('admin.add-course');
+    Route::post('/courses', [CourseController::class, 'store'])->name('courses.store'); });
 });
 
 require __DIR__.'/auth.php';
