@@ -42,7 +42,7 @@
                         </li>
 
                         <li>
-                            <a href="/course">
+                            <a href="/course-apply">
                                 <i data-feather="book"></i>
                                 <span> Courses </span>
                             </a>

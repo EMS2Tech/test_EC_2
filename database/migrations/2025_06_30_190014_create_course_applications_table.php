@@ -10,9 +10,9 @@ class CreateCourseApplicationsTable extends Migration
     {
         Schema::create('course_applications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('study_programme', ['bachelors', 'higher_diploma', 'diploma', 'postgraduate_diploma']);
-            $table->string('course');
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('study_programme_id');
+            $table->unsignedBigInteger('course_id');
             $table->string('ol_certificate')->nullable();
             $table->string('al_certificate')->nullable();
             $table->json('diploma_certificates')->nullable();
@@ -20,6 +20,10 @@ class CreateCourseApplicationsTable extends Migration
             $table->string('transcript_certificate')->nullable();
             $table->json('other_certificates')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('study_programme_id')->references('id')->on('study_programs')->onDelete('cascade');
+            $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
         });
     }
 

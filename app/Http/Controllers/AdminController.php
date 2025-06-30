@@ -17,8 +17,8 @@ class AdminController extends Controller
             \DB::raw('COALESCE(applications.full_name, CONCAT(users.name)) as full_name'),
             'applications.id as application_id',
             'applications.application_completed',
-            'course_applications.study_programme',
-            'course_applications.course',
+            'study_programs.program_name as study_programme_name',
+            'courses.course_name as course_name',
             \DB::raw('(
                 SELECT CASE
                     WHEN MAX(payments.payment_slip) IS NULL THEN "Not Complete"
@@ -33,7 +33,9 @@ class AdminController extends Controller
         ->where('users.type', 'student')
         ->leftJoin('applications', 'users.id', '=', 'applications.user_id')
         ->leftJoin('course_applications', 'users.id', '=', 'course_applications.user_id')
-        ->groupBy('users.id', 'users.name', 'applications.full_name', 'applications.id', 'applications.application_completed', 'course_applications.study_programme', 'course_applications.course')
+        ->leftJoin('study_programs', 'course_applications.study_programme_id', '=', 'study_programs.id')
+        ->leftJoin('courses', 'course_applications.course_id', '=', 'courses.id')
+        ->groupBy('users.id', 'users.name', 'applications.full_name', 'applications.id', 'applications.application_completed', 'study_programs.program_name', 'courses.course_name')
         ->paginate(5); // 5 items per page
 
         $currentPage = $applications->currentPage();

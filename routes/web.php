@@ -3,6 +3,7 @@
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CourseApplicationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\StudyProgramController;
 use App\Http\Controllers\CourseController;
@@ -76,9 +77,11 @@ Route::middleware('auth')->group(function () {
 });
 
     
+
+    Route::get('/course-apply', [CourseApplicationController::class, 'create'])->name('course-application.create');
+    Route::post('/course-apply', [CourseApplicationController::class, 'store'])->name('course-application.store');
+    Route::get('/get-courses/{studyProgramId}', [CourseApplicationController::class, 'getCourses']);
 });
 
 require __DIR__.'/auth.php';
 
-Route::get('/course', [App\Http\Controllers\CourseApplicationController::class, 'create'])->name('course.apply');
-Route::post('/course', [App\Http\Controllers\CourseApplicationController::class, 'store'])->name('course.store');

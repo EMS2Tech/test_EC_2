@@ -2,17 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class CourseApplication extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'user_id',
-        'study_programme',
-        'course',
+        'study_programme_id',
+        'course_id',
         'ol_certificate',
         'al_certificate',
         'diploma_certificates',
@@ -29,5 +26,15 @@ class CourseApplication extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function studyProgram()
+    {
+        return $this->belongsTo(StudyProgram::class, 'study_programme_id');
+    }
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class, 'course_id');
     }
 }

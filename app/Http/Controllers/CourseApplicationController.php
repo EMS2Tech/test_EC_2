@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\CourseApplication;
+use App\Models\StudyProgram;
+use App\Models\Course;
+use App\Models\Batch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -21,7 +24,36 @@ class CourseApplicationController extends Controller
         if ($user->isUser() && !($user->application_completed ?? false)) {
             return redirect()->route('application.start')->with('error', 'Please complete your application before registering for a course.');
         }
-        return view('frontend.course-apply');
+        $studyPrograms = StudyProgram::all();
+        return view('frontend.course-apply', compact('studyPrograms'));
+    }
+
+    public function getCourses($studyProgramId)
+    {
+        $today = now();
+        $courses = Course::whereHas('studyProgram', function ($query) use ($studyProgramId) {
+            $query->where('id', $studyProgramId);
+        })->with(['batches' => function ($query) use ($today) {
+            $query->where('start_date', '<=', $today)
+                  ->where('end_date', '>=', $today);
+        }])->get();
+
+        // Debug: Log the fetched courses and batches
+        Log::info('Fetched courses for studyProgramId: ' . $studyProgramId, ['courses' => $courses->toArray()]);
+
+        $courseOptions = $courses->mapWithKeys(function ($course) {
+            $batchInfo = $course->batches->isNotEmpty()
+                ? $course->batches->map(function ($batch) {
+                    return $batch->batch_no;
+                })->join(', ')
+                : 'No active batches';
+            return [$course->id => "{$course->course_name} - Batch: {$batchInfo}"];
+        })->all();
+
+        // Debug: Log the final course options
+        Log::info('Course options for studyProgramId: ' . $studyProgramId, ['options' => $courseOptions]);
+
+        return response()->json($courseOptions);
     }
 
     public function store(Request $request)
@@ -29,23 +61,22 @@ class CourseApplicationController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'study_programme' => 'required|in:bachelors,higher_diploma,diploma,postgraduate_diploma',
-            'course' => 'required|string|max:255',
-            'ol_certificate' => ['required_if:study_programme,diploma,bachelors', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
-            'al_certificate' => ['required_if:study_programme,higher_diploma,bachelors', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
-            'diploma_certificates.*' => ['required_if:study_programme,higher_diploma,bachelors', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
-            'degree_certificate' => ['required_if:study_programme,postgraduate_diploma', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
-            'transcript_certificate' => ['required_if:study_programme,postgraduate_diploma', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
+            'study_programme' => 'required|exists:study_programs,id',
+            'course' => 'required|exists:courses,id',
+            'ol_certificate' => ['required_if:study_programme,1', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
+            'al_certificate' => ['required_if:study_programme,2', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
+            'diploma_certificates.*' => ['required_if:study_programme,2,1', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
+            'degree_certificate' => ['required_if:study_programme,4', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
+            'transcript_certificate' => ['required_if:study_programme,4', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
             'other_certificates.*' => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
         ]);
 
         $courseApplication = new CourseApplication([
             'user_id' => $user->id,
-            'study_programme' => $request->study_programme,
-            'course' => $request->course,
+            'study_programme_id' => $request->study_programme,
+            'course_id' => $request->course,
         ]);
 
-        // Handle file uploads
         if ($request->hasFile('ol_certificate')) {
             $courseApplication->ol_certificate = $request->file('ol_certificate')->store('course_applications/ol', 'public');
         }
@@ -57,7 +88,7 @@ class CourseApplicationController extends Controller
             foreach ($request->file('diploma_certificates') as $file) {
                 $diplomaPaths[] = $file->store('course_applications/diploma', 'public');
             }
-            $courseApplication->diploma_certificates = $diplomaPaths;
+            $courseApplication->diploma_certificates = json_encode($diplomaPaths);
         }
         if ($request->hasFile('degree_certificate')) {
             $courseApplication->degree_certificate = $request->file('degree_certificate')->store('course_applications/degree', 'public');
@@ -70,7 +101,7 @@ class CourseApplicationController extends Controller
             foreach ($request->file('other_certificates') as $file) {
                 $otherPaths[] = $file->store('course_applications/other', 'public');
             }
-            $courseApplication->other_certificates = $otherPaths;
+            $courseApplication->other_certificates = json_encode($otherPaths);
         }
 
         $courseApplication->save();
