@@ -50,7 +50,7 @@
                                 <a class='tp-link' href='/add-course'>Courses</a>
                             </li>
                             <li>
-                                <a class='tp-link' href='analytics.html'>Batches</a>
+                                <a class='tp-link' href='/add-batch'>Batches</a>
                             </li>
                         </ul>
                     </div>

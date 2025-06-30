@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\StudyProgramController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\BatchController;
 use App\Http\Middleware\RestrictType;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Redirect;
@@ -61,13 +62,20 @@ Route::middleware('auth')->group(function () {
     // View application details (placeholder)
     Route::get('/admin/application/{id}/view', [AdminController::class, 'viewApplication'])->name('admin.application.view')->middleware(RestrictType::class . ':admin');
 
+    // Admin pages route
     Route::middleware(['auth', RestrictType::class . ':admin'])->group(function () {
-    Route::get('/add-studyprogram', [StudyProgramController::class, 'index'])->name('admin.add-studyprogram');
-    Route::post('/study-programs', [StudyProgramController::class, 'store'])->name('study-programs.store');});
 
-    Route::middleware(['auth', RestrictType::class . ':admin'])->group(function () {
+    Route::get('/add-studyprogram', [StudyProgramController::class, 'index'])->name('admin.add-studyprogram');
+    Route::post('/study-programs', [StudyProgramController::class, 'store'])->name('study-programs.store');
+
     Route::get('/add-course', [CourseController::class, 'index'])->name('admin.add-course');
-    Route::post('/courses', [CourseController::class, 'store'])->name('courses.store'); });
+    Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
+
+    Route::get('/add-batch', [BatchController::class, 'index'])->name('admin.add-batch');
+    Route::post('/batches', [BatchController::class, 'store'])->name('batches.store');
+});
+
+    
 });
 
 require __DIR__.'/auth.php';
