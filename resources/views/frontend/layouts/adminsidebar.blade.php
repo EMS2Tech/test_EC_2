@@ -41,7 +41,7 @@
                     <div class="collapse" id="sidebarCourse">
                         <ul class="nav-second-level">
                             <li>
-                                <a class='tp-link' href='analytics.html'>Course Details</a>
+                                <a class='tp-link' href='/course-applications'>Course Applications</a>
                             </li>
                             <li>
                                 <a class='tp-link' href='/add-studyprogram'>Study Program</a>

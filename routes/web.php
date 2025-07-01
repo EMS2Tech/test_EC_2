@@ -74,6 +74,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/add-batch', [BatchController::class, 'index'])->name('admin.add-batch');
     Route::post('/batches', [BatchController::class, 'store'])->name('batches.store');
+
+    Route::get('/course-applications', [AdminController::class, 'courseApplications'])->name('admin.course.applications');
 });
 
     

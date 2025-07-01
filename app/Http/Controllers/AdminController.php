@@ -56,8 +56,8 @@ class AdminController extends Controller
             'nic_number',
             'contact_number',
             'email_address'
-        )
-        ->leftJoin('payments', 'applications.user_id', '=', 'payments.user_id');
+        );
+        //->leftJoin('payments', 'applications.user_id', '=', 'payments.user_id');
 
         // Search logic
         if ($search = $request->input('search')) {
@@ -100,5 +100,50 @@ class AdminController extends Controller
         $courseApplications = CourseApplication::where('user_id', $application->user_id)->get();
 
         return view('frontend.application-view', compact('application', 'payments', 'courseApplications'));
+    }
+
+    public function courseApplications(Request $request)
+    {
+        $query = CourseApplication::select(
+            'course_applications.id',
+            'course_applications.user_id',
+            'course_applications.created_at as apply_date',
+            'study_programs.program_name as study_programme_name',
+            'courses.course_name as course_name',
+            \DB::raw('GROUP_CONCAT(batches.batch_no SEPARATOR ", ") as batch_no'),
+            \DB::raw('COALESCE(applications.full_name, users.name) as full_name')
+        )
+        ->leftJoin('study_programs', 'course_applications.study_programme_id', '=', 'study_programs.id')
+        ->leftJoin('courses', 'course_applications.course_id', '=', 'courses.id')
+        ->leftJoin('batches', 'courses.id', '=', 'batches.course_id')
+        ->leftJoin('applications', 'course_applications.user_id', '=', 'applications.user_id')
+        ->leftJoin('users', 'course_applications.user_id', '=', 'users.id')
+        ->groupBy(
+            'course_applications.id',
+            'course_applications.user_id',
+            'course_applications.created_at',
+            'study_programs.program_name',
+            'courses.course_name',
+            'applications.full_name',
+            'users.name'
+        );
+
+        // Filter logic
+        if ($request->filled('study_program_name')) {
+            $query->where('study_programs.program_name', 'like', '%' . $request->input('study_program_name') . '%');
+        }
+        if ($request->filled('course_name')) {
+            $query->where('courses.course_name', 'like', '%' . $request->input('course_name') . '%');
+        }
+        if ($request->filled('batch_no')) {
+            $query->where('batches.batch_no', 'like', '%' . $request->input('batch_no') . '%');
+        }
+
+        $courseApplications = $query->paginate(20);
+
+        $currentPage = $courseApplications->currentPage();
+        $lastPage = $courseApplications->lastPage();
+
+        return view('frontend.course-application', compact('courseApplications', 'currentPage', 'lastPage'));
     }
 }
