@@ -38,7 +38,7 @@ class AdminController extends Controller
         ->leftJoin('courses', 'course_applications.course_id', '=', 'courses.id')
         ->leftJoin('students', 'users.id', '=', 'students.user_id')
         ->groupBy('users.id', 'users.name')
-        ->paginate(5); // 5 items per page
+        ->paginate(10); // 10 items per page
 
         $currentPage = $applications->currentPage();
         $lastPage = $applications->lastPage();
@@ -68,7 +68,7 @@ class AdminController extends Controller
             });
         }
 
-        $applications = $query->paginate(5);
+        $applications = $query->paginate(20);
 
         $currentPage = $applications->currentPage();
         $lastPage = $applications->lastPage();

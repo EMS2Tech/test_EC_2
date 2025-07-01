@@ -1,6 +1,6 @@
 @extends('frontend.layouts.master')
 
-@section('title', 'Admin - Application Details')
+@section('title', 'Application Details')
 
 @section('content')
 <div class="content-page">
