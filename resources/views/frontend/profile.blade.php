@@ -81,7 +81,7 @@
                                         <div class="container-fluid">
                                             @php
                                                 $application = App\Models\Application::where('user_id', Auth::id())->first();
-                                                $student = App\Models\Student::where('user_id', Auth::id())->first(); // Fetch student record
+                                                $student = App\Models\Student::where('user_id', Auth::id())->first();
                                             @endphp
 
                                             @if ($application)
@@ -264,7 +264,7 @@
             <div class="alert alert-info text-center" role="alert">
                 <h5 class="alert-heading">No Course Applications Found</h5>
                 <p>Please apply for a course to view your application details.</p>
-                <a href="{{ route('course.apply') }}" class="btn btn-primary">Apply for a Course</a>
+                <a href="{{ route('course-application.create') }}" class="btn btn-primary">Apply for a Course</a>
             </div>
         @endif
     </div>
