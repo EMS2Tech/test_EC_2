@@ -27,7 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/lock-screen', function () {
         $intendedRoute = Auth::check() ? match (Auth::user()->type) {
             'admin' => route('admin.dashboard'),
-            'user' => route('user.dashboard'),
+            'student' => route('user.dashboard'),
             'manager' => route('manager.dashboard'),
             default => route('user.dashboard'),
         } : route('login');
@@ -43,9 +43,9 @@ Route::middleware('auth')->group(function () {
         ->name('admin.applications')
         ->middleware(RestrictType::class . ':admin');
 
-    Route::get('/user/dashboard', function () {
+    Route::get('/student/application', function () {
         return view('frontend.application');
-    })->name('user.dashboard')->middleware(RestrictType::class . ':user');
+    })->name('user.dashboard')->middleware(RestrictType::class . ':student');
 
     Route::get('/manager/dashboard', function () {
         return view('dashboards.manager');

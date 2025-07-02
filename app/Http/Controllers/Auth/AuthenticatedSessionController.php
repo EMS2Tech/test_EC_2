@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use App\Models\Application;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -28,21 +29,23 @@ class AuthenticatedSessionController extends Controller
         // Validate user type
         if (is_null($user->type)) {
             Log::warning('User type is null during login', ['user_id' => $user->id]);
-            // Optionally set a default type or handle the error
             return redirect()->route('login')->with('error', 'User type is not set. Please contact support.');
         }
 
         Log::info('User logged in', ['user_id' => $user->id, 'type' => $user->type]);
 
-        // Redirect based on user type
+        // Check application completion status
+        $applicationCompleted = Application::where('user_id', $user->id)->value('application_completed') ?? 0;
+
+        // Determine redirect based on user type and application completion
         $redirect = match ($user->type) {
             'admin' => route('admin.dashboard'),
-            'user' => route('user.dashboard'),
+            'student' => $applicationCompleted ? route('profile.edit') : route('user.dashboard'),
             'manager' => route('manager.dashboard'),
             default => route('user.dashboard'),
         };
 
-        return redirect()->intended($redirect)->with('status', 'Logged in successfully!');
+        return redirect($redirect)->with('status', 'Logged in successfully!');
     }
 
     public function destroy(Request $request): RedirectResponse
