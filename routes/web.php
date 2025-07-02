@@ -12,6 +12,8 @@ use App\Http\Middleware\RestrictType;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Application;
+
 
 Route::get('/', function () {
     return view('auth.login');
@@ -25,15 +27,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/photograph', [ApplicationController::class, 'updatePhotograph'])->name('profile.photograph');
 
     Route::get('/lock-screen', function () {
-        $intendedRoute = Auth::check() ? match (Auth::user()->type) {
-            'admin' => route('admin.dashboard'),
-            'student' => route('user.dashboard'),
-            'manager' => route('manager.dashboard'),
-            default => route('user.dashboard'),
-        } : route('login');
-        Redirect::setIntendedUrl($intendedRoute);
-        return view('auth.lock-screen');
-    })->name('lock-screen');
+    $user = Auth::user();
+    $intendedRoute = Auth::check() ? match ($user->type) {
+        'admin' => route('admin.dashboard'),
+        'student' => Application::where('user_id', $user->id)->value('application_completed') ? route('profile.edit') : route('user.dashboard'),
+        'manager' => route('manager.dashboard'),
+        default => route('user.dashboard'),
+    } : route('login');
+    Redirect::setIntendedUrl($intendedRoute);
+    return view('auth.lock-screen');})->name('lock-screen');
 
     // Apply middleware class directly
     Route::get('/admin/dashboard', [AdminController::class, 'index'])
