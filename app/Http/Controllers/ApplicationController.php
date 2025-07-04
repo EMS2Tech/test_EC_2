@@ -34,7 +34,7 @@ class ApplicationController extends Controller
 
         // Check if application already completed
         if (Application::where('user_id', $user->id)->where('application_completed', true)->exists()) {
-            return redirect()->route('profile.edit')->with('error', 'You have already submitted an application.');
+            return redirect()->route('course-application.create')->with('error', 'You have already submitted an application.');
         }
 
         $rules = [
@@ -94,7 +94,7 @@ class ApplicationController extends Controller
 
         Log::info('Application completed', ['user_id' => $user->id]);
 
-        return redirect()->route('profile.edit')->with('status', 'Application submitted successfully!');
+        return redirect()->route('course-application.create')->with('status', 'Application submitted successfully!');
     }
 
     public function updatePhotograph(Request $request)
