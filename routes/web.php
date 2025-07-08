@@ -70,6 +70,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/add-studyprogram', [StudyProgramController::class, 'index'])->name('admin.add-studyprogram');
     Route::post('/study-programs', [StudyProgramController::class, 'store'])->name('study-programs.store');
+    Route::get('/study-programs/{id}/edit', [StudyProgramController::class, 'edit'])->name('study-programs.edit');
+    Route::delete('/study-programs/{id}', [StudyProgramController::class, 'destroy'])->name('study-programs.destroy');
+    Route::patch('/study-programs/{id}', [StudyProgramController::class, 'update'])->name('study-programs.update');
 
     Route::get('/add-course', [CourseController::class, 'index'])->name('admin.add-course');
     Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
