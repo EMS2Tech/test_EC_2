@@ -84,14 +84,15 @@
                                     <td>{{ $program->program_name }}</td>
                                     <td>{{ $program->created_at->format('Y-m-d') ?? 'N/A' }}</td>
                                     <td>
-                                        <a href="{{ route('study-programs.edit', $program->id) }}" class="text-primary me-2" title="Edit">
-                                            <i class="mdi mdi-pencil"></i> <!-- Update icon -->
+                                        <a href="{{ route('study-programs.edit', $program->id) }}" class="btn btn-icon btn-sm bg-primary-subtle me-1" data-bs-toggle="tooltip" title="Edit">
+                                            <i class="mdi mdi-pencil fs-12 text-primary"></i>
                                         </a>
+
                                         <form action="{{ route('study-programs.destroy', $program->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this study program?');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-link text-danger p-0" title="Delete">
-                                                <i class="mdi mdi-trash-can"></i> <!-- Delete icon -->
+                                            <button type="submit" class="btn btn-icon btn-sm bg-danger-subtle me-1" data-bs-toggle="tooltip" title="Delete">
+                                                <i class="mdi mdi-trash-can fs-12 text-danger"></i>
                                             </button>
                                         </form>
                                     </td>
