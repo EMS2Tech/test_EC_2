@@ -78,74 +78,87 @@
                 </form>
 
                 <!-- Batches Table -->
-                <div class="row mt-4">
-                    <div class="col-md-12">
-                        <div class="card overflow-hidden">
-                            <div class="card-header">
-                                <div class="d-flex align-items-center">
-                                    <h5 class="card-title mb-0">Batches</h5>
-                                </div>
-                            </div>
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card overflow-hidden">
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <h5 class="card-title mb-0">Batches</h5>
+                </div>
+            </div>
 
-                            <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-traffic mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th>Course Code</th>
-                                                <th>Course Name</th>
-                                                <th>Batch No</th>
-                                                <th>Start Date</th>
-                                                <th>End Date</th>
-                                                <th>Date Added</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($batches as $batch)
-                                                <tr>
-                                                    <td>{{ $batch->course->code ?? 'N/A' }}</td>
-                                                    <td>{{ $batch->course->course_name ?? 'N/A' }}</td>
-                                                    <td>{{ $batch->batch_no }}</td>
-                                                    <td>{{ $batch->start_date->format('Y-m-d') ?? 'N/A' }}</td>
-                                                    <td>{{ $batch->end_date->format('Y-m-d') ?? 'N/A' }}</td>
-                                                    <td>{{ $batch->created_at->format('Y-m-d') ?? 'N/A' }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-traffic mb-0">
+                        <thead>
+                            <tr>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                                <th>Batch No</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Date Added</th>
+                                <th>Action</th> <!-- New Action column header -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($batches as $batch)
+                                <tr>
+                                    <td>{{ $batch->course->code ?? 'N/A' }}</td>
+                                    <td>{{ $batch->course->course_name ?? 'N/A' }}</td>
+                                    <td>{{ $batch->batch_no }}</td>
+                                    <td>{{ $batch->start_date->format('Y-m-d') ?? 'N/A' }}</td>
+                                    <td>{{ $batch->end_date->format('Y-m-d') ?? 'N/A' }}</td>
+                                    <td>{{ $batch->created_at->format('Y-m-d') ?? 'N/A' }}</td>
+                                    <td>
+                                        <a href="{{ route('batches.edit', $batch->id) }}" class="btn btn-icon btn-sm bg-primary-subtle me-1" data-bs-toggle="tooltip" title="Edit">
+                                            <i class="mdi mdi-pencil fs-12 text-primary"></i>
+                                        </a>
+                                        <form action="{{ route('batches.destroy', $batch->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this batch?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-icon btn-sm bg-danger-subtle me-1" data-bs-toggle="tooltip" title="Delete">
+                                                <i class="mdi mdi-trash-can fs-12 text-danger"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                            <div class="card-footer py-0 border-top">
-                                <div class="row align-items-center">
-                                    <div class="col-12">
-                                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                            <div class="text-block text-muted">
-                                                <span class="fw-medium">{{ $batches->firstItem() }} - {{ $batches->lastItem() }} of {{ $batches->total() }}</span>
-                                            </div>
-                                            <nav aria-label="Page navigation">
-                                                <ul class="pagination">
-                                                    <li class="page-item {{ $batches->currentPage() == 1 ? 'disabled' : '' }}">
-                                                        <a class="page-link" href="{{ $batches->url($batches->currentPage() - 1) }}" tabindex="-1" aria-disabled="{{ $batches->currentPage() == 1 ? 'true' : 'false' }}">Previous</a>
-                                                    </li>
-                                                    @for ($i = max(1, $batches->currentPage() - 1); $i <= min($batches->lastPage(), $batches->currentPage() + 1); $i++)
-                                                        <li class="page-item {{ $i == $batches->currentPage() ? 'active' : '' }}">
-                                                            <a class="page-link" href="{{ $batches->url($i) }}">{{ $i }}</a>
-                                                        </li>
-                                                    @endfor
-                                                    <li class="page-item {{ $batches->currentPage() == $batches->lastPage() ? 'disabled' : '' }}">
-                                                        <a class="page-link" href="{{ $batches->url($batches->currentPage() + 1) }}" aria-disabled="{{ $batches->currentPage() == $batches->lastPage() ? 'true' : 'false' }}">Next</a>
-                                                    </li>
-                                                </ul>
-                                            </nav>
-                                        </div>
-                                    </div>
-                                </div>
+            <div class="card-footer py-0 border-top">
+                <div class="row align-items-center">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div class="text-block text-muted">
+                                <span class="fw-medium">{{ $batches->firstItem() }} - {{ $batches->lastItem() }} of {{ $batches->total() }}</span>
                             </div>
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination">
+                                    <li class="page-item {{ $batches->currentPage() == 1 ? 'disabled' : '' }}">
+                                        <a class="page-link" href="{{ $batches->url($batches->currentPage() - 1) }}" tabindex="-1" aria-disabled="{{ $batches->currentPage() == 1 ? 'true' : 'false' }}">Previous</a>
+                                    </li>
+                                    @for ($i = max(1, $batches->currentPage() - 1); $i <= min($batches->lastPage(), $batches->currentPage() + 1); $i++)
+                                        <li class="page-item {{ $i == $batches->currentPage() ? 'active' : '' }}">
+                                            <a class="page-link" href="{{ $batches->url($i) }}">{{ $i }}</a>
+                                        </li>
+                                    @endfor
+                                    <li class="page-item {{ $batches->currentPage() == $batches->lastPage() ? 'disabled' : '' }}">
+                                        <a class="page-link" href="{{ $batches->url($batches->currentPage() + 1) }}" aria-disabled="{{ $batches->currentPage() == $batches->lastPage() ? 'true' : 'false' }}">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
-                <!-- End Batches Table -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Batches Table -->
             </div>
         </div>
     </div>
