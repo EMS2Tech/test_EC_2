@@ -76,9 +76,15 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/add-course', [CourseController::class, 'index'])->name('admin.add-course');
     Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
+    Route::get('/courses/{id}/edit', [CourseController::class, 'edit'])->name('courses.edit');
+    Route::delete('/courses/{id}', [CourseController::class, 'destroy'])->name('courses.destroy');
+    Route::patch('/courses/{id}', [CourseController::class, 'update'])->name('courses.update');
 
     Route::get('/add-batch', [BatchController::class, 'index'])->name('admin.add-batch');
     Route::post('/batches', [BatchController::class, 'store'])->name('batches.store');
+    Route::get('/batches/{id}/edit', [BatchController::class, 'edit'])->name('batches.edit');
+    Route::delete('/batches/{id}', [BatchController::class, 'destroy'])->name('batches.destroy');
+    Route::patch('/batches/{id}', [BatchController::class, 'update'])->name('batches.update');
 
     Route::get('/course-applications', [AdminController::class, 'courseApplications'])->name('admin.course.applications');
 });
