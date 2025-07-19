@@ -43,7 +43,10 @@ class ApplicationController extends Controller
             'name_with_initials' => 'required|string|max:255',
             'birthday' => 'required|date|before:today',
             'nationality' => 'required|in:Sri Lanka,Other',
-            'address' => 'required|string',
+            'address_line_1' => 'required|string|max:255',
+            'address_line_2' => 'nullable|string|max:255',
+            'city' => 'required|string|max:255',
+            'province' => 'required|string|max:255',
             'contact_number' => 'required|string|max:10|regex:/^07[0-9]{8}$/',
             'whatsapp_number' => 'nullable|string|max:10|regex:/^07[0-9]{8}$/',
             'email_address' => 'required|email|max:255',
@@ -56,6 +59,7 @@ class ApplicationController extends Controller
             $rules['nic_photo'] = 'required|image|mimes:jpeg,png,jpg|max:4096';
         } else {
             $rules['other_nationality'] = 'required|string|max:255';
+            $rules['passport_number'] = 'required|string|max:20';
             $rules['passport_photo'] = 'required|image|mimes:jpeg,png,jpg|max:4096';
         }
 
@@ -63,16 +67,30 @@ class ApplicationController extends Controller
 
         $application = Application::where('user_id', $user->id)->first() ?? new Application(['user_id' => $user->id]);
 
+        // Determine folder name based on nationality
+        $folderName = $request->nationality === 'Sri Lanka' && $request->nic_number
+            ? $request->nic_number
+            : ($request->nationality === 'Other' && $request->passport_number
+                ? $request->passport_number
+                : $user->id . '_' . time()); // Fallback: user_id_timestamp
+
+        // Ensure the folder exists
+        $storagePath = "applications/{$folderName}";
+        Storage::disk('public')->makeDirectory($storagePath);
+
         // Handle file uploads
         if ($request->hasFile('nic_photo')) {
-            $application->nic_photo = $request->file('nic_photo')->store('applications/nic', 'public');
+            $application->nic_photo = $request->file('nic_photo')->store($storagePath, 'public');
         }
         if ($request->hasFile('passport_photo')) {
-            $application->passport_photo = $request->file('passport_photo')->store('applications/passport', 'public');
+            $application->passport_photo = $request->file('passport_photo')->store($storagePath, 'public');
         }
         if ($request->hasFile('photograph')) {
-            $application->photograph = $request->file('photograph')->store('applications/photos', 'public');
+            $application->photograph = $request->file('photograph')->store($storagePath, 'public');
         }
+
+        // Merge address fields into a single address string
+        $address = trim("{$request->address_line_1}, {$request->address_line_2}, {$request->city}, {$request->province}");
 
         // Fill application data
         $application->fill([
@@ -83,7 +101,8 @@ class ApplicationController extends Controller
             'nationality' => $request->nationality,
             'nic_number' => $request->nationality === 'Sri Lanka' ? $request->nic_number : null,
             'other_nationality' => $request->nationality === 'Other' ? $request->other_nationality : null,
-            'address' => $request->address,
+            'passport_number' => $request->nationality === 'Other' ? $request->passport_number : null,
+            'address' => $address,
             'contact_number' => $request->contact_number,
             'whatsapp_number' => $request->whatsapp_number,
             'email_address' => $request->email_address,
@@ -92,7 +111,7 @@ class ApplicationController extends Controller
 
         $application->save();
 
-        Log::info('Application completed', ['user_id' => $user->id]);
+        Log::info('Application completed', ['user_id' => $user->id, 'folder' => $storagePath]);
 
         return redirect()->route('course-application.create')->with('status', 'Application submitted successfully!');
     }
@@ -110,13 +129,18 @@ class ApplicationController extends Controller
             'photograph' => 'required|image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
+        // Determine folder name (use existing nic_number or passport_number or fallback)
+        $folderName = $application->nic_number ?: ($application->passport_number ?: ($user->id . '_' . time()));
+        $storagePath = "applications/{$folderName}";
+        Storage::disk('public')->makeDirectory($storagePath);
+
         // Delete old photograph if exists
         if ($application->photograph) {
             Storage::disk('public')->delete($application->photograph);
         }
 
         // Store new photograph
-        $path = $request->file('photograph')->store('applications/photos', 'public');
+        $path = $request->file('photograph')->store($storagePath, 'public');
         $application->photograph = $path;
         $application->save();
 
