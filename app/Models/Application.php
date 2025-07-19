@@ -19,6 +19,7 @@ class Application extends Model
         'nic_number',
         'nic_photo',
         'other_nationality',
+        'passport_number', // Added passport_number to fillable
         'passport_photo',
         'photograph',
         'address',
