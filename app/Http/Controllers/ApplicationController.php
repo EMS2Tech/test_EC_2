@@ -63,7 +63,12 @@ class ApplicationController extends Controller
             $rules['passport_photo'] = 'required|image|mimes:jpeg,png,jpg|max:4096';
         }
 
-        $request->validate($rules);
+        try {
+            $request->validate($rules);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation failed', ['errors' => $e->errors(), 'input' => $request->all()]);
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        }
 
         $application = Application::where('user_id', $user->id)->first() ?? new Application(['user_id' => $user->id]);
 
@@ -74,19 +79,39 @@ class ApplicationController extends Controller
                 ? $request->passport_number
                 : $user->id . '_' . time()); // Fallback: user_id_timestamp
 
-        // Ensure the folder exists
+        // Ensure the folder exists with the applications prefix
         $storagePath = "applications/{$folderName}";
-        Storage::disk('public')->makeDirectory($storagePath);
+        if (!Storage::disk('public')->exists($storagePath)) {
+            Storage::disk('public')->makeDirectory($storagePath);
+        }
 
-        // Handle file uploads
+        // Handle file uploads with logging
         if ($request->hasFile('nic_photo')) {
-            $application->nic_photo = $request->file('nic_photo')->store($storagePath, 'public');
+            if ($request->file('nic_photo')->isValid()) {
+                $application->nic_photo = $request->file('nic_photo')->store($storagePath, 'public');
+                Log::info('NIC photo uploaded', ['path' => $application->nic_photo]);
+            } else {
+                Log::error('Invalid NIC photo upload', ['file' => $request->file('nic_photo')]);
+                return redirect()->back()->with('error', 'Invalid NIC photo file.')->withInput();
+            }
         }
         if ($request->hasFile('passport_photo')) {
-            $application->passport_photo = $request->file('passport_photo')->store($storagePath, 'public');
+            if ($request->file('passport_photo')->isValid()) {
+                $application->passport_photo = $request->file('passport_photo')->store($storagePath, 'public');
+                Log::info('Passport photo uploaded', ['path' => $application->passport_photo]);
+            } else {
+                Log::error('Invalid passport photo upload', ['file' => $request->file('passport_photo')]);
+                return redirect()->back()->with('error', 'Invalid passport photo file.')->withInput();
+            }
         }
         if ($request->hasFile('photograph')) {
-            $application->photograph = $request->file('photograph')->store($storagePath, 'public');
+            if ($request->file('photograph')->isValid()) {
+                $application->photograph = $request->file('photograph')->store($storagePath, 'public');
+                Log::info('Photograph uploaded', ['path' => $application->photograph]);
+            } else {
+                Log::error('Invalid photograph upload', ['file' => $request->file('photograph')]);
+                return redirect()->back()->with('error', 'Invalid photograph file.')->withInput();
+            }
         }
 
         // Merge address fields into a single address string
@@ -132,7 +157,9 @@ class ApplicationController extends Controller
         // Determine folder name (use existing nic_number or passport_number or fallback)
         $folderName = $application->nic_number ?: ($application->passport_number ?: ($user->id . '_' . time()));
         $storagePath = "applications/{$folderName}";
-        Storage::disk('public')->makeDirectory($storagePath);
+        if (!Storage::disk('public')->exists($storagePath)) {
+            Storage::disk('public')->makeDirectory($storagePath);
+        }
 
         // Delete old photograph if exists
         if ($application->photograph) {

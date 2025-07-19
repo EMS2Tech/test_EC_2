@@ -102,7 +102,7 @@
                                             <div class="mb-3">
                                                 <label for="nic_number" class="form-label">National ID Card Number</label>
                                                 <x-text-input id="nic_number" name="nic_number" type="text"
-                                                    class="form-control" :value="old('nic_number', $application->nic_number ?? '')" />
+                                                    class="form-control" :value="old('nic_number', $application->nic_number ?? '')" required />
                                                 <x-input-error :messages="$errors->get('nic_number')" class="mt-2" />
                                                 <small class="form-text text-muted">Old ID Format - 123456789V<br>New ID
                                                     Format - 123456789012</small>
@@ -111,7 +111,7 @@
                                                 <label for="nic_photo" class="form-label">Scan Copy of National ID
                                                     Card</label>
                                                 <input class="form-control" type="file" id="nic_photo" name="nic_photo"
-                                                    accept="image/*" />
+                                                    accept="image/*" required />
                                                 <x-input-error :messages="$errors->get('nic_photo')" class="mt-2" />
                                             </div>
                                         </div>
@@ -272,9 +272,31 @@
                                     const nationality = document.getElementById('nationality').value;
                                     const sriLankanFields = document.getElementById('sriLankanFields');
                                     const otherNationalityFields = document.getElementById('otherNationalityFields');
+                                    const nicNumber = document.getElementById('nic_number');
+                                    const nicPhoto = document.getElementById('nic_photo');
+                                    const passportNumber = document.getElementById('passport_number');
+                                    const passportPhoto = document.getElementById('passport_photo');
 
                                     sriLankanFields.style.display = nationality === 'Sri Lanka' ? 'block' : 'none';
                                     otherNationalityFields.style.display = nationality === 'Other' ? 'block' : 'none';
+
+                                    // Toggle required attributes based on nationality
+                                    if (nationality === 'Sri Lanka') {
+                                        nicNumber.required = true;
+                                        nicPhoto.required = true;
+                                        passportNumber.required = false;
+                                        passportPhoto.required = false;
+                                    } else if (nationality === 'Other') {
+                                        nicNumber.required = false;
+                                        nicPhoto.required = false;
+                                        passportNumber.required = true;
+                                        passportPhoto.required = true;
+                                    } else {
+                                        nicNumber.required = false;
+                                        nicPhoto.required = false;
+                                        passportNumber.required = false;
+                                        passportPhoto.required = false;
+                                    }
                                 }
 
                                 // Bootstrap Validation
@@ -290,7 +312,7 @@
                                         form.classList.add('was-validated');
                                     }, false);
 
-                                    // Initialize nationality fields visibility
+                                    // Initialize nationality fields visibility and required attributes
                                     handleNationalityChange();
                                 });
                             </script>
