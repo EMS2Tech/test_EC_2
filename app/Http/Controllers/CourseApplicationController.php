@@ -72,59 +72,126 @@ class CourseApplicationController extends Controller
             'other_certificates.*' => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
         ]);
 
+        // Fetch existing application to determine folder name
+        $application = Application::where('user_id', $user->id)->first();
+        if (!$application) {
+            return redirect()->route('application.start')->with('error', 'Please complete your application first.');
+        }
+
+        // Determine folder name based on existing application data
+        $folderName = $application->nic_number ?: ($application->passport_number ?: ($user->id . '_' . time()));
+        $storagePath = "applications/{$folderName}";
+
+        // Ensure the folder exists
+        if (!Storage::disk('public')->exists($storagePath)) {
+            Storage::disk('public')->makeDirectory($storagePath);
+        }
+
         $courseApplication = new CourseApplication([
             'user_id' => $user->id,
             'study_programme_id' => $request->study_programme,
             'course_id' => $request->course,
         ]);
 
+        // Handle file uploads with logging
         if ($request->hasFile('ol_certificate')) {
-            $courseApplication->ol_certificate = $request->file('ol_certificate')->store('course_applications/ol', 'public');
+            if ($request->file('ol_certificate')->isValid()) {
+                $path = "{$storagePath}/ol_certificate_{$request->file('ol_certificate')->getClientOriginalName()}";
+                $courseApplication->ol_certificate = $request->file('ol_certificate')->storeAs($storagePath, "ol_certificate_{$request->file('ol_certificate')->getClientOriginalName()}", 'public');
+                Log::info('OL certificate uploaded', ['path' => $courseApplication->ol_certificate]);
+            } else {
+                Log::error('Invalid OL certificate upload', ['file' => $request->file('ol_certificate')]);
+                return redirect()->back()->with('error', 'Invalid OL certificate file.')->withInput();
+            }
         }
         if ($request->hasFile('al_certificate')) {
-            $courseApplication->al_certificate = $request->file('al_certificate')->store('course_applications/al', 'public');
+            if ($request->file('al_certificate')->isValid()) {
+                $path = "{$storagePath}/al_certificate_{$request->file('al_certificate')->getClientOriginalName()}";
+                $courseApplication->al_certificate = $request->file('al_certificate')->storeAs($storagePath, "al_certificate_{$request->file('al_certificate')->getClientOriginalName()}", 'public');
+                Log::info('AL certificate uploaded', ['path' => $courseApplication->al_certificate]);
+            } else {
+                Log::error('Invalid AL certificate upload', ['file' => $request->file('al_certificate')]);
+                return redirect()->back()->with('error', 'Invalid AL certificate file.')->withInput();
+            }
         }
         if ($request->hasFile('diploma_certificates')) {
             $diplomaPaths = [];
-            foreach ($request->file('diploma_certificates') as $file) {
-                $diplomaPaths[] = $file->store('course_applications/diploma', 'public');
+            foreach ($request->file('diploma_certificates') as $index => $file) {
+                if ($file->isValid()) {
+                    $filename = "diploma_certificate_{$index}_{$file->getClientOriginalName()}";
+                    $path = "{$storagePath}/{$filename}";
+                    $diplomaPaths[] = $file->storeAs($storagePath, $filename, 'public');
+                    Log::info('Diploma certificate uploaded', ['path' => $path]);
+                } else {
+                    Log::error('Invalid diploma certificate upload', ['file' => $file]);
+                    return redirect()->back()->with('error', 'Invalid diploma certificate file.')->withInput();
+                }
             }
             $courseApplication->diploma_certificates = json_encode($diplomaPaths);
         }
         if ($request->hasFile('degree_certificate')) {
-            $courseApplication->degree_certificate = $request->file('degree_certificate')->store('course_applications/degree', 'public');
+            if ($request->file('degree_certificate')->isValid()) {
+                $path = "{$storagePath}/degree_certificate_{$request->file('degree_certificate')->getClientOriginalName()}";
+                $courseApplication->degree_certificate = $request->file('degree_certificate')->storeAs($storagePath, "degree_certificate_{$request->file('degree_certificate')->getClientOriginalName()}", 'public');
+                Log::info('Degree certificate uploaded', ['path' => $courseApplication->degree_certificate]);
+            } else {
+                Log::error('Invalid degree certificate upload', ['file' => $request->file('degree_certificate')]);
+                return redirect()->back()->with('error', 'Invalid degree certificate file.')->withInput();
+            }
         }
         if ($request->hasFile('transcript_certificate')) {
-            $courseApplication->transcript_certificate = $request->file('transcript_certificate')->store('course_applications/transcript', 'public');
+            if ($request->file('transcript_certificate')->isValid()) {
+                $path = "{$storagePath}/transcript_certificate_{$request->file('transcript_certificate')->getClientOriginalName()}";
+                $courseApplication->transcript_certificate = $request->file('transcript_certificate')->storeAs($storagePath, "transcript_certificate_{$request->file('transcript_certificate')->getClientOriginalName()}", 'public');
+                Log::info('Transcript certificate uploaded', ['path' => $courseApplication->transcript_certificate]);
+            } else {
+                Log::error('Invalid transcript certificate upload', ['file' => $request->file('transcript_certificate')]);
+                return redirect()->back()->with('error', 'Invalid transcript certificate file.')->withInput();
+            }
         }
         if ($request->hasFile('other_certificates')) {
             $otherPaths = [];
-            foreach ($request->file('other_certificates') as $file) {
-                $otherPaths[] = $file->store('course_applications/other', 'public');
+            foreach ($request->file('other_certificates') as $index => $file) {
+                if ($file->isValid()) {
+                    $filename = "other_certificate_{$index}_{$file->getClientOriginalName()}";
+                    $path = "{$storagePath}/{$filename}";
+                    $otherPaths[] = $file->storeAs($storagePath, $filename, 'public');
+                    Log::info('Other certificate uploaded', ['path' => $path]);
+                } else {
+                    Log::error('Invalid other certificate upload', ['file' => $file]);
+                    return redirect()->back()->with('error', 'Invalid other certificate file.')->withInput();
+                }
             }
             $courseApplication->other_certificates = json_encode($otherPaths);
         }
 
         $courseApplication->save();
 
-        // Generate student_id
-        $application = Application::where('user_id', $user->id)->first();
-        $course = Course::find($request->course);
-        $batch = $course->batches()->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
-        $fullName = $application->full_name ?? 'Unknown';
-        $shortName = $course->short_name;
-        $batchNo = $batch ? $batch->batch_no : '01';
-        $currentYear = date('Y');
-        $applicationNo = $application->id;
+        // Check if student record already exists
+        $existingStudent = Student::where('user_id', $user->id)->first();
 
-        $studentId = "EC/{$shortName}/{$batchNo}/{$currentYear}/{$applicationNo}";
-        Student::create([
-            'user_id' => $user->id, // Add user_id here
-            'student_id' => $studentId,
-            'full_name' => $fullName,
-        ]);
+        if (!$existingStudent) {
+            // Generate student_id only if no student record exists
+            $application = Application::where('user_id', $user->id)->first();
+            $course = Course::find($request->course);
+            $batch = $course->batches()->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
+            $fullName = $application->full_name ?? 'Unknown';
+            $shortName = $course->short_name;
+            $batchNo = $batch ? $batch->batch_no : '01';
+            $currentYear = date('Y');
+            $applicationNo = $application->id;
 
-        Log::info('Course application submitted', ['user_id' => $user->id, 'course_application_id' => $courseApplication->id, 'student_id' => $studentId]);
+            $studentId = "EC/{$shortName}/{$batchNo}/{$currentYear}/{$applicationNo}";
+            Student::create([
+                'user_id' => $user->id,
+                'student_id' => $studentId,
+                'full_name' => $fullName,
+            ]);
+
+            Log::info('Student ID created', ['user_id' => $user->id, 'student_id' => $studentId]);
+        }
+
+        Log::info('Course application submitted', ['user_id' => $user->id, 'course_application_id' => $courseApplication->id, 'student_id' => $existingStudent->student_id ?? $studentId ?? null]);
 
         return redirect()->route('profile.edit')->with('status', 'Course application submitted successfully!');
     }
