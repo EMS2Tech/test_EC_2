@@ -127,6 +127,12 @@
                                                 <x-input-error :messages="$errors->get('other_nationality')" class="mt-2" />
                                             </div>
                                             <div class="mb-3">
+                                                <label for="passport_number" class="form-label">Passport Number</label>
+                                                <x-text-input id="passport_number" name="passport_number" type="text"
+                                                    class="form-control" :value="old('passport_number', $application->passport_number ?? '')" required />
+                                                <x-input-error :messages="$errors->get('passport_number')" class="mt-2" />
+                                            </div>
+                                            <div class="mb-3">
                                                 <label for="passport_photo" class="form-label">Scan Copy Passport</label>
                                                 <input class="form-control" type="file" id="passport_photo"
                                                     name="passport_photo" accept="image/*" />
@@ -139,7 +145,6 @@
 
                                         <!-- Photograph -->
                                         <div class="mb-3">
-
                                             <div class="mt-2">
                                                 <img src="{{ asset('frontend/assets/images/sample_photograph.png') }}"
                                                     alt="Sample Photograph" class="img-thumbnail"
@@ -180,13 +185,29 @@
                                         <hr>
 
                                         <!-- Address -->
-                                        <div class="mb-3">
-                                            <label for="address" class="form-label">Address</label>
-                                            <textarea class="form-control" id="address" name="address" rows="2"
-                                                required>{{ old('address', $application->address ?? '') }}</textarea>
-                                            <x-input-error :messages="$errors->get('address')" class="mt-2" />
-                                            <small class="form-text text-muted">Capital Block Letters</small>
-                                        </div>
+<div class="mb-3">
+    <label class="form-label">Address</label>
+    <div class="row g-3">
+        <div class="col-md-12">
+            <x-text-input id="address_line_1" name="address_line_1" type="text" class="form-control" :value="old('address_line_1', explode(',', $application->address ?? '')[0] ?? '')" placeholder="Address Line 1" required />
+            <x-input-error :messages="$errors->get('address_line_1')" class="mt-2" />
+            <small class="form-text text-muted">Address Line 1 (e.g., Street Name, House Number)</small>
+        </div>
+        <div class="col-md-12">
+            <x-text-input id="address_line_2" name="address_line_2" type="text" class="form-control" :value="old('address_line_2', explode(',', $application->address ?? '')[1] ?? '')" placeholder="Address Line 2" />
+            <x-input-error :messages="$errors->get('address_line_2')" class="mt-2" />
+            <small class="form-text text-muted">Address Line 2 (e.g., Apartment, Building)</small>
+        </div>
+        <div class="col-md-6">
+            <x-text-input id="city" name="city" type="text" class="form-control" :value="old('city', explode(',', $application->address ?? '')[2] ?? '')" placeholder="City" required />
+            <x-input-error :messages="$errors->get('city')" class="mt-2" />
+        </div>
+        <div class="col-md-6">
+            <x-text-input id="province" name="province" type="text" class="form-control" :value="old('province', explode(',', $application->address ?? '')[3] ?? '')" placeholder="Province" required />
+            <x-input-error :messages="$errors->get('province')" class="mt-2" />
+        </div>
+    </div>
+</div>
 
                                         <!-- Contact Phone -->
                                         <div class="mb-3">
