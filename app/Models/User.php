@@ -11,7 +11,7 @@ use Laravel\Fortify\Traits\HasProfilePhoto;
 
 class User extends Authenticatable
 {
-    /*use HasFactory, Notifiable, HasApiTokens, TwoFactorAuthenticatable, HasProfilePhoto;*/
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
