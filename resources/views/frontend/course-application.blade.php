@@ -10,6 +10,9 @@
                     <div class="flex-grow-1">
                         <h4 class="fs-18 fw-semibold m-0">Course Applications</h4>
                     </div>
+                    <div>
+                        <a href="{{ route('admin.course.applications.export') . '?' . http_build_query(request()->query()) }}" class="btn btn-success">Export to CSV</a>
+                    </div>
                 </div>
 
                 <!-- Filter Form -->
@@ -27,6 +30,24 @@
                             <div class="col-md-4">
                                 <label for="batch_no" class="form-label">Batch No</label>
                                 <input type="text" name="batch_no" id="batch_no" class="form-control" value="{{ request('batch_no') }}" placeholder="Filter by Batch">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="date_range" class="form-label">Date Range</label>
+                                <select name="date_range" id="date_range" class="form-select" onchange="toggleDateFields()">
+                                    <option value="" {{ !request('date_range') ? 'selected' : '' }}>Select Date Range</option>
+                                    <option value="last_24h" {{ request('date_range') === 'last_24h' ? 'selected' : '' }}>Last 24 Hours</option>
+                                    <option value="last_7d" {{ request('date_range') === 'last_7d' ? 'selected' : '' }}>Last 7 Days</option>
+                                    <option value="last_month" {{ request('date_range') === 'last_month' ? 'selected' : '' }}>Last Month</option>
+                                    <option value="custom" {{ request('date_range') === 'custom' ? 'selected' : '' }}>Custom Date Range</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 custom-date-fields" style="display: {{ request('date_range') === 'custom' ? 'block' : 'none' }};">
+                                <label for="start_date" class="form-label">Start Date</label>
+                                <input type="date" name="start_date" id="start_date" class="form-control" value="{{ request('start_date') }}" max="{{ now()->format('Y-m-d') }}">
+                            </div>
+                            <div class="col-md-4 custom-date-fields" style="display: {{ request('date_range') === 'custom' ? 'block' : 'none' }};">
+                                <label for="end_date" class="form-label">End Date</label>
+                                <input type="date" name="end_date" id="end_date" class="form-control" value="{{ request('end_date') }}" max="{{ now()->format('Y-m-d') }}">
                             </div>
                             <div class="col-12 text-end">
                                 <button type="submit" class="btn btn-primary">Filter</button>
@@ -96,4 +117,21 @@
             </div>
         </div>
     </div>
+
+    @section('scripts')
+        <script>
+            function toggleDateFields() {
+                const dateRange = document.getElementById('date_range').value;
+                const customDateFields = document.querySelectorAll('.custom-date-fields');
+                customDateFields.forEach(field => {
+                    field.style.display = dateRange === 'custom' ? 'block' : 'none';
+                });
+            }
+
+            // Initialize date fields visibility
+            document.addEventListener('DOMContentLoaded', function () {
+                toggleDateFields();
+            });
+        </script>
+    @endsection
 @endsection

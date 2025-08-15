@@ -87,6 +87,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/batches/{id}', [BatchController::class, 'update'])->name('batches.update');
 
     Route::get('/course-applications', [AdminController::class, 'courseApplications'])->name('admin.course.applications');
+    Route::get('/admin/course/applications/export', [AdminController::class, 'export'])->name('admin.course.applications.export');
 });
 
     
