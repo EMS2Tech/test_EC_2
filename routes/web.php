@@ -8,6 +8,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\StudyProgramController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\BatchController;
+use App\Http\Controllers\SubjectController;
 use App\Http\Middleware\RestrictType;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Redirect;
@@ -94,6 +95,12 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/course-applications', [AdminController::class, 'courseApplications'])->name('admin.course.applications');
         Route::get('/admin/course/applications/export', [AdminController::class, 'export'])->name('admin.course.applications.export');
+
+        Route::get('/add-subject', [SubjectController::class, 'index'])->name('admin.add-subject');
+        Route::post('/subjects', [SubjectController::class, 'store'])->name('subjects.store');
+        Route::get('/subjects/{id}/edit', [SubjectController::class, 'edit'])->name('subjects.edit');
+        Route::delete('/subjects/{id}', [SubjectController::class, 'destroy'])->name('subjects.destroy');
+        Route::patch('/subjects/{id}', [SubjectController::class, 'update'])->name('subjects.update');
     });
 });
 

@@ -76,6 +76,8 @@
     <!-- Yield additional scripts -->
     @yield('scripts')
 
+    @stack('scripts')
+
 </body>
 
 </html>

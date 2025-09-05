@@ -30,7 +30,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('courses.store') }}" method="POST">
+                <form action="{{ route('courses.store') }}" method="POST" id="courseForm">
                     @csrf
                     <div class="card">
                         <div class="card-body">
@@ -39,7 +39,7 @@
                                 <input type="text" class="form-control @error('code') is-invalid @enderror" id="code" name="code" value="{{ old('code') }}" required>
                                 @error('code')
                                     <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                @endif
                             </div>
                             <div class="mb-3">
                                 <label for="program_id" class="form-label">Study Program <span class="text-danger">*</span></label>
@@ -53,21 +53,34 @@
                                 </select>
                                 @error('program_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                @endif
                             </div>
                             <div class="mb-3">
                                 <label for="course_name" class="form-label">Course Name <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('course_name') is-invalid @enderror" id="course_name" name="course_name" value="{{ old('course_name') }}" required>
                                 @error('course_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                @endif
                             </div>
                             <div class="mb-3">
                                 <label for="short_name" class="form-label">Short Name <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('short_name') is-invalid @enderror" id="short_name" name="short_name" value="{{ old('short_name') }}" required>
                                 @error('short_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                @endif
+                            </div>
+                            <div class="mb-3">
+                                <label for="subject_count" class="form-label">Number of Subjects <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control @error('subject_count') is-invalid @enderror" id="subject_count" name="subject_count" value="{{ old('subject_count', 1) }}" min="1" required>
+                                @error('subject_count')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @endif
+                            </div>
+                            <div class="mb-3" id="subjectFields">
+                                <label class="form-label">Subjects</label>
+                                <div id="subjectInputs">
+                                    <!-- Dynamic fields will be inserted here -->
+                                </div>
                             </div>
                         </div>
                         <div class="card-footer text-end">
@@ -78,86 +91,144 @@
                 </form>
 
                 <!-- Courses Table -->
-<div class="row mt-4">
-    <div class="col-md-12">
-        <div class="card overflow-hidden">
-            <div class="card-header">
-                <div class="d-flex align-items-center">
-                    <h5 class="card-title mb-0">Courses</h5>
-                </div>
-            </div>
-
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-traffic mb-0">
-                        <thead>
-                            <tr>
-                                <th>Code</th>
-                                <th>Program Name</th>
-                                <th>Course Name</th>
-                                <th>Short Name</th>
-                                <th>Date Added</th>
-                                <th>Action</th> <!-- New Action column header -->
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($courses as $course)
-                                <tr>
-                                    <td>{{ $course->code }}</td>
-                                    <td>{{ $course->studyProgram->program_name ?? 'N/A' }}</td>
-                                    <td>{{ $course->course_name }}</td>
-                                    <td>{{ $course->short_name }}</td>
-                                    <td>{{ $course->created_at->format('Y-m-d') ?? 'N/A' }}</td>
-                                    <td>
-                                        <a href="{{ route('courses.edit', $course->id) }}" class="btn btn-icon btn-sm bg-primary-subtle me-1" data-bs-toggle="tooltip" title="Edit">
-                                            <i class="mdi mdi-pencil fs-12 text-primary"></i>
-                                        </a>
-                                        <form action="{{ route('courses.destroy', $course->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this course?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-icon btn-sm bg-danger-subtle me-1" data-bs-toggle="tooltip" title="Delete">
-                                                <i class="mdi mdi-trash-can fs-12 text-danger"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card-footer py-0 border-top">
-                <div class="row align-items-center">
-                    <div class="col-12">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                            <div class="text-block text-muted">
-                                <span class="fw-medium">{{ $courses->firstItem() }} - {{ $courses->lastItem() }} of {{ $courses->total() }}</span>
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="card overflow-hidden">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center">
+                                    <h5 class="card-title mb-0">Courses</h5>
+                                </div>
                             </div>
-                            <nav aria-label="Page navigation">
-                                <ul class="pagination">
-                                    <li class="page-item {{ $courses->currentPage() == 1 ? 'disabled' : '' }}">
-                                        <a class="page-link" href="{{ $courses->url($courses->currentPage() - 1) }}" tabindex="-1" aria-disabled="{{ $courses->currentPage() == 1 ? 'true' : 'false' }}">Previous</a>
-                                    </li>
-                                    @for ($i = max(1, $courses->currentPage() - 1); $i <= min($courses->lastPage(), $courses->currentPage() + 1); $i++)
-                                        <li class="page-item {{ $i == $courses->currentPage() ? 'active' : '' }}">
-                                            <a class="page-link" href="{{ $courses->url($i) }}">{{ $i }}</a>
-                                        </li>
-                                    @endfor
-                                    <li class="page-item {{ $courses->currentPage() == $courses->lastPage() ? 'disabled' : '' }}">
-                                        <a class="page-link" href="{{ $courses->url($courses->currentPage() + 1) }}" aria-disabled="{{ $courses->currentPage() == $courses->lastPage() ? 'true' : 'false' }}">Next</a>
-                                    </li>
-                                </ul>
-                            </nav>
+
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-traffic mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Code</th>
+                                                <th>Program Name</th>
+                                                <th>Course Name</th>
+                                                <th>Short Name</th>
+                                                <th>Date Added</th>
+                                                <th>Subjects</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($courses as $course)
+                                                <tr>
+                                                    <td>{{ $course->code }}</td>
+                                                    <td>{{ $course->studyProgram->program_name ?? 'N/A' }}</td>
+                                                    <td>{{ $course->course_name }}</td>
+                                                    <td>{{ $course->short_name }}</td>
+                                                    <td>{{ $course->created_at->format('Y-m-d') ?? 'N/A' }}</td>
+                                                    <td>
+                                                        @foreach ($course->subjects as $subject)
+                                                            {{ $subject->subject_id }} - {{ $subject->subject_name }}<br>
+                                                        @endforeach
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ route('courses.edit', $course->id) }}" class="btn btn-icon btn-sm bg-primary-subtle me-1" data-bs-toggle="tooltip" title="Edit">
+                                                            <i class="mdi mdi-pencil fs-12 text-primary"></i>
+                                                        </a>
+                                                        <form action="{{ route('courses.destroy', $course->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this course?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-icon btn-sm bg-danger-subtle me-1" data-bs-toggle="tooltip" title="Delete">
+                                                                <i class="mdi mdi-trash-can fs-12 text-danger"></i>
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="card-footer py-0 border-top">
+                                <div class="row align-items-center">
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                            <div class="text-block text-muted">
+                                                <span class="fw-medium">{{ $courses->firstItem() }} - {{ $courses->lastItem() }} of {{ $courses->total() }}</span>
+                                            </div>
+                                            <nav aria-label="Page navigation">
+                                                <ul class="pagination">
+                                                    <li class="page-item {{ $courses->currentPage() == 1 ? 'disabled' : '' }}">
+                                                        <a class="page-link" href="{{ $courses->url($courses->currentPage() - 1) }}" tabindex="-1" aria-disabled="{{ $courses->currentPage() == 1 ? 'true' : 'false' }}">Previous</a>
+                                                    </li>
+                                                    @for ($i = max(1, $courses->currentPage() - 1); $i <= min($courses->lastPage(), $courses->currentPage() + 1); $i++)
+                                                        <li class="page-item {{ $i == $courses->currentPage() ? 'active' : '' }}">
+                                                            <a class="page-link" href="{{ $courses->url($i) }}">{{ $i }}</a>
+                                                        </li>
+                                                    @endfor
+                                                    <li class="page-item {{ $courses->currentPage() == $courses->lastPage() ? 'disabled' : '' }}">
+                                                        <a class="page-link" href="{{ $courses->url($courses->currentPage() + 1) }}" aria-disabled="{{ $courses->currentPage() == $courses->lastPage() ? 'true' : 'false' }}">Next</a>
+                                                    </li>
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <!-- End Courses Table -->
             </div>
         </div>
     </div>
-</div>
-<!-- End Courses Table -->
-            </div>
-        </div>
-    </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const subjectCountInput = document.getElementById('subject_count');
+                const subjectInputsDiv = document.getElementById('subjectInputs');
+                let currentCount = parseInt(subjectCountInput.value) || 1;
+
+                if (!subjectCountInput || !subjectInputsDiv) {
+                    console.error('Required elements not found:', { subjectCountInput, subjectInputsDiv });
+                    return;
+                }
+
+                // Function to generate subject select fields
+                function generateSubjectFields(count) {
+                    subjectInputsDiv.innerHTML = '';
+                    for (let i = 0; i < count; i++) {
+                        const div = document.createElement('div');
+                        div.className = 'mb-3';
+                        div.innerHTML = `
+                            <label for="subjects[${i}]" class="form-label">Subject #${i + 1}</label>
+                            <select class="form-control @error('subjects.' . $i) is-invalid @enderror" id="subjects[${i}]" name="subjects[${i}]" required>
+                                <option value="">Select Subject</option>
+                                @foreach ($subjects as $subject)
+                                    <option value="{{ $subject->id }}">{{ $subject->subject_id }} - {{ $subject->subject_name }}</option>
+                                @endforeach
+                            </select>
+                            @error('subjects.' . $i)
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @endif
+                        `;
+                        subjectInputsDiv.appendChild(div);
+                    }
+                }
+
+                // Initial generation
+                generateSubjectFields(currentCount);
+
+                // Update fields when subject_count changes
+                subjectCountInput.addEventListener('input', function() {
+                    const newCount = parseInt(this.value) || 1;
+                    if (newCount !== currentCount) {
+                        generateSubjectFields(newCount);
+                        currentCount = newCount;
+                    }
+                });
+
+                // Log to confirm script execution
+                console.log('Subject fields script loaded successfully');
+            });
+        </script>
+    @endpush
 @endsection

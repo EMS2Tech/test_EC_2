@@ -49,6 +49,9 @@
                             <li>
                                 <a class='tp-link' href='/add-course'>Courses</a>
                             </li>
+                             <li>
+                                <a class='tp-link' href='/add-subject'>Subjects</a>
+                            </li>
                             <li>
                                 <a class='tp-link' href='/add-batch'>Batches</a>
                             </li>
