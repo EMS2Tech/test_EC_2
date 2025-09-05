@@ -13,46 +13,81 @@
                 </div>
             </div>
 
-            <!-- Start Search and Table -->
-            <div class="row">
+            <!-- Start Search and Filter -->
+            <div class="row mb-3">
                 <div class="col-md-12">
-                    <div class="card overflow-hidden">
+                    <div class="card">
                         <div class="card-header">
                             <div class="d-flex justify-content-between align-items-center">
                                 <h5 class="card-title mb-0">All Applicants</h5>
-                                <form class="d-flex align-items-center" method="GET" action="{{ route('admin.applications') }}">
-                                    <input type="text" class="form-control me-2" name="search" placeholder="Search by NIC, User ID, or Email" value="{{ request('search') }}" style="width: 250px;">
-                                    <button type="submit" class="btn btn-primary btn-sm">
-                                        <i class="mdi mdi-magnify me-1"></i> Search
-                                    </button>
-                                </form>
+                                <div class="d-flex align-items-center">
+                                    <form class="d-flex align-items-center me-3" method="GET" action="{{ route('admin.applications') }}">
+                                        <input type="text" class="form-control me-2" name="search" placeholder="Search by NIC, Passport, Application No, or Email" value="{{ request('search') }}" style="width: 250px;">
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="mdi mdi-magnify me-1"></i> Search
+                                        </button>
+                                    </form>
+                                    <form class="d-flex align-items-center" method="GET" action="{{ route('admin.applications') }}">
+                                        <select name="status" class="form-select me-2" style="width: 150px;" onchange="this.form.submit()">
+                                            <option value="" {{ !request('status') ? 'selected' : '' }}>All Statuses</option>
+                                            <option value="Pending" {{ request('status') === 'Pending' ? 'selected' : '' }}>Pending</option>
+                                            <option value="Approved" {{ request('status') === 'Approved' ? 'selected' : '' }}>Approved</option>
+                                            <option value="Rejected" {{ request('status') === 'Rejected' ? 'selected' : '' }}>Rejected</option>
+                                        </select>
+                                        <input type="hidden" name="search" value="{{ request('search') }}">
+                                    </form>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Search and Filter -->
 
+            <!-- Start Table -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card overflow-hidden">
                         <div class="card-body p-0">
                             <div class="table-responsive">
                                 <table class="table table-traffic mb-0">
                                     <thead>
                                         <tr>
-                                            <th>User ID</th>
+                                            <th>Application No</th>
                                             <th>Full Name</th>
-                                            <th>Nationality</th>
-                                            <th>Other Nationality</th>
-                                            <th>NIC Number</th>
                                             <th>Contact Number</th>
                                             <th>Email</th>
+                                            <th>NIC/Passport</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($applications as $application)
                                             <tr>
-                                                <td>{{ $application->user_id }}</td>
+                                                <td>
+                                                    <a href="javascript:void(0);" class="text-dark">{{ sprintf('%.5d', $application->id ?? 0) }}</a>
+                                                </td>
                                                 <td>{{ $application->full_name ?? 'N/A' }}</td>
-                                                <td>{{ $application->nationality ?? 'N/A' }}</td>
-                                                <td>{{ $application->other_nationality ?? 'N/A' }}</td>
-                                                <td>{{ $application->nic_number ?? 'N/A' }}</td>
                                                 <td>{{ $application->contact_number ?? 'N/A' }}</td>
                                                 <td>{{ $application->email_address ?? 'N/A' }}</td>
+                                                <td>
+                                                    @if ($application->nationality === 'Sri Lanka')
+                                                        {{ $application->nic_number ?? 'N/A' }}
+                                                    @else
+                                                        {{ $application->passport_number ?? 'N/A' }}
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <span class="badge {{ $application->status == 'Approved' ? 'bg-success-subtle text-success' : ($application->status == 'Pending' ? 'bg-warning-subtle text-warning' : ($application->status == 'Rejected' ? 'bg-danger-subtle text-danger' : 'bg-secondary-subtle text-secondary')) }} fw-semibold">
+                                                        {{ $application->status ?? 'Not Complete' }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <a href="{{ route('admin.application.details', $application->id ?? 0) }}" aria-label="anchor" class="btn btn-icon btn-sm bg-info-subtle me-1" data-bs-toggle="tooltip" data-bs-original-title="View" {{ !$application->id ? 'disabled' : '' }}>
+                                                        <i class="mdi mdi-eye-outline fs-12 text-info"></i>
+                                                    </a>
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -89,7 +124,7 @@
                     </div>
                 </div>
             </div>
-            <!-- End Search and Table -->
+            <!-- End Table -->
         </div>
         <!-- container-fluid -->
     </div>

@@ -20,7 +20,7 @@ class ApplicationController extends Controller
         $user = Auth::user();
         $application = Application::where('user_id', $user->id)->first();
 
-        if ($application && $application->application_completed) {
+        if ($application && $application->application_completed && $application->status !== 'Rejected') {
             return redirect()->route('profile.edit')->with('error', 'You have already submitted an application.');
         }
 
@@ -32,8 +32,10 @@ class ApplicationController extends Controller
     {
         $user = Auth::user();
 
-        // Check if application already completed
-        if (Application::where('user_id', $user->id)->where('application_completed', true)->exists()) {
+        // Check if application already exists
+        $application = Application::where('user_id', $user->id)->first();
+
+        if ($application && $application->application_completed && $application->status !== 'Rejected') {
             return redirect()->route('course-application.create')->with('error', 'You have already submitted an application.');
         }
 
@@ -70,14 +72,15 @@ class ApplicationController extends Controller
             return redirect()->back()->withErrors($e->errors())->withInput();
         }
 
-        $application = Application::where('user_id', $user->id)->first() ?? new Application(['user_id' => $user->id]);
+        // Use existing application if it exists, otherwise create new
+        $application = $application ?? new Application(['user_id' => $user->id]);
 
         // Determine folder name based on nationality
         $folderName = $request->nationality === 'Sri Lanka' && $request->nic_number
             ? $request->nic_number
             : ($request->nationality === 'Other' && $request->passport_number
                 ? $request->passport_number
-                : $user->id . '_' . time()); // Fallback: user_id_timestamp
+                : ($application->nic_number ?: ($application->passport_number ?: ($user->id . '_' . time())))); // Fallback: use existing or user_id_timestamp
 
         // Ensure the folder exists with the applications prefix
         $storagePath = "applications/{$folderName}";
@@ -88,6 +91,10 @@ class ApplicationController extends Controller
         // Handle file uploads with logging
         if ($request->hasFile('nic_photo')) {
             if ($request->file('nic_photo')->isValid()) {
+                // Delete old NIC photo if exists
+                if ($application->nic_photo) {
+                    Storage::disk('public')->delete($application->nic_photo);
+                }
                 $application->nic_photo = $request->file('nic_photo')->store($storagePath, 'public');
                 Log::info('NIC photo uploaded', ['path' => $application->nic_photo]);
             } else {
@@ -97,6 +104,10 @@ class ApplicationController extends Controller
         }
         if ($request->hasFile('passport_photo')) {
             if ($request->file('passport_photo')->isValid()) {
+                // Delete old passport photo if exists
+                if ($application->passport_photo) {
+                    Storage::disk('public')->delete($application->passport_photo);
+                }
                 $application->passport_photo = $request->file('passport_photo')->store($storagePath, 'public');
                 Log::info('Passport photo uploaded', ['path' => $application->passport_photo]);
             } else {
@@ -106,6 +117,10 @@ class ApplicationController extends Controller
         }
         if ($request->hasFile('photograph')) {
             if ($request->file('photograph')->isValid()) {
+                // Delete old photograph if exists
+                if ($application->photograph) {
+                    Storage::disk('public')->delete($application->photograph);
+                }
                 $application->photograph = $request->file('photograph')->store($storagePath, 'public');
                 Log::info('Photograph uploaded', ['path' => $application->photograph]);
             } else {
@@ -132,13 +147,14 @@ class ApplicationController extends Controller
             'whatsapp_number' => $request->whatsapp_number,
             'email_address' => $request->email_address,
             'application_completed' => true,
+            'status' => 'Pending', // Reset status to Pending on resubmission
         ]);
 
         $application->save();
 
-        Log::info('Application completed', ['user_id' => $user->id, 'folder' => $storagePath]);
+        Log::info('Application submitted or updated', ['user_id' => $user->id, 'folder' => $storagePath, 'id' => $application->id]);
 
-        return redirect()->route('course-application.create')->with('status', 'Application submitted successfully!');
+        return redirect()->route('profile.edit')->with('status', 'Application submitted successfully!');
     }
 
     public function updatePhotograph(Request $request)

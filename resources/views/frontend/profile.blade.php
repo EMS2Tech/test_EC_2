@@ -4,18 +4,18 @@
 
 @section('content')
     <div class="content-page">
-<div class="content">
-<div class="container-fluid">
-<div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column">
-<div class="flex-grow-1">
-<h4 class="fs-18 fw-semibold m-0">Profile</h4>
-</div>
-<div class="mt-2 mt-sm-0">
-<button id="export-pdf-btn" class="btn btn-primary">
-<i class="mdi mdi-file-pdf-box me-1"></i> Export as PDF
-</button>
-</div>
-</div>
+        <div class="content">
+            <div class="container-fluid">
+                <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column">
+                    <div class="flex-grow-1">
+                        <h4 class="fs-18 fw-semibold m-0">Profile</h4>
+                    </div>
+                    <div class="mt-2 mt-sm-0">
+                        <button id="export-pdf-btn" class="btn btn-primary">
+                            <i class="mdi mdi-file-pdf-box me-1"></i> Export as PDF
+                        </button>
+                    </div>
+                </div>
 
                 <div class="row">
                     <div class="col-12">
@@ -104,7 +104,7 @@
                                                                 </div>
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">Student ID</label>
-                                                                    <p class="text-muted mb-1">{{ $student ? $student->student_id : 'Not Available' }}</p>
+                                                                    <p class="text-muted mb-1">{{ $student ? $student->student_id : 'N/A' }}</p>
                                                                 </div>
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">Name with Initials</label>
@@ -137,9 +137,12 @@
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">Application Status</label>
                                                                     <span
-                                                                        class="badge bg-{{ $application->application_completed ? 'success' : 'warning' }}">
-                                                                        {{ $application->application_completed ? 'Completed' : 'Pending' }}
+                                                                        class="badge bg-{{ $application->status == 'Approved' ? 'success' : ($application->status == 'Pending' ? 'warning' : ($application->status == 'Rejected' ? 'danger' : 'secondary')) }} me-2">
+                                                                        {{ $application->status ?? 'Not Complete' }}
                                                                     </span>
+                                                                    @if ($application->status === 'Rejected' && $application->rejection_reason)
+                                                                        <span class="text-danger">Reason: {{ $application->rejection_reason }}</span>
+                                                                    @endif
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -502,15 +505,15 @@
         </div>
     </div>
     @section('scripts')
-<!-- Include SweetAlert2 CDN -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<!-- Include html2pdf library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script>
+    <!-- Include SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Include html2pdf library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
         function updateProfilePicture(input) {
             // Your existing updateProfilePicture function
         }
- 
+
         document.getElementById('export-pdf-btn').addEventListener('click', function() {
             // Show loading alert
             Swal.fire({
@@ -521,7 +524,7 @@
                     Swal.showLoading()
                 }
             });
- 
+
             // Get the element to export (the entire profile content)
             const element = document.querySelector('.content-page');
             // Options for the PDF
@@ -532,7 +535,7 @@
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
- 
+
             // Generate PDF
             html2pdf().set(opt).from(element).toPdf().get('pdf').then(function(pdf) {
                 // Add watermark or other PDF modifications if needed
@@ -566,6 +569,6 @@
                 });
             });
         });
-</script>
+    </script>
     @endsection
 @endsection

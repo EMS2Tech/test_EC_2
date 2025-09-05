@@ -19,6 +19,7 @@ class AdminController extends Controller
             \DB::raw('COALESCE(MAX(applications.full_name), users.name) as full_name'),
             \DB::raw('MAX(applications.id) as application_id'),
             \DB::raw('MAX(applications.application_completed) as application_completed'),
+            \DB::raw('MAX(applications.status) as status'), // Add status column
             \DB::raw('MAX(study_programs.program_name) as study_programme_name'),
             \DB::raw('MAX(courses.course_name) as course_name'),
             \DB::raw('(
@@ -51,23 +52,30 @@ class AdminController extends Controller
     public function applications(Request $request)
     {
         $query = Application::select(
+            'applications.id',
             'applications.user_id',
             'full_name',
-            'nationality',
-            'other_nationality',
-            'nic_number',
             'contact_number',
-            'email_address'
-        );
-        //->leftJoin('payments', 'applications.user_id', '=', 'payments.user_id');
+            'email_address',
+            'nic_number',
+            'passport_number',
+            'nationality',
+            'status'
+        )->leftJoin('users', 'applications.user_id', '=', 'users.id');
 
         // Search logic
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('nic_number', 'like', "%{$search}%")
-                  ->orWhere('applications.user_id', 'like', "%{$search}%")
+                  ->orWhere('passport_number', 'like', "%{$search}%")
+                  ->orWhere('applications.id', 'like', "%{$search}%") // Qualify id with applications table
                   ->orWhere('email_address', 'like', "%{$search}%");
             });
+        }
+
+        // Status filter logic
+        if ($status = $request->input('status')) {
+            $query->where('status', $status);
         }
 
         $applications = $query->paginate(20);
@@ -265,5 +273,35 @@ class AdminController extends Controller
         };
 
         return Response::stream($callback, 200, $headers);
+    }
+
+    public function viewApplicationDetails($id)
+    {
+        $application = Application::where('id', $id)->orWhere('user_id', $id)->firstOrFail();
+        $payments = Payment::where('user_id', $application->user_id)->get();
+        $courseApplications = CourseApplication::where('user_id', $application->user_id)->get();
+
+        return view('frontend.application-view', compact('application', 'payments', 'courseApplications'));
+    }
+
+    public function updateApplicationStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:Approved,Rejected',
+            'reason' => 'required_if:status,Rejected|string|max:500',
+        ]);
+
+        $application = Application::where('id', $id)->orWhere('user_id', $id)->firstOrFail();
+
+        $application->status = $request->status;
+        if ($request->status === 'Rejected') {
+            $application->rejection_reason = $request->reason;
+        } else {
+            $application->rejection_reason = null; // Clear rejection reason on approval
+        }
+
+        $application->save();
+
+        return redirect()->back()->with('success', 'Application status updated successfully.');
     }
 }

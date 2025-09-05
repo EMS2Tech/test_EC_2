@@ -203,13 +203,9 @@
                                                         <p class="mb-0 text-muted">{{ $application->student_id }}</p>
                                                     </td>
                                                     <td>
-                                                        @if (is_null($application->application_completed))
-                                                            <span class="badge bg-secondary-subtle text-secondary fw-semibold">Not Complete</span>
-                                                        @else
-                                                            <span class="badge {{ $application->application_completed ? 'bg-primary-subtle text-primary' : 'bg-warning-subtle text-warning' }} fw-semibold">
-                                                                {{ $application->application_completed ? 'Complete' : 'Pending' }}
-                                                            </span>
-                                                        @endif
+                                                        <span class="badge {{ $application->status == 'Approved' ? 'bg-success-subtle text-success' : ($application->status == 'Pending' ? 'bg-warning-subtle text-warning' : ($application->status == 'Rejected' ? 'bg-danger-subtle text-danger' : 'bg-secondary-subtle text-secondary')) }} fw-semibold">
+                                                            {{ $application->status ?? 'Not Complete' }}
+                                                        </span>
                                                     </td>
                                                     <td>
                                                         <span class="badge {{ $application->payment_status == 'Completed' ? 'bg-success-subtle text-success' : ($application->payment_status == 'Pending Verification' ? 'bg-warning-subtle text-warning' : 'bg-danger-subtle text-danger') }} fw-semibold">
@@ -217,21 +213,23 @@
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        <a href="{{ route('admin.application.view', $application->application_id ?? $application->user_id) }}" aria-label="anchor" class="btn btn-icon btn-sm bg-info-subtle me-1" data-bs-toggle="tooltip" data-bs-original-title="View">
+                                                        <a href="{{ route('admin.application.details', $application->application_id ?? $application->user_id) }}" aria-label="anchor" class="btn btn-icon btn-sm bg-info-subtle me-1" data-bs-toggle="tooltip" data-bs-original-title="View">
                                                             <i class="mdi mdi-eye-outline fs-12 text-info"></i>
                                                         </a>
-                                                        @if ($application->payment_status == 'Pending Verification')
-                                                            <form action="{{ route('admin.payment.status', $application->user_id) }}" method="POST" style="display:inline;">
+                                                        @if ($application->status == 'Pending')
+                                                            <form action="{{ route('admin.application.update-status', $application->application_id ?? $application->user_id) }}" method="POST" style="display:inline;">
                                                                 @csrf
-                                                                <input type="hidden" name="status" value="completed">
+                                                                @method('PUT')
+                                                                <input type="hidden" name="status" value="Approved">
                                                                 <button type="submit" aria-label="Approve" class="btn btn-icon btn-sm bg-success-subtle me-1" data-bs-toggle="tooltip" data-bs-original-title="Approve">
                                                                     <i class="mdi mdi-check-circle-outline fs-12 text-success"></i>
                                                                 </button>
                                                             </form>
-                                                            <form action="{{ route('admin.payment.status', $application->user_id) }}" method="POST" style="display:inline;">
+                                                            <form action="{{ route('admin.application.update-status', $application->application_id ?? $application->user_id) }}" method="POST" style="display:inline;">
                                                                 @csrf
-                                                                <input type="hidden" name="status" value="rejected">
-                                                                <button type="submit" aria-label="Not Approve" class="btn btn-icon btn-sm bg-danger-subtle me-1" data-bs-toggle="tooltip" data-bs-original-title="Not Approve">
+                                                                @method('PUT')
+                                                                <input type="hidden" name="status" value="Rejected">
+                                                                <button type="submit" aria-label="Reject" class="btn btn-icon btn-sm bg-danger-subtle me-1" data-bs-toggle="tooltip" data-bs-original-title="Reject">
                                                                     <i class="mdi mdi-close-circle-outline fs-12 text-danger"></i>
                                                                 </button>
                                                             </form>

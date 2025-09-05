@@ -2,40 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Application extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
-        'user_id',
-        'title',
-        'full_name',
-        'name_with_initials',
-        'birthday',
-        'nationality',
-        'nic_number',
-        'nic_photo',
-        'other_nationality',
-        'passport_number', // Added passport_number to fillable
-        'passport_photo',
-        'photograph',
-        'address',
-        'contact_number',
-        'whatsapp_number',
-        'email_address',
-        'application_completed',
+        'user_id', 'title', 'full_name', 'name_with_initials', 'birthday', 'nationality',
+        'nic_number', 'other_nationality', 'passport_number', 'address', 'contact_number',
+        'whatsapp_number', 'email_address', 'nic_photo', 'passport_photo', 'photograph',
+        'application_completed', 'status', 'rejection_reason'
     ];
 
     protected $casts = [
-        'birthday' => 'date',
         'application_completed' => 'boolean',
+        'birthday' => 'date',
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 }

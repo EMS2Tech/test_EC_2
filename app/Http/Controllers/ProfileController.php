@@ -26,14 +26,6 @@ class ProfileController extends Controller
             ]);
         }
 
-        // For students, check if they have applied for a course
-        if ($user->type === 'student') {
-            $courseApplication = CourseApplication::where('user_id', $user->id)->first();
-            if (!$courseApplication) {
-                return redirect()->route('user.dashboard')->with('error', 'Please apply for a course to access your profile.');
-            }
-        }
-
         return view('frontend.profile', [
             'user' => $user,
         ]);

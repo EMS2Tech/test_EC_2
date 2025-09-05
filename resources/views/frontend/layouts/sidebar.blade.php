@@ -18,7 +18,11 @@
             <ul id="side-menu">
                 @php
                     $user = auth()->user();
-                    $applicationCompleted = $user ? \App\Models\Application::where('user_id', $user->id)->value('application_completed') : 0;
+                    $application = $user ? \App\Models\Application::where('user_id', $user->id)->first() : null;
+                    $applicationCompleted = $application ? $application->application_completed : 0;
+                    $status = $application ? $application->status : null;
+                    $isLocked = $applicationCompleted && ($status === 'Approved' || $status === 'Pending');
+                    $isResubmitAllowed = $applicationCompleted && $status === 'Rejected';
                 @endphp
 
                 <li>
@@ -31,8 +35,8 @@
                 </li>
 
                 <li>
-                    <a href="{{ !$applicationCompleted ? route('user.dashboard') : '#' }}"
-                       @if($applicationCompleted) class="disabled-link text-muted" @endif>
+                    <a href="{{ $isResubmitAllowed ? route('user.dashboard') : '#' }}"
+                       @if($isLocked) class="disabled-link text-muted" @endif>
                         <i data-feather="file-text"></i>
                         <span> Application </span>
                     </a>
