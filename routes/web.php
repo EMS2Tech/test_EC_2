@@ -71,7 +71,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/course-apply', [CourseApplicationController::class, 'create'])->name('course-application.create');
     Route::post('/course-apply', [CourseApplicationController::class, 'store'])->name('course-application.store');
-    Route::get('/get-courses/{studyProgramId}', [CourseApplicationController::class, 'getCourses']);
 
     // Admin pages route
     Route::middleware(['auth', RestrictType::class . ':admin'])->group(function () {

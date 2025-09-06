@@ -21,8 +21,8 @@
                                     <form class="needs-validation" novalidate method="POST" action="{{ route('course-application.store') }}" enctype="multipart/form-data" id="registrationForm">
                                         @csrf
                                         <div class="mb-3">
-                                            <label class="form-label">Study Programme</label>
-                                            <select class="form-select" id="studyProgramme" name="study_programme" required>
+                                            <label class="form-label">Study Programme <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="studyProgramme" name="study_programme" required onchange="filterCourses()">
                                                 <option value="">-- Select Study Programme --</option>
                                                 @foreach ($studyPrograms as $program)
                                                     <option value="{{ $program->id }}">{{ $program->program_name }}</option>
@@ -32,9 +32,17 @@
                                             <div class="invalid-feedback">Please select a study programme.</div>
                                         </div>
                                         <div class="mb-3" id="courseWrapper" style="display: none;">
-                                            <label class="form-label">Course</label>
+                                            <label class="form-label">Course <span class="text-danger">*</span></label>
                                             <select class="form-select" id="course" name="course" required>
                                                 <option value="">-- Select Course --</option>
+                                                @foreach ($courses as $course)
+                                                    <option value="{{ $course->id }}" data-study-program-id="{{ $course->program_id }}">
+                                                        {{ $course->course_name }} (Batch(s): @php
+                                                            $activeBatches = $course->batches;
+                                                            echo $activeBatches->isNotEmpty() ? $activeBatches->pluck('batch_no')->implode(', ') : 'No active batches';
+                                                        @endphp)
+                                                    </option>
+                                                @endforeach
                                             </select>
                                             <x-input-error :messages="$errors->get('course')" class="mt-2" />
                                             <div class="invalid-feedback">Please select a course.</div>
@@ -42,41 +50,42 @@
                                         <hr>
                                         <div id="uploads" style="display: none;">
                                             <div class="mb-3" id="olUpload" style="display: none;">
-                                                <label class="form-label">G.C.E Ordinary Level Certificate</label>
-                                                <input type="file" class="form-control" name="ol_certificate">
+                                                <label class="form-label">G.C.E Ordinary Level Certificate <span class="text-danger">*</span></label>
+                                                <input type="file" class="form-control" name="ol_certificate" required>
                                                 <small class="form-text text-muted">Max Size 4MB - Double Side</small>
                                                 <x-input-error :messages="$errors->get('ol_certificate')" class="mt-2" />
-                                                <div class="invalid-feedback">Please upload.</div>
+                                                <div class="invalid-feedback">Please upload O/L certificate.</div>
                                             </div>
                                             <div class="mb-3" id="alUpload" style="display: none;">
-                                                <label class="form-label">G.C.E Advanced Level Certificate</label>
-                                                <input type="file" class="form-control" name="al_certificate">
+                                                <label class="form-label">G.C.E Advanced Level Certificate <span class="text-danger">*</span></label>
+                                                <input type="file" class="form-control" name="al_certificate" required>
                                                 <small class="form-text text-muted">Max Size 4MB - Double Side</small>
                                                 <x-input-error :messages="$errors->get('al_certificate')" class="mt-2" />
-                                                <div class="invalid-feedback">Please upload.</div>
+                                                <div class="invalid-feedback">Please upload A/L certificate.</div>
                                             </div>
                                             <div class="mb-3" id="diplomaUpload" style="display: none;">
-                                                <label class="form-label">Diploma Certificate(s)</label>
-                                                <input type="file" class="form-control" id="diplomaCertificates" name="diploma_certificates[]" multiple>
+                                                <label class="form-label">Diploma Certificate(s) <span class="text-danger">*</span></label>
+                                                <input type="file" class="form-control" id="diplomaCertificates" name="diploma_certificates[]" multiple required>
                                                 <small class="form-text text-muted">Max Size 4MB - Double Side</small>
                                                 <x-input-error :messages="$errors->get('diploma_certificates.*')" class="mt-2" />
                                                 <ul id="diplomaFileList" class="mt-2"></ul>
+                                                <div class="invalid-feedback">Please upload diploma certificate(s).</div>
                                             </div>
                                             <div class="mb-3" id="degreeUpload" style="display: none;">
-                                                <label class="form-label">University Degree Certificate</label>
-                                                <input type="file" class="form-control" name="degree_certificate">
+                                                <label class="form-label">University Degree Certificate <span class="text-danger">*</span></label>
+                                                <input type="file" class="form-control" name="degree_certificate" required>
                                                 <small class="form-text text-muted">Max Size 4MB - Double Side</small>
                                                 <x-input-error :messages="$errors->get('degree_certificate')" class="mt-2" />
-                                                <div class="invalid-feedback">Please upload.</div>
+                                                <div class="invalid-feedback">Please upload degree certificate.</div>
                                             </div>
                                             <div class="mb-3" id="transcriptUpload" style="display: none;">
-                                                <label class="form-label">University Transcript</label>
-                                                <input type="file" class="form-control" name="transcript_certificate">
+                                                <label class="form-label">University Transcript <span class="text-danger">*</span></label>
+                                                <input type="file" class="form-control" name="transcript_certificate" required>
                                                 <small class="form-text text-muted">Max Size 4MB - Double Side</small>
                                                 <x-input-error :messages="$errors->get('transcript_certificate')" class="mt-2" />
-                                                <div class="invalid-feedback">Please upload.</div>
+                                                <div class="invalid-feedback">Please upload transcript.</div>
                                             </div>
-                                            <div id="otherCertificatesUpload" class="mb-3">
+                                            <div class="mb-3" id="otherCertificatesUpload">
                                                 <label for="otherCertificates" class="form-label">Other Certificates (if any)</label>
                                                 <input type="file" class="form-control" id="otherCertificates" name="other_certificates[]" multiple>
                                                 <x-input-error :messages="$errors->get('other_certificates.*')" class="mt-2" />
@@ -97,63 +106,73 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        const studyProgramme = document.getElementById("studyProgramme");
-        const courseSelect = document.getElementById("course");
-        const courseWrapper = document.getElementById("courseWrapper");
+        function filterCourses() {
+            const studyProgramme = document.getElementById("studyProgramme");
+            const courseSelect = document.getElementById("course");
+            const courseWrapper = document.getElementById("courseWrapper");
+            const selectedId = studyProgramme.value;
 
-        const uploadsDiv = document.getElementById("uploads");
-        const olUpload = document.getElementById("olUpload");
-        const alUpload = document.getElementById("alUpload");
-        const diplomaUpload = document.getElementById("diplomaUpload");
-        const degreeUpload = document.getElementById("degreeUpload");
-        const transcriptUpload = document.getElementById("transcriptUpload");
-        const diplomaCertificates = document.getElementById("diplomaCertificates");
-        const diplomaFileList = document.getElementById("diplomaFileList");
-        const otherCertificates = document.getElementById("otherCertificates");
-        const otherCertificatesFileList = document.getElementById("otherCertificatesFileList");
-
-        studyProgramme.addEventListener("change", function () {
-            const selectedId = this.value;
-            courseWrapper.style.display = "none";
-            courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
-
-            if (selectedId) {
-                $.ajax({
-                    url: '/get-courses/' + selectedId,
-                    method: 'GET',
-                    success: function (response) {
-                        courseWrapper.style.display = "block";
-                        $.each(response, function (id, text) {
-                            const option = document.createElement("option");
-                            option.value = id;
-                            option.textContent = text;
-                            courseSelect.appendChild(option);
-                        });
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error fetching courses:', error);
-                    }
-                });
+            // Hide all course options initially
+            const options = courseSelect.getElementsByTagName("option");
+            for (let option of options) {
+                option.style.display = "none";
             }
 
-            uploadsDiv.style.display = "block";
+            // Show the default option
+            courseSelect.options[0].style.display = "block";
+
+            if (selectedId) {
+                courseWrapper.style.display = "block";
+                // Filter and show courses for the selected study program
+                for (let option of options) {
+                    if (option.dataset.studyProgramId === selectedId) {
+                        option.style.display = "block";
+                    }
+                }
+            } else {
+                courseWrapper.style.display = "none";
+            }
+
+            // Reset uploads
+            const uploadsDiv = document.getElementById("uploads");
+            uploadsDiv.style.display = "none";
+            document.getElementById("olUpload").style.display = "none";
+            document.getElementById("alUpload").style.display = "none";
+            document.getElementById("diplomaUpload").style.display = "none";
+            document.getElementById("degreeUpload").style.display = "none";
+            document.getElementById("transcriptUpload").style.display = "none";
+        }
+
+        courseSelect.addEventListener("change", function () {
+            const selectedCourseId = this.value;
+            const uploadsDiv = document.getElementById("uploads");
+            const olUpload = document.getElementById("olUpload");
+            const alUpload = document.getElementById("alUpload");
+            const diplomaUpload = document.getElementById("diplomaUpload");
+            const degreeUpload = document.getElementById("degreeUpload");
+            const transcriptUpload = document.getElementById("transcriptUpload");
+
+            uploadsDiv.style.display = selectedCourseId ? "block" : "none";
             olUpload.style.display = "none";
             alUpload.style.display = "none";
             diplomaUpload.style.display = "none";
             degreeUpload.style.display = "none";
             transcriptUpload.style.display = "none";
 
-            if (selectedId) {
-                const program = {
-                    '1': function() { olUpload.style.display = "block"; }, // Bachelor's
-                    '2': function() { alUpload.style.display = "block"; diplomaUpload.style.display = "block"; }, // Higher Diploma
-                    '3': function() { olUpload.style.display = "block"; }, // Diploma
-                    '4': function() { degreeUpload.style.display = "block"; transcriptUpload.style.display = "block"; } // Postgraduate
-                }[selectedId];
+            if (selectedCourseId) {
+                const courseType = selectedCourseId.split('-')[0]; // Assuming ID format like "4-1" where 4 is the type
+                const courseRequirements = {
+                    '1': ['ol'], // Bachelor's
+                    '2': ['al', 'diploma'], // Higher Diploma
+                    '3': ['ol'], // Diploma
+                    '4': ['degree', 'transcript'] // Postgraduate
+                }[courseType] || [];
 
-                if (program) program();
-            } else {
-                uploadsDiv.style.display = "none";
+                if (courseRequirements.includes('ol')) olUpload.style.display = "block";
+                if (courseRequirements.includes('al')) alUpload.style.display = "block";
+                if (courseRequirements.includes('diploma')) diplomaUpload.style.display = "block";
+                if (courseRequirements.includes('degree')) degreeUpload.style.display = "block";
+                if (courseRequirements.includes('transcript')) transcriptUpload.style.display = "block";
             }
         });
 

@@ -22,4 +22,9 @@ class Course extends Model
     {
         return $this->belongsToMany(Subject::class, 'course_subject');
     }
+
+    public function batches()
+    {
+        return $this->hasMany(Batch::class, 'course_id');
+    }
 }
