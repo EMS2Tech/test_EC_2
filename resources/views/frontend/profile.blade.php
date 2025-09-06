@@ -244,6 +244,8 @@
                                             <th scope="col">Course</th>
                                             <th scope="col">Batch(s)</th>
                                             <th scope="col">Apply Date</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Rejection Reason</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -259,6 +261,18 @@
                                                     @endif
                                                 </td>
                                                 <td>{{ $application->created_at->format('F j, Y h:i A') }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ $application->status == 'Approved' ? 'success' : ($application->status == 'Pending' ? 'warning' : ($application->status == 'Rejected' ? 'danger' : 'secondary')) }} me-2">
+                                                        {{ $application->status ?? 'N/A' }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    @if ($application->status === 'Rejected' && $application->rejection_reason)
+                                                        {{ $application->rejection_reason }}
+                                                    @else
+                                                        N/A
+                                                    @endif
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -267,6 +281,55 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Document Update Form (Visible only if any application is Rejected) -->
+                @php
+                    $hasRejected = $courseApplications->contains('status', 'Rejected');
+                @endphp
+                @if ($hasRejected)
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">Update Rejected Documents</h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="{{ route('user.courseapplication.update.documents') }}" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    @method('PUT') <!-- Added to spoof PUT method -->
+                                    <div class="row g-3">
+                                        @php
+                                            $documents = [
+                                                'ol_certificate' => 'O/L Certificate',
+                                                'al_certificate' => 'A/L Certificate',
+                                                'degree_certificate' => 'Degree Certificate',
+                                                'transcript_certificate' => 'Transcript Certificate',
+                                            ];
+                                            $arrayDocuments = [
+                                                'diploma_certificates' => 'Diploma Certificates',
+                                                'other_certificates' => 'Other Certificates',
+                                            ];
+                                        @endphp
+                                        @foreach ($documents as $field => $label)
+                                            <div class="col-md-4 mb-3">
+                                                <label for="{{ $field }}" class="form-label">{{ $label }}</label>
+                                                <input type="file" name="{{ $field }}" id="{{ $field }}" class="form-control" accept=".pdf,.jpg,.png">
+                                            </div>
+                                        @endforeach
+                                        @foreach ($arrayDocuments as $field => $label)
+                                            <div class="col-md-4 mb-3">
+                                                <label for="{{ $field }}_0" class="form-label">{{ $label }} (Multiple)</label>
+                                                <input type="file" name="{{ $field }}[]" id="{{ $field }}_0" class="form-control" accept=".pdf,.jpg,.png" multiple>
+                                            </div>
+                                        @endforeach
+                                        <div class="col-12 text-end">
+                                            <button type="submit" class="btn btn-primary">Upload Updated Documents</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         @else
             <div class="alert alert-info text-center" role="alert">

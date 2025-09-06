@@ -71,6 +71,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/course-apply', [CourseApplicationController::class, 'create'])->name('course-application.create');
     Route::post('/course-apply', [CourseApplicationController::class, 'store'])->name('course-application.store');
+    Route::put('/user/courseapplication/update-documents', [CourseApplicationController::class, 'userUpdateDocuments'])->name('user.courseapplication.update.documents')->middleware('auth');
 
     // Admin pages route
     Route::middleware(['auth', RestrictType::class . ':admin'])->group(function () {
@@ -100,6 +101,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/subjects/{id}/edit', [SubjectController::class, 'edit'])->name('subjects.edit');
         Route::delete('/subjects/{id}', [SubjectController::class, 'destroy'])->name('subjects.destroy');
         Route::patch('/subjects/{id}', [SubjectController::class, 'update'])->name('subjects.update');
+
+        // New routes for course application management
+    Route::get('/admin/courseapplication/{id}/view', [CourseApplicationController::class, 'view'])->name('admin.courseapplication.view');
+    Route::put('/admin/courseapplication/{id}/update-status', [CourseApplicationController::class, 'updateStatus'])->name('admin.courseapplication.update.status');
     });
 });
 

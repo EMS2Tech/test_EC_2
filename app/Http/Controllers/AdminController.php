@@ -114,69 +114,51 @@ class AdminController extends Controller
 
     public function courseApplications(Request $request)
     {
-        $query = CourseApplication::select(
-            'course_applications.id',
-            'course_applications.user_id',
-            'course_applications.created_at as apply_date',
-            'study_programs.program_name as study_programme_name',
-            'courses.course_name as course_name',
-            \DB::raw('GROUP_CONCAT(batches.batch_no SEPARATOR ", ") as batch_no'),
-            \DB::raw('COALESCE(applications.full_name, users.name) as full_name')
-        )
-        ->leftJoin('study_programs', 'course_applications.study_programme_id', '=', 'study_programs.id')
-        ->leftJoin('courses', 'course_applications.course_id', '=', 'courses.id')
-        ->leftJoin('batches', 'courses.id', '=', 'batches.course_id')
-        ->leftJoin('applications', 'course_applications.user_id', '=', 'applications.user_id')
-        ->leftJoin('users', 'course_applications.user_id', '=', 'users.id')
-        ->groupBy(
-            'course_applications.id',
-            'course_applications.user_id',
-            'course_applications.created_at',
-            'study_programs.program_name',
-            'courses.course_name',
-            'applications.full_name',
-            'users.name'
-        );
+        $query = CourseApplication::with(['user.application', 'studyProgram', 'course.batches']);
 
-        // Filter logic
-        if ($request->filled('study_program_name')) {
-            $query->where('study_programs.program_name', 'like', '%' . $request->input('study_program_name') . '%');
+        // Apply filters
+        if ($request->has('study_program_name')) {
+            $query->whereHas('studyProgram', function ($q) use ($request) {
+                $q->where('program_name', 'like', '%' . $request->study_program_name . '%');
+            });
         }
-        if ($request->filled('course_name')) {
-            $query->where('courses.course_name', 'like', '%' . $request->input('course_name') . '%');
+        if ($request->has('course_name')) {
+            $query->whereHas('course', function ($q) use ($request) {
+                $q->where('course_name', 'like', '%' . $request->course_name . '%');
+            });
         }
-        if ($request->filled('batch_no')) {
-            $query->where('batches.batch_no', 'like', '%' . $request->input('batch_no') . '%');
+        if ($request->has('batch_no')) {
+            $query->whereHas('course.batches', function ($q) use ($request) {
+                $q->where('batch_no', 'like', '%' . $request->batch_no . '%');
+            });
         }
-
-        // Date range filter
-        if ($request->filled('date_range')) {
-            $now = Carbon::now();
-            switch ($request->input('date_range')) {
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->has('date_range')) {
+            $today = Carbon::now('Asia/Colombo');
+            switch ($request->date_range) {
                 case 'last_24h':
-                    $query->where('course_applications.created_at', '>=', $now->subHours(24));
+                    $query->where('created_at', '>=', $today->subHours(24));
                     break;
                 case 'last_7d':
-                    $query->where('course_applications.created_at', '>=', $now->subDays(7));
+                    $query->where('created_at', '>=', $today->subDays(7));
                     break;
                 case 'last_month':
-                    $query->where('course_applications.created_at', '>=', $now->subMonth());
+                    $query->where('created_at', '>=', $today->subMonth());
                     break;
                 case 'custom':
-                    if ($request->filled('start_date') && $request->filled('end_date')) {
-                        $startDate = Carbon::parse($request->input('start_date'))->startOfDay();
-                        $endDate = Carbon::parse($request->input('end_date'))->endOfDay();
-                        if ($startDate->lte($endDate)) {
-                            $query->whereBetween('course_applications.created_at', [$startDate, $endDate]);
-                        }
+                    if ($request->has('start_date') && $request->has('end_date')) {
+                        $start = Carbon::parse($request->start_date)->startOfDay();
+                        $end = Carbon::parse($request->end_date)->endOfDay();
+                        $query->whereBetween('created_at', [$start, $end]);
                     }
                     break;
             }
         }
 
-        $courseApplications = $query->paginate(20);
-
-        $currentPage = $courseApplications->currentPage();
+        $courseApplications = $query->paginate(10);
+        $currentPage = $request->input('page', 1);
         $lastPage = $courseApplications->lastPage();
 
         return view('frontend.course-application', compact('courseApplications', 'currentPage', 'lastPage'));

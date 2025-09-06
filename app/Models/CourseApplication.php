@@ -10,11 +10,13 @@ class CourseApplication extends Model
         'user_id',
         'study_programme_id',
         'course_id',
+        'status',
+        'rejection_reason',
         'ol_certificate',
         'al_certificate',
-        'diploma_certificates',
         'degree_certificate',
         'transcript_certificate',
+        'diploma_certificates',
         'other_certificates',
     ];
 
@@ -22,9 +24,6 @@ class CourseApplication extends Model
         'diploma_certificates' => 'array',
         'other_certificates' => 'array',
     ];
-
-    // Ensure timestamps are enabled (default in Laravel)
-    public $timestamps = true;
 
     public function user()
     {
@@ -38,12 +37,32 @@ class CourseApplication extends Model
 
     public function course()
     {
-        return $this->belongsTo(Course::class, 'course_id');
+        return $this->belongsTo(Course::class);
     }
 
-    // Optional: Method to get active batches for the associated course
-    public function getActiveBatchesAttribute()
+    public function getFullNameAttribute()
     {
-        return $this->course->batches()->where('start_date', '<=', now())->where('end_date', '>=', now())->get();
+        return $this->user->application->full_name ?? 'Unknown';
+    }
+
+    public function getStudyProgrammeNameAttribute()
+    {
+        return $this->studyProgram->program_name ?? 'N/A';
+    }
+
+    public function getCourseNameAttribute()
+    {
+        return $this->course->course_name ?? 'N/A';
+    }
+
+    public function getBatchNoAttribute()
+    {
+        $batch = $this->course->batches()->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
+        return $batch ? $batch->batch_no : 'N/A';
+    }
+
+    public function getApplyDateAttribute()
+    {
+        return $this->created_at->format('Y-m-d H:i:s');
     }
 }
