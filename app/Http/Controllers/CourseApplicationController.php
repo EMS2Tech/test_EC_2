@@ -131,23 +131,30 @@ class CourseApplicationController extends Controller
         $courseApplication->save();
 
         if ($status === 'Approved') {
-            $application = Application::where('user_id', $courseApplication->user_id)->first();
-            $course = Course::find($courseApplication->course_id);
-            $batch = $course->batches()->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
-            $fullName = $application->full_name ?? 'Unknown';
-            $shortName = $course->short_name;
-            $batchNo = $batch ? $batch->batch_no : '01';
-            $currentYear = date('Y');
-            $applicationNo = $application->id;
+            $userId = $courseApplication->user_id;
+            $existingStudent = Student::where('user_id', $userId)->first();
 
-            $studentId = "EC/{$shortName}/{$batchNo}/{$currentYear}/{$applicationNo}";
-            Student::create([
-                'user_id' => $courseApplication->user_id,
-                'student_id' => $studentId,
-                'full_name' => $fullName,
-            ]);
+            if (!$existingStudent) {
+                $application = Application::where('user_id', $userId)->first();
+                $course = Course::find($courseApplication->course_id);
+                $batch = $course->batches()->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
+                $fullName = $application->full_name ?? 'Unknown';
+                $shortName = $course->short_name;
+                $batchNo = $batch ? $batch->batch_no : '01';
+                $currentYear = date('Y');
+                $applicationNo = $application->id;
 
-            Log::info('Student ID created on approval', ['user_id' => $courseApplication->user_id, 'student_id' => $studentId]);
+                $studentId = "EC/{$shortName}/{$batchNo}/{$currentYear}/{$applicationNo}";
+                Student::create([
+                    'user_id' => $userId,
+                    'student_id' => $studentId,
+                    'full_name' => $fullName,
+                ]);
+
+                Log::info('Student ID created on first approval', ['user_id' => $userId, 'student_id' => $studentId]);
+            } else {
+                Log::info('Student ID already exists, no new student ID created', ['user_id' => $userId, 'existing_student_id' => $existingStudent->student_id]);
+            }
         }
 
         return redirect()->route('admin.course.applications')->with('status', 'Application status updated successfully!');
