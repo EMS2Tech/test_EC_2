@@ -303,22 +303,14 @@
                                                 'al_certificate' => 'A/L Certificate',
                                                 'degree_certificate' => 'Degree Certificate',
                                                 'transcript_certificate' => 'Transcript Certificate',
-                                            ];
-                                            $arrayDocuments = [
-                                                'diploma_certificates' => 'Diploma Certificates',
-                                                'other_certificates' => 'Other Certificates',
+                                                'diploma_certificates' => 'Diploma Certificate', // Updated label and removed multiple
+                                                'other_certificates' => 'Other Certificate', // Updated label and removed multiple
                                             ];
                                         @endphp
                                         @foreach ($documents as $field => $label)
                                             <div class="col-md-4 mb-3">
                                                 <label for="{{ $field }}" class="form-label">{{ $label }}</label>
                                                 <input type="file" name="{{ $field }}" id="{{ $field }}" class="form-control" accept=".pdf,.jpg,.png">
-                                            </div>
-                                        @endforeach
-                                        @foreach ($arrayDocuments as $field => $label)
-                                            <div class="col-md-4 mb-3">
-                                                <label for="{{ $field }}_0" class="form-label">{{ $label }} (Multiple)</label>
-                                                <input type="file" name="{{ $field }}[]" id="{{ $field }}_0" class="form-control" accept=".pdf,.jpg,.png" multiple>
                                             </div>
                                         @endforeach
                                         <div class="col-12 text-end">

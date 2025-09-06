@@ -76,10 +76,8 @@
                                                     'al_certificate' => 'A/L Certificate',
                                                     'degree_certificate' => 'Degree Certificate',
                                                     'transcript_certificate' => 'Transcript Certificate',
-                                                ];
-                                                $arrayDocuments = [
-                                                    'diploma_certificates' => 'Diploma Certificates',
-                                                    'other_certificates' => 'Other Certificates',
+                                                    'diploma_certificates' => 'Diploma Certificate',
+                                                    'other_certificates' => 'Other Certificate',
                                                 ];
                                             @endphp
                                             @foreach ($documents as $field => $label)
@@ -90,18 +88,6 @@
                                                             <button type="button" class="btn btn-primary">View Document</button>
                                                         </a>
                                                     </div>
-                                                @endif
-                                            @endforeach
-                                            @foreach ($arrayDocuments as $field => $label)
-                                                @if ($courseApplication->$field && is_array($courseApplication->$field))
-                                                    @foreach ($courseApplication->$field as $index => $path)
-                                                        <div class="col-md-4 mb-3">
-                                                            <p><strong>{{ $label }} ({{ $index + 1 }}) :</strong></p>
-                                                            <a href="#" data-bs-toggle="modal" data-bs-target="#documentModal" onclick="loadImage('{{ Storage::url($path) }}', 'documentFrame')">
-                                                                <button type="button" class="btn btn-primary">View Document</button>
-                                                            </a>
-                                                        </div>
-                                                    @endforeach
                                                 @endif
                                             @endforeach
                                         </div>
@@ -154,50 +140,50 @@
     </div>
 
     <!-- Document Modal -->
-<div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="documentModalLabel">Document Viewer</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <iframe id="documentFrame" src="" style="width: 100%; height: 500px;" frameborder="0"></iframe>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="documentModalLabel">Document Viewer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <iframe id="documentFrame" src="" style="width: 100%; height: 500px;" frameborder="0"></iframe>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-@section('scripts')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function loadImage(src, imageId) {
-            const frameElement = document.getElementById(imageId);
-            if (frameElement) {
-                frameElement.src = src;
-                new bootstrap.Modal(document.getElementById('documentModal')).show();
-            } else {
-                console.error('Iframe element not found:', imageId);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof $ === 'undefined') {
-                console.error('jQuery is not loaded. Please include it in your layout.');
+    @section('scripts')
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            function loadImage(src, imageId) {
+                const frameElement = document.getElementById(imageId);
+                if (frameElement) {
+                    frameElement.src = src;
+                    new bootstrap.Modal(document.getElementById('documentModal')).show();
+                } else {
+                    console.error('Iframe element not found:', imageId);
+                }
             }
 
-            const modalElement = document.getElementById('documentModal');
-            if (modalElement) {
-                modalElement.addEventListener('hidden.bs.modal', function() {
-                    // Refresh the page when the modal is closed
-                    window.location.reload();
-                });
-            }
-        });
-    </script>
-@endsection
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof $ === 'undefined') {
+                    console.error('jQuery is not loaded. Please include it in your layout.');
+                }
+
+                const modalElement = document.getElementById('documentModal');
+                if (modalElement) {
+                    modalElement.addEventListener('hidden.bs.modal', function() {
+                        // Refresh the page when the modal is closed
+                        window.location.reload();
+                    });
+                }
+            });
+        </script>
+    @endsection
 @endsection

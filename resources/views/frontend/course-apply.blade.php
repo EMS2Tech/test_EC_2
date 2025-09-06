@@ -51,11 +51,10 @@
                                         <div id="uploads" style="display: none;">
                                             <div id="dynamicDocumentFields"></div>
                                             <div class="mb-3" id="otherCertificatesUpload">
-                                                <label for="otherCertificates" class="form-label">Other Certificates (if any)</label>
-                                                <input type="file" class="form-control" id="otherCertificates" name="other_certificates[]" multiple>
-                                                <x-input-error :messages="$errors->get('other_certificates.*')" class="mt-2" />
-                                                <div class="invalid-feedback">You can upload additional certificates here.</div>
-                                                <ul id="otherCertificatesFileList" class="mt-2"></ul>
+                                                <label for="otherCertificates" class="form-label">Other Certificate (if any)</label>
+                                                <input type="file" class="form-control" id="otherCertificates" name="other_certificates"> <!-- Removed multiple and [] -->
+                                                <x-input-error :messages="$errors->get('other_certificates')" class="mt-2" /> <!-- Updated error binding -->
+                                                <div class="invalid-feedback">Please upload a valid certificate (PDF, JPEG, PNG, JPG, max 2MB).</div>
                                             </div>
                                         </div>
                                         <button class="btn btn-primary" type="submit">Apply Now</button>
@@ -152,6 +151,8 @@
             }
 
             const selectedDiplomaFiles = [];
+            const diplomaCertificates = document.getElementById("diplomaCertificates");
+            const diplomaFileList = document.getElementById("diplomaFileList");
             if (diplomaCertificates && diplomaFileList) {
                 diplomaCertificates.addEventListener("change", function () {
                     const newFiles = Array.from(this.files);
@@ -183,45 +184,48 @@
             }
 
             const selectedOtherFiles = [];
+            const otherCertificates = document.getElementById("otherCertificates");
+            const otherCertificatesFileList = document.getElementById("otherCertificatesFileList");
             if (otherCertificates && otherCertificatesFileList) {
-                otherCertificates.addEventListener("change", function () {
-                    const newFiles = Array.from(this.files);
-                    newFiles.forEach(file => {
+                otherCertificates.addEventListener("change", function (e) {
+                    const file = e.target.files[0]; // Take only the first file
+                    if (file) {
                         if (!selectedOtherFiles.some(f => f.name === file.name && f.size === file.size)) {
-                            selectedOtherFiles.push(file);
+                            selectedOtherFiles[0] = file; // Replace with the new file
                         }
-                    });
-                    this.value = "";
-                    renderOtherFileList();
-                    updateOtherValidationState();
+                        this.value = ""; // Clear the input
+                        renderOtherFileList();
+                        updateOtherValidationState();
+                    }
                 });
             }
 
             function renderOtherFileList() {
                 otherCertificatesFileList.innerHTML = "";
-                selectedOtherFiles.forEach((file, index) => {
+                if (selectedOtherFiles[0]) {
                     const li = document.createElement("li");
-                    li.textContent = file.name + " ";
+                    li.textContent = selectedOtherFiles[0].name + " ";
                     const removeBtn = document.createElement("button");
                     removeBtn.textContent = "Remove";
                     removeBtn.className = "btn btn-sm btn-danger ms-2";
                     removeBtn.onclick = function () {
-                        selectedOtherFiles.splice(index, 1);
+                        selectedOtherFiles[0] = null;
                         renderOtherFileList();
                         updateOtherValidationState();
                     };
                     li.appendChild(removeBtn);
                     otherCertificatesFileList.appendChild(li);
-                });
+                }
             }
 
             function updateOtherValidationState() {
-                if (selectedOtherFiles.length > 0) {
-                    otherCertificates.classList.remove("is-invalid");
-                    otherCertificates.classList.add("is-valid");
+                const otherCertificatesInput = document.getElementById("otherCertificates");
+                if (selectedOtherFiles[0]) {
+                    otherCertificatesInput.classList.remove("is-invalid");
+                    otherCertificatesInput.classList.add("is-valid");
                 } else {
-                    otherCertificates.classList.remove("is-valid");
-                    otherCertificates.classList.add("is-invalid");
+                    otherCertificatesInput.classList.remove("is-valid");
+                    otherCertificatesInput.classList.add("is-invalid");
                 }
             }
 

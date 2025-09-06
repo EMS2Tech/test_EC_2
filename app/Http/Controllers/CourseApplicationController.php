@@ -53,10 +53,10 @@ class CourseApplicationController extends Controller
             'course' => 'required|exists:courses,id',
             'ol_certificate' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
             'al_certificate' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
-            'diploma_certificates.*' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
+            'diploma_certificates' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'], // Single file
             'degree_certificate' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
             'transcript_certificate' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
-            'other_certificates.*' => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
+            'other_certificates' => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'], // Single file
         ];
 
         foreach ($requiredDocuments as $doc) {
@@ -84,7 +84,7 @@ class CourseApplicationController extends Controller
             'status' => 'Pending', // Ensure status is set to Pending
         ]);
 
-        $uploadFields = ['ol_certificate', 'al_certificate', 'degree_certificate', 'transcript_certificate'];
+        $uploadFields = ['ol_certificate', 'al_certificate', 'degree_certificate', 'transcript_certificate', 'diploma_certificates', 'other_certificates'];
         foreach ($uploadFields as $field) {
             if ($request->hasFile($field)) {
                 if ($request->file($field)->isValid()) {
@@ -97,38 +97,6 @@ class CourseApplicationController extends Controller
                     return redirect()->back()->with('error', "Invalid {$field} file.")->withInput();
                 }
             }
-        }
-
-        if ($request->hasFile('diploma_certificates')) {
-            $diplomaPaths = [];
-            foreach ($request->file('diploma_certificates') as $index => $file) {
-                if ($file->isValid()) {
-                    $filename = "diploma_certificate_{$index}_{$file->getClientOriginalName()}";
-                    $path = $file->storeAs($storagePath, $filename, 'public');
-                    $diplomaPaths[] = $path;
-                    Log::info('Diploma certificate uploaded', ['path' => $path]);
-                } else {
-                    Log::error('Invalid diploma certificate upload', ['file' => $file]);
-                    return redirect()->back()->with('error', 'Invalid diploma certificate file.')->withInput();
-                }
-            }
-            $courseApplication->diploma_certificates = json_encode($diplomaPaths);
-        }
-
-        if ($request->hasFile('other_certificates')) {
-            $otherPaths = [];
-            foreach ($request->file('other_certificates') as $index => $file) {
-                if ($file->isValid()) {
-                    $filename = "other_certificate_{$index}_{$file->getClientOriginalName()}";
-                    $path = $file->storeAs($storagePath, $filename, 'public');
-                    $otherPaths[] = $path;
-                    Log::info('Other certificate uploaded', ['path' => $path]);
-                } else {
-                    Log::error('Invalid other certificate upload', ['file' => $file]);
-                    return redirect()->back()->with('error', 'Invalid other certificate file.')->withInput();
-                }
-            }
-            $courseApplication->other_certificates = json_encode($otherPaths);
         }
 
         $courseApplication->save();
@@ -185,83 +153,60 @@ class CourseApplicationController extends Controller
         return redirect()->route('admin.course.applications')->with('status', 'Application status updated successfully!');
     }
 
-   public function userUpdateDocuments(Request $request)
-{
-    $user = Auth::user();
-    $courseApplications = CourseApplication::where('user_id', $user->id)->where('status', 'Rejected')->get();
+    public function userUpdateDocuments(Request $request)
+    {
+        $user = Auth::user();
+        $courseApplications = CourseApplication::where('user_id', $user->id)->where('status', 'Rejected')->get();
 
-    if ($courseApplications->isEmpty()) {
-        return redirect()->back()->with('error', 'No rejected applications found to update.');
-    }
-
-    $application = Application::where('user_id', $user->id)->first();
-    if (!$application) {
-        return redirect()->route('application.start')->with('error', 'Please complete your application first.');
-    }
-
-    $folderName = $application->nic_number ?: ($application->passport_number ?: ($user->id . '_' . time()));
-    $storagePath = "applications/{$folderName}";
-
-    if (!Storage::disk('public')->exists($storagePath)) {
-        Storage::disk('public')->makeDirectory($storagePath);
-    }
-
-    $validatedData = $request->validate([
-        'ol_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-        'al_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-        'degree_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-        'transcript_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-        'diploma_certificates.*' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-        'other_certificates.*' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-    ]);
-
-    foreach ($courseApplications as $courseApplication) {
-        // Handle single file uploads
-        $uploadFields = ['ol_certificate', 'al_certificate', 'degree_certificate', 'transcript_certificate'];
-        foreach ($uploadFields as $field) {
-            if ($request->hasFile($field)) {
-                // Get the existing file path if it exists
-                $oldPath = $courseApplication->$field;
-                if ($oldPath && Storage::disk('public')->exists($oldPath)) {
-                    // Delete the old file
-                    Storage::disk('public')->delete($oldPath);
-                }
-                // Store the new file with the same naming convention as store method
-                $file = $request->file($field);
-                $filename = "{$field}_{$file->getClientOriginalName()}";
-                $path = $file->storeAs($storagePath, $filename, 'public');
-                $courseApplication->$field = $path;
-            }
+        if ($courseApplications->isEmpty()) {
+            return redirect()->back()->with('error', 'No rejected applications found to update.');
         }
 
-        // Handle array file uploads
-        foreach (['diploma_certificates', 'other_certificates'] as $field) {
-            if ($request->hasFile($field)) {
-                $oldPaths = $courseApplication->$field ? json_decode($courseApplication->$field, true) : [];
-                $newPaths = [];
+        $application = Application::where('user_id', $user->id)->first();
+        if (!$application) {
+            return redirect()->route('application.start')->with('error', 'Please complete your application first.');
+        }
 
-                // Delete old files if they exist
-                foreach ((array) $oldPaths as $oldPath) {
+        $folderName = $application->nic_number ?: ($application->passport_number ?: ($user->id . '_' . time()));
+        $storagePath = "applications/{$folderName}";
+
+        if (!Storage::disk('public')->exists($storagePath)) {
+            Storage::disk('public')->makeDirectory($storagePath);
+        }
+
+        $validatedData = $request->validate([
+            'ol_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'al_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'degree_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'transcript_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'diploma_certificates' => 'nullable|file|mimes:pdf,jpg,png|max:2048', // Single file
+            'other_certificates' => 'nullable|file|mimes:pdf,jpg,png|max:2048', // Single file
+        ]);
+
+        foreach ($courseApplications as $courseApplication) {
+            // Handle single file uploads
+            $uploadFields = ['ol_certificate', 'al_certificate', 'degree_certificate', 'transcript_certificate', 'diploma_certificates', 'other_certificates'];
+            foreach ($uploadFields as $field) {
+                if ($request->hasFile($field)) {
+                    // Get the existing file path if it exists
+                    $oldPath = $courseApplication->$field;
                     if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+                        // Delete the old file
                         Storage::disk('public')->delete($oldPath);
                     }
-                }
-
-                // Store new files with the same naming convention as store method
-                foreach ($request->file($field) as $index => $file) {
-                    $filename = "{$field}_{$index}_{$file->getClientOriginalName()}";
+                    // Store the new file with the same naming convention as store method
+                    $file = $request->file($field);
+                    $filename = "{$field}_{$file->getClientOriginalName()}";
                     $path = $file->storeAs($storagePath, $filename, 'public');
-                    $newPaths[] = $path;
+                    $courseApplication->$field = $path;
                 }
-                $courseApplication->$field = json_encode($newPaths);
             }
+
+            $courseApplication->status = 'Pending'; // Reset status to Pending after re-upload
+            $courseApplication->rejection_reason = null; // Clear rejection reason
+            $courseApplication->save();
         }
 
-        $courseApplication->status = 'Pending'; // Reset status to Pending after re-upload
-        $courseApplication->rejection_reason = null; // Clear rejection reason
-        $courseApplication->save();
+        return redirect()->back()->with('success', 'Documents updated successfully. Your application status has been set to Pending for review.');
     }
-
-    return redirect()->back()->with('success', 'Documents updated successfully. Your application status has been set to Pending for review.');
-}
 }
