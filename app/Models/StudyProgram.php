@@ -1,15 +1,23 @@
 <?php
 
-  namespace App\Models;
+namespace App\Models;
 
-  use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 
-  class StudyProgram extends Model
-  {
-      protected $fillable = ['code','program_name'];
+class StudyProgram extends Model
+{
+    protected $fillable = [
+        'code',
+        'program_name',
+        'required_documents', // Added to allow mass assignment
+    ];
 
-      public function courses()
-      {
-          return $this->hasMany(Course::class, 'program_id');
-      }
-  }
+    protected $casts = [
+        'required_documents' => 'array', // Cast to array for JSON storage
+    ];
+
+    public function courses()
+    {
+        return $this->hasMany(Course::class, 'program_id');
+    }
+}

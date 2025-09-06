@@ -28,7 +28,7 @@ class CourseApplicationController extends Controller
         if ($user->isUser() && !($user->application_completed ?? false)) {
             return redirect()->route('application.start')->with('error', 'Please complete your application before registering for a course.');
         }
-        $studyPrograms = StudyProgram::all();
+        $studyPrograms = StudyProgram::with('courses')->get(); // Ensure study programs are loaded with courses
         $today = Carbon::now('Asia/Colombo'); // Adjust timezone to +0530
         $courses = Course::with(['batches' => function ($query) use ($today) {
             $query->where('start_date', '<=', $today)
@@ -47,6 +47,7 @@ class CourseApplicationController extends Controller
         $studyProgramId = $request->study_programme;
         $courseId = $request->course;
         $course = Course::with('studyProgram')->findOrFail($courseId);
+        $requiredDocuments = $course->studyProgram->required_documents ?? [];
 
         $validationRules = [
             'study_programme' => 'required|exists:study_programs,id',
@@ -59,25 +60,7 @@ class CourseApplicationController extends Controller
             'other_certificates.*' => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
         ];
 
-        // Define required documents based on study program/course type
-        $requiredDocuments = [];
-        switch ($studyProgramId) {
-            case '1': // Bachelor's
-                $requiredDocuments[] = 'ol_certificate';
-                break;
-            case '2': // Higher Diploma
-                $requiredDocuments[] = 'al_certificate';
-                $requiredDocuments[] = 'diploma_certificates';
-                break;
-            case '3': // Diploma
-                $requiredDocuments[] = 'ol_certificate';
-                break;
-            case '4': // Postgraduate
-                $requiredDocuments[] = 'degree_certificate';
-                $requiredDocuments[] = 'transcript_certificate';
-                break;
-        }
-
+        // Set required documents based on study program
         foreach ($requiredDocuments as $doc) {
             $validationRules[$doc] = ['required', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'];
         }

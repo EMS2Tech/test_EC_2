@@ -20,11 +20,14 @@ class StudyProgramController extends Controller
         $request->validate([
             'code' => 'required|string|unique:study_programs,code|max:10',
             'program_name' => 'required|string|max:255',
+            'required_documents' => 'required|array', // Validate as array
+            'required_documents.*' => 'in:ol_certificate,al_certificate,diploma_certificates,degree_certificate,transcript_certificate,other_certificates', // Ensure valid document types
         ]);
 
         $studyProgram = StudyProgram::create([
             'code' => $request->code,
             'program_name' => $request->program_name,
+            'required_documents' => $request->required_documents, // Store as array, will be cast to JSON
         ]);
 
         return redirect()->back()->with('success', 'Study program created successfully.');
@@ -43,11 +46,14 @@ class StudyProgramController extends Controller
         $request->validate([
             'code' => 'required|string|max:255',
             'program_name' => 'required|string|max:255',
+            'required_documents' => 'required|array',
+            'required_documents.*' => 'in:ol_certificate,al_certificate,diploma_certificates,degree_certificate,transcript_certificate',
         ]);
 
         $program->update([
             'code' => $request->code,
             'program_name' => $request->program_name,
+            'required_documents' => $request->required_documents,
         ]);
 
         return Redirect::route('admin.add-studyprogram')->with('status', 'Study program updated successfully!');

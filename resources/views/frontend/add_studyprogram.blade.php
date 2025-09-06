@@ -48,6 +48,20 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+                            <div class="mb-3">
+                                <label for="required_documents" class="form-label">Required Documents <span class="text-danger">*</span></label>
+                                <select class="form-select @error('required_documents') is-invalid @enderror" id="required_documents" name="required_documents[]" multiple required>
+                                    <option value="ol_certificate" {{ in_array('ol_certificate', old('required_documents', [])) ? 'selected' : '' }}>O-level Certificate</option>
+                                    <option value="al_certificate" {{ in_array('al_certificate', old('required_documents', [])) ? 'selected' : '' }}>A-level Certificate</option>
+                                    <option value="diploma_certificates" {{ in_array('diploma_certificates', old('required_documents', [])) ? 'selected' : '' }}>Diploma Certificate(s)</option>
+                                    <option value="degree_certificate" {{ in_array('degree_certificate', old('required_documents', [])) ? 'selected' : '' }}>Degree Certificate</option>
+                                    <option value="transcript_certificate" {{ in_array('transcript_certificate', old('required_documents', [])) ? 'selected' : '' }}>Transcript</option>
+                                </select>
+                                @error('required_documents')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="form-text text-muted">Select all documents required for this program (e.g., Degree might need Degree Certificate and Transcript).</small>
+                            </div>
                         </div>
                         <div class="card-footer text-end">
                             <button type="submit" class="btn btn-primary">Add Program</button>
@@ -57,82 +71,92 @@
                 </form>
 
                 <!-- Study Programs Table -->
-<div class="row mt-4">
-    <div class="col-md-12">
-        <div class="card overflow-hidden">
-            <div class="card-header">
-                <div class="d-flex align-items-center">
-                    <h5 class="card-title mb-0">Study Programs</h5>
-                </div>
-            </div>
-
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-traffic mb-0">
-                        <thead>
-                            <tr>
-                                <th>Code</th>
-                                <th>Program Name</th>
-                                <th>Date Added</th>
-                                <th>Action</th> <!-- New Action column header -->
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($studyPrograms as $program)
-                                <tr>
-                                    <td>{{ $program->code }}</td>
-                                    <td>{{ $program->program_name }}</td>
-                                    <td>{{ $program->created_at->format('Y-m-d') ?? 'N/A' }}</td>
-                                    <td>
-                                        <a href="{{ route('study-programs.edit', $program->id) }}" class="btn btn-icon btn-sm bg-primary-subtle me-1" data-bs-toggle="tooltip" title="Edit">
-                                            <i class="mdi mdi-pencil fs-12 text-primary"></i>
-                                        </a>
-
-                                        <form action="{{ route('study-programs.destroy', $program->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this study program?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-icon btn-sm bg-danger-subtle me-1" data-bs-toggle="tooltip" title="Delete">
-                                                <i class="mdi mdi-trash-can fs-12 text-danger"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card-footer py-0 border-top">
-                <div class="row align-items-center">
-                    <div class="col-12">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                            <div class="text-block text-muted">
-                                <span class="fw-medium">{{ $studyPrograms->firstItem() }} - {{ $studyPrograms->lastItem() }} of {{ $studyPrograms->total() }}</span>
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="card overflow-hidden">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center">
+                                    <h5 class="card-title mb-0">Study Programs</h5>
+                                </div>
                             </div>
-                            <nav aria-label="Page navigation">
-                                <ul class="pagination">
-                                    <li class="page-item {{ $studyPrograms->currentPage() == 1 ? 'disabled' : '' }}">
-                                        <a class="page-link" href="{{ $studyPrograms->url($studyPrograms->currentPage() - 1) }}" tabindex="-1" aria-disabled="{{ $studyPrograms->currentPage() == 1 ? 'true' : 'false' }}">Previous</a>
-                                    </li>
-                                    @for ($i = max(1, $studyPrograms->currentPage() - 1); $i <= min($studyPrograms->lastPage(), $studyPrograms->currentPage() + 1); $i++)
-                                        <li class="page-item {{ $i == $studyPrograms->currentPage() ? 'active' : '' }}">
-                                            <a class="page-link" href="{{ $studyPrograms->url($i) }}">{{ $i }}</a>
-                                        </li>
-                                    @endfor
-                                    <li class="page-item {{ $studyPrograms->currentPage() == $studyPrograms->lastPage() ? 'disabled' : '' }}">
-                                        <a class="page-link" href="{{ $studyPrograms->url($studyPrograms->currentPage() + 1) }}" aria-disabled="{{ $studyPrograms->currentPage() == $studyPrograms->lastPage() ? 'true' : 'false' }}">Next</a>
-                                    </li>
-                                </ul>
-                            </nav>
+
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-traffic mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Code</th>
+                                                <th>Program Name</th>
+                                                <th>Date Added</th>
+                                                <th>Required Documents</th> <!-- New column for documents -->
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($studyPrograms as $program)
+                                                <tr>
+                                                    <td>{{ $program->code }}</td>
+                                                    <td>{{ $program->program_name }}</td>
+                                                    <td>{{ $program->created_at->format('Y-m-d') ?? 'N/A' }}</td>
+                                                    <td>
+                                                        @if ($program->required_documents)
+                                                            @foreach ($program->required_documents as $doc)
+                                                                {{ ucwords(str_replace('_', ' ', $doc)) }}@if (!$loop->last), @endif
+                                                            @endforeach
+                                                        @else
+                                                            None
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ route('study-programs.edit', $program->id) }}" class="btn btn-icon btn-sm bg-primary-subtle me-1" data-bs-toggle="tooltip" title="Edit">
+                                                            <i class="mdi mdi-pencil fs-12 text-primary"></i>
+                                                        </a>
+
+                                                        <form action="{{ route('study-programs.destroy', $program->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this study program?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-icon btn-sm bg-danger-subtle me-1" data-bs-toggle="tooltip" title="Delete">
+                                                                <i class="mdi mdi-trash-can fs-12 text-danger"></i>
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="card-footer py-0 border-top">
+                                <div class="row align-items-center">
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                            <div class="text-block text-muted">
+                                                <span class="fw-medium">{{ $studyPrograms->firstItem() }} - {{ $studyPrograms->lastItem() }} of {{ $studyPrograms->total() }}</span>
+                                            </div>
+                                            <nav aria-label="Page navigation">
+                                                <ul class="pagination">
+                                                    <li class="page-item {{ $studyPrograms->currentPage() == 1 ? 'disabled' : '' }}">
+                                                        <a class="page-link" href="{{ $studyPrograms->url($studyPrograms->currentPage() - 1) }}" tabindex="-1" aria-disabled="{{ $studyPrograms->currentPage() == 1 ? 'true' : 'false' }}">Previous</a>
+                                                    </li>
+                                                    @for ($i = max(1, $studyPrograms->currentPage() - 1); $i <= min($studyPrograms->lastPage(), $studyPrograms->currentPage() + 1); $i++)
+                                                        <li class="page-item {{ $i == $studyPrograms->currentPage() ? 'active' : '' }}">
+                                                            <a class="page-link" href="{{ $studyPrograms->url($i) }}">{{ $i }}</a>
+                                                        </li>
+                                                    @endfor
+                                                    <li class="page-item {{ $studyPrograms->currentPage() == $studyPrograms->lastPage() ? 'disabled' : '' }}">
+                                                        <a class="page-link" href="{{ $studyPrograms->url($studyPrograms->currentPage() + 1) }}" aria-disabled="{{ $studyPrograms->currentPage() == $studyPrograms->lastPage() ? 'true' : 'false' }}">Next</a>
+                                                    </li>
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- End Study Programs Table -->
+                <!-- End Study Programs Table -->
             </div>
         </div>
     </div>

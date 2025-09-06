@@ -22,7 +22,7 @@
                                         @csrf
                                         <div class="mb-3">
                                             <label class="form-label">Study Programme <span class="text-danger">*</span></label>
-                                            <select class="form-select" id="studyProgramme" name="study_programme" required onchange="filterCourses()">
+                                            <select class="form-select" id="studyProgramme" name="study_programme" required>
                                                 <option value="">-- Select Study Programme --</option>
                                                 @foreach ($studyPrograms as $program)
                                                     <option value="{{ $program->id }}">{{ $program->program_name }}</option>
@@ -49,42 +49,7 @@
                                         </div>
                                         <hr>
                                         <div id="uploads" style="display: none;">
-                                            <div class="mb-3" id="olUpload" style="display: none;">
-                                                <label class="form-label">G.C.E Ordinary Level Certificate <span class="text-danger">*</span></label>
-                                                <input type="file" class="form-control" name="ol_certificate" required>
-                                                <small class="form-text text-muted">Max Size 4MB - Double Side</small>
-                                                <x-input-error :messages="$errors->get('ol_certificate')" class="mt-2" />
-                                                <div class="invalid-feedback">Please upload O/L certificate.</div>
-                                            </div>
-                                            <div class="mb-3" id="alUpload" style="display: none;">
-                                                <label class="form-label">G.C.E Advanced Level Certificate <span class="text-danger">*</span></label>
-                                                <input type="file" class="form-control" name="al_certificate" required>
-                                                <small class="form-text text-muted">Max Size 4MB - Double Side</small>
-                                                <x-input-error :messages="$errors->get('al_certificate')" class="mt-2" />
-                                                <div class="invalid-feedback">Please upload A/L certificate.</div>
-                                            </div>
-                                            <div class="mb-3" id="diplomaUpload" style="display: none;">
-                                                <label class="form-label">Diploma Certificate(s) <span class="text-danger">*</span></label>
-                                                <input type="file" class="form-control" id="diplomaCertificates" name="diploma_certificates[]" multiple required>
-                                                <small class="form-text text-muted">Max Size 4MB - Double Side</small>
-                                                <x-input-error :messages="$errors->get('diploma_certificates.*')" class="mt-2" />
-                                                <ul id="diplomaFileList" class="mt-2"></ul>
-                                                <div class="invalid-feedback">Please upload diploma certificate(s).</div>
-                                            </div>
-                                            <div class="mb-3" id="degreeUpload" style="display: none;">
-                                                <label class="form-label">University Degree Certificate <span class="text-danger">*</span></label>
-                                                <input type="file" class="form-control" name="degree_certificate" required>
-                                                <small class="form-text text-muted">Max Size 4MB - Double Side</small>
-                                                <x-input-error :messages="$errors->get('degree_certificate')" class="mt-2" />
-                                                <div class="invalid-feedback">Please upload degree certificate.</div>
-                                            </div>
-                                            <div class="mb-3" id="transcriptUpload" style="display: none;">
-                                                <label class="form-label">University Transcript <span class="text-danger">*</span></label>
-                                                <input type="file" class="form-control" name="transcript_certificate" required>
-                                                <small class="form-text text-muted">Max Size 4MB - Double Side</small>
-                                                <x-input-error :messages="$errors->get('transcript_certificate')" class="mt-2" />
-                                                <div class="invalid-feedback">Please upload transcript.</div>
-                                            </div>
+                                            <div id="dynamicDocumentFields"></div>
                                             <div class="mb-3" id="otherCertificatesUpload">
                                                 <label for="otherCertificates" class="form-label">Other Certificates (if any)</label>
                                                 <input type="file" class="form-control" id="otherCertificates" name="other_certificates[]" multiple>
@@ -106,151 +71,160 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function filterCourses() {
-            const studyProgramme = document.getElementById("studyProgramme");
-            const courseSelect = document.getElementById("course");
-            const courseWrapper = document.getElementById("courseWrapper");
-            const selectedId = studyProgramme.value;
+        document.addEventListener('DOMContentLoaded', function () {
+            // Preload study program data into JavaScript
+            const studyProgramData = @json($studyPrograms->mapWithKeys(function ($program) {
+                return [$program->id => $program->required_documents ?? []];
+            })->all());
 
-            // Hide all course options initially
-            const options = courseSelect.getElementsByTagName("option");
-            for (let option of options) {
-                option.style.display = "none";
-            }
+            console.log("Preloaded studyProgramData:", studyProgramData);
 
-            // Show the default option
-            courseSelect.options[0].style.display = "block";
+            function updateDocumentFields(programId) {
+                const courseSelect = document.getElementById("course");
+                const courseWrapper = document.getElementById("courseWrapper");
+                const uploadsDiv = document.getElementById("uploads");
+                const dynamicDocumentFields = document.getElementById("dynamicDocumentFields");
 
-            if (selectedId) {
-                courseWrapper.style.display = "block";
-                // Filter and show courses for the selected study program
-                for (let option of options) {
-                    if (option.dataset.studyProgramId === selectedId) {
-                        option.style.display = "block";
-                    }
+                if (!dynamicDocumentFields) {
+                    console.error("dynamicDocumentFields element not found!");
+                    return;
                 }
+
+                // Clear and hide uploads
+                uploadsDiv.style.display = "none";
+                dynamicDocumentFields.innerHTML = "";
+
+                if (programId) {
+                    // Show courses for the selected study program
+                    const options = courseSelect.getElementsByTagName("option");
+                    for (let option of options) {
+                        option.style.display = option.dataset.studyProgramId === programId ? "block" : "none";
+                    }
+                    courseWrapper.style.display = "block";
+
+                    // Get required documents
+                    const requiredDocs = studyProgramData[programId] || [];
+                    console.log("Required documents for programId", programId, ":", requiredDocs);
+
+                    if (requiredDocs.length > 0) {
+                        requiredDocs.forEach(doc => {
+                            const docDiv = document.createElement("div");
+                            docDiv.className = "mb-3 document-upload";
+                            docDiv.innerHTML = `
+                                <label class="form-label">${doc.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" name="${doc}" required>
+                                <small class="form-text text-muted">Max Size 4MB - Double Side</small>
+                                <div class="invalid-feedback">Please upload ${doc.replace('_', ' ')}.</div>
+                            `;
+                            dynamicDocumentFields.appendChild(docDiv);
+                            console.log("Added upload field for:", doc);
+                        });
+                        uploadsDiv.style.display = "block";
+                    } else {
+                        console.log("No required documents for programId:", programId);
+                    }
+                } else {
+                    courseWrapper.style.display = "none";
+                }
+            }
+
+            // Attach event listeners
+            const studyProgramme = document.getElementById("studyProgramme");
+            if (studyProgramme) {
+                studyProgramme.addEventListener("change", function () {
+                    const selectedId = this.value;
+                    console.log("Study programme changed to:", selectedId);
+                    updateDocumentFields(selectedId);
+                });
             } else {
-                courseWrapper.style.display = "none";
+                console.error("studyProgramme element not found!");
             }
 
-            // Reset uploads
-            const uploadsDiv = document.getElementById("uploads");
-            uploadsDiv.style.display = "none";
-            document.getElementById("olUpload").style.display = "none";
-            document.getElementById("alUpload").style.display = "none";
-            document.getElementById("diplomaUpload").style.display = "none";
-            document.getElementById("degreeUpload").style.display = "none";
-            document.getElementById("transcriptUpload").style.display = "none";
-        }
-
-        courseSelect.addEventListener("change", function () {
-            const selectedCourseId = this.value;
-            const uploadsDiv = document.getElementById("uploads");
-            const olUpload = document.getElementById("olUpload");
-            const alUpload = document.getElementById("alUpload");
-            const diplomaUpload = document.getElementById("diplomaUpload");
-            const degreeUpload = document.getElementById("degreeUpload");
-            const transcriptUpload = document.getElementById("transcriptUpload");
-
-            uploadsDiv.style.display = selectedCourseId ? "block" : "none";
-            olUpload.style.display = "none";
-            alUpload.style.display = "none";
-            diplomaUpload.style.display = "none";
-            degreeUpload.style.display = "none";
-            transcriptUpload.style.display = "none";
-
-            if (selectedCourseId) {
-                const courseType = selectedCourseId.split('-')[0]; // Assuming ID format like "4-1" where 4 is the type
-                const courseRequirements = {
-                    '1': ['ol'], // Bachelor's
-                    '2': ['al', 'diploma'], // Higher Diploma
-                    '3': ['ol'], // Diploma
-                    '4': ['degree', 'transcript'] // Postgraduate
-                }[courseType] || [];
-
-                if (courseRequirements.includes('ol')) olUpload.style.display = "block";
-                if (courseRequirements.includes('al')) alUpload.style.display = "block";
-                if (courseRequirements.includes('diploma')) diplomaUpload.style.display = "block";
-                if (courseRequirements.includes('degree')) degreeUpload.style.display = "block";
-                if (courseRequirements.includes('transcript')) transcriptUpload.style.display = "block";
-            }
-        });
-
-        const selectedDiplomaFiles = [];
-        if (diplomaCertificates && diplomaFileList) {
-            diplomaCertificates.addEventListener("change", function () {
-                const newFiles = Array.from(this.files);
-                newFiles.forEach(file => {
-                    if (!selectedDiplomaFiles.some(f => f.name === file.name && f.size === file.size)) {
-                        selectedDiplomaFiles.push(file);
-                    }
+            const courseSelect = document.getElementById("course");
+            if (courseSelect) {
+                courseSelect.addEventListener("change", function () {
+                    const programId = this.options[this.selectedIndex].dataset.studyProgramId;
+                    console.log("Course changed, programId:", programId);
+                    updateDocumentFields(programId);
                 });
-                this.value = "";
-                renderDiplomaFileList();
-            });
-        }
+            } else {
+                console.error("courseSelect element not found!");
+            }
 
-        function renderDiplomaFileList() {
-            diplomaFileList.innerHTML = "";
-            selectedDiplomaFiles.forEach((file, index) => {
-                const li = document.createElement("li");
-                li.textContent = file.name + " ";
-                const removeBtn = document.createElement("button");
-                removeBtn.textContent = "Remove";
-                removeBtn.className = "btn btn-sm btn-danger ms-2";
-                removeBtn.onclick = function () {
-                    selectedDiplomaFiles.splice(index, 1);
+            const selectedDiplomaFiles = [];
+            if (diplomaCertificates && diplomaFileList) {
+                diplomaCertificates.addEventListener("change", function () {
+                    const newFiles = Array.from(this.files);
+                    newFiles.forEach(file => {
+                        if (!selectedDiplomaFiles.some(f => f.name === file.name && f.size === file.size)) {
+                            selectedDiplomaFiles.push(file);
+                        }
+                    });
+                    this.value = "";
                     renderDiplomaFileList();
-                };
-                li.appendChild(removeBtn);
-                diplomaFileList.appendChild(li);
-            });
-        }
-
-        const selectedOtherFiles = [];
-        if (otherCertificates && otherCertificatesFileList) {
-            otherCertificates.addEventListener("change", function () {
-                const newFiles = Array.from(this.files);
-                newFiles.forEach(file => {
-                    if (!selectedOtherFiles.some(f => f.name === file.name && f.size === file.size)) {
-                        selectedOtherFiles.push(file);
-                    }
                 });
-                this.value = "";
-                renderOtherFileList();
-                updateOtherValidationState();
-            });
-        }
+            }
 
-        function renderOtherFileList() {
-            otherCertificatesFileList.innerHTML = "";
-            selectedOtherFiles.forEach((file, index) => {
-                const li = document.createElement("li");
-                li.textContent = file.name + " ";
-                const removeBtn = document.createElement("button");
-                removeBtn.textContent = "Remove";
-                removeBtn.className = "btn btn-sm btn-danger ms-2";
-                removeBtn.onclick = function () {
-                    selectedOtherFiles.splice(index, 1);
+            function renderDiplomaFileList() {
+                diplomaFileList.innerHTML = "";
+                selectedDiplomaFiles.forEach((file, index) => {
+                    const li = document.createElement("li");
+                    li.textContent = file.name + " ";
+                    const removeBtn = document.createElement("button");
+                    removeBtn.textContent = "Remove";
+                    removeBtn.className = "btn btn-sm btn-danger ms-2";
+                    removeBtn.onclick = function () {
+                        selectedDiplomaFiles.splice(index, 1);
+                        renderDiplomaFileList();
+                    };
+                    li.appendChild(removeBtn);
+                    diplomaFileList.appendChild(li);
+                });
+            }
+
+            const selectedOtherFiles = [];
+            if (otherCertificates && otherCertificatesFileList) {
+                otherCertificates.addEventListener("change", function () {
+                    const newFiles = Array.from(this.files);
+                    newFiles.forEach(file => {
+                        if (!selectedOtherFiles.some(f => f.name === file.name && f.size === file.size)) {
+                            selectedOtherFiles.push(file);
+                        }
+                    });
+                    this.value = "";
                     renderOtherFileList();
                     updateOtherValidationState();
-                };
-                li.appendChild(removeBtn);
-                otherCertificatesFileList.appendChild(li);
-            });
-        }
-
-        function updateOtherValidationState() {
-            if (selectedOtherFiles.length > 0) {
-                otherCertificates.classList.remove("is-invalid");
-                otherCertificates.classList.add("is-valid");
-            } else {
-                otherCertificates.classList.remove("is-valid");
-                otherCertificates.classList.add("is-invalid");
+                });
             }
-        }
 
-        document.addEventListener('DOMContentLoaded', function () {
+            function renderOtherFileList() {
+                otherCertificatesFileList.innerHTML = "";
+                selectedOtherFiles.forEach((file, index) => {
+                    const li = document.createElement("li");
+                    li.textContent = file.name + " ";
+                    const removeBtn = document.createElement("button");
+                    removeBtn.textContent = "Remove";
+                    removeBtn.className = "btn btn-sm btn-danger ms-2";
+                    removeBtn.onclick = function () {
+                        selectedOtherFiles.splice(index, 1);
+                        renderOtherFileList();
+                        updateOtherValidationState();
+                    };
+                    li.appendChild(removeBtn);
+                    otherCertificatesFileList.appendChild(li);
+                });
+            }
+
+            function updateOtherValidationState() {
+                if (selectedOtherFiles.length > 0) {
+                    otherCertificates.classList.remove("is-invalid");
+                    otherCertificates.classList.add("is-valid");
+                } else {
+                    otherCertificates.classList.remove("is-valid");
+                    otherCertificates.classList.add("is-invalid");
+                }
+            }
+
             const form = document.querySelector('.needs-validation');
             form.addEventListener('submit', function (event) {
                 if (!form.checkValidity()) {
