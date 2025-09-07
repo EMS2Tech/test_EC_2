@@ -63,6 +63,17 @@
 
                                     <form class="needs-validation" novalidate method="POST" action="{{ route('payment.store') }}" enctype="multipart/form-data">
                                         @csrf
+                                        <!-- Payment Type -->
+                                        <div class="mb-3">
+                                            <label class="form-label">Payment Type <span class="text-danger">*</span></label>
+                                            <select class="form-select" name="payment_type" required>
+                                                <option value="">-- Select Payment Type --</option>
+                                                <option value="registration">Registration Payment</option>
+                                                <option value="course">Course Payment</option>
+                                            </select>
+                                            <x-input-error :messages="$errors->get('payment_type')" class="mt-2" />
+                                            <div class="invalid-feedback">Please select a payment type.</div>
+                                        </div>
                                         <!-- Upload Payment Slip -->
                                         <div class="mb-3">
                                             <label class="form-label">Upload Payment Slip</label>
@@ -70,6 +81,12 @@
                                             <small class="form-text text-muted">Max Size 4MB - Accepted formats: PDF, PNG, JPG</small>
                                             <x-input-error :messages="$errors->get('payment_slip')" class="mt-2" />
                                             <div class="invalid-feedback">Please upload a payment slip.</div>
+                                        </div>
+                                        <!-- Remark -->
+                                        <div class="mb-3">
+                                            <label class="form-label">Remark (Optional)</label>
+                                            <input type="text" class="form-control" name="remark" placeholder="Add any additional notes">
+                                            <x-input-error :messages="$errors->get('remark')" class="mt-2" />
                                         </div>
                                         <!-- Submit Button -->
                                         <button class="btn btn-primary" type="submit">Submit Payment Slip</button>

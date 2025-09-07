@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Payment extends Model
 {
@@ -11,9 +12,18 @@ class Payment extends Model
         'application_id',
         'status',
         'payment_slip',
+        'payment_type',
+        'remark',
     ];
 
-    public $timestamps = false; // Disable timestamps to avoid updated_at
+    public $timestamps = false; // Keep timestamps disabled
+
+    protected $dates = ['created_at']; // Cast created_at as a date
+
+    public function getCreatedAtAttribute($value)
+    {
+        return $value ? Carbon::parse($value) : null;
+    }
 
     public function user()
     {
