@@ -356,6 +356,8 @@
                                             <th scope="col">Payment Type</th>
                                             <th scope="col">Remark</th>
                                             <th scope="col">Status</th>
+                                            <th scope="col">Rejection Reason</th>
+                                            <th scope="col">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -381,6 +383,20 @@
                                                     }} me-2">
                                                         {{ $payment->status ?? 'Pending' }}
                                                     </span>
+                                                </td>
+                                                <td>
+                                                    @if ($payment->status === 'Rejected' && $payment->rejection_reason)
+                                                        {{ $payment->rejection_reason }}
+                                                    @else
+                                                        <span class="text-muted">N/A</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if ($payment->status === 'Rejected')
+                                                        <a href="{{ route('user.payment.update', $payment->id) }}" class="btn btn-sm btn-warning">Update</a>
+                                                    @else
+                                                        <span class="text-muted">N/A</span>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @endforeach

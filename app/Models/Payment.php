@@ -14,16 +14,10 @@ class Payment extends Model
         'payment_slip',
         'payment_type',
         'remark',
+        'rejection_reason', // Added
     ];
 
-    public $timestamps = false; // Keep timestamps disabled
-
-    protected $dates = ['created_at']; // Cast created_at as a date
-
-    public function getCreatedAtAttribute($value)
-    {
-        return $value ? Carbon::parse($value) : null;
-    }
+    public $timestamps = true; // Enable timestamps
 
     public function user()
     {

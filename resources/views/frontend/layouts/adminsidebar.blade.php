@@ -95,7 +95,7 @@
                     <div class="collapse" id="sidebarDashboards">
                         <ul class="nav-second-level">
                             <li>
-                                <a class='tp-link' href='index.html'>Registration Payment</a>
+                                <a class='tp-link' href='/admin/payment/manage'>Payment Details</a>
                             </li>
                             <li>
                                 <a class='tp-link' href='analytics.html'>Course Payments</a>

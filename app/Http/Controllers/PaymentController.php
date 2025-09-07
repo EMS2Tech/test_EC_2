@@ -14,7 +14,7 @@ class PaymentController extends Controller
 {
     public function __construct()
     {
-        // Middleware applied in routes/web.php
+         // Assuming a role middleware for admin access
     }
 
     public function verify()
@@ -29,6 +29,169 @@ class PaymentController extends Controller
 
         return view('frontend.user-payment', compact('payments', 'application'));
     }
+
+    public function manage(Request $request)
+{
+    $query = Payment::with('user.application')->latest();
+
+    // Debugging: Log the incoming request parameters
+    Log::info('Manage Payments Request', $request->all());
+
+    // Apply search
+    if ($request->has('search')) {
+        $search = $request->input('search');
+        $query->whereHas('user.application', function ($q) use ($search) {
+            $q->where('full_name', 'like', "%{$search}%");
+        });
+    }
+
+    // Apply status filter
+    if ($request->has('status') && $request->input('status') !== '') {
+        $query->where('status', $request->input('status'));
+        Log::info('Applied status filter', ['status' => $request->input('status')]);
+    }
+
+    // Apply payment type filter
+    if ($request->has('payment_type') && $request->input('payment_type') !== '') {
+        $query->where('payment_type', $request->input('payment_type'));
+    }
+
+    // Apply date range filter
+    if ($request->has('date_range')) {
+        $now = now();
+        switch ($request->input('date_range')) {
+            case 'last_24h':
+                $query->where('created_at', '>=', $now->subHours(24));
+                break;
+            case 'last_7d':
+                $query->where('created_at', '>=', $now->subDays(7));
+                break;
+            case 'last_month':
+                $query->where('created_at', '>=', $now->subMonth());
+                break;
+            case 'custom':
+                if ($request->has('start_date') && $request->has('end_date')) {
+                    $startDate = Carbon::parse($request->input('start_date'))->startOfDay();
+                    $endDate = Carbon::parse($request->input('end_date'))->endOfDay();
+                    $query->whereBetween('created_at', [$startDate, $endDate]);
+                }
+                break;
+        }
+    }
+
+    $payments = $query->paginate(10);
+    $currentPage = $payments->currentPage();
+    $lastPage = $payments->lastPage();
+
+    return view('frontend.admin_payment', compact('payments', 'currentPage', 'lastPage'));
+}
+
+    public function export(Request $request)
+    {
+        $query = Payment::with('user.application')->latest();
+
+        // Apply filters from the request
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->whereHas('user.application', function ($q) use ($search) {
+                $q->where('full_name', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->has('status') && $request->input('status') !== '') {
+            $query->where('status', $request->input('status'));
+        }
+
+        if ($request->has('payment_type') && $request->input('payment_type') !== '') {
+            $query->where('payment_type', $request->input('payment_type'));
+        }
+
+        if ($request->has('date_range')) {
+            $now = now();
+            switch ($request->input('date_range')) {
+                case 'last_24h':
+                    $query->where('created_at', '>=', $now->subHours(24));
+                    break;
+                case 'last_7d':
+                    $query->where('created_at', '>=', $now->subDays(7));
+                    break;
+                case 'last_month':
+                    $query->where('created_at', '>=', $now->subMonth());
+                    break;
+                case 'custom':
+                    if ($request->has('start_date') && $request->has('end_date')) {
+                        $startDate = Carbon::parse($request->input('start_date'))->startOfDay();
+                        $endDate = Carbon::parse($request->input('end_date'))->endOfDay();
+                        $query->whereBetween('created_at', [$startDate, $endDate]);
+                    }
+                    break;
+            }
+        }
+
+        $payments = $query->get();
+
+        // Generate CSV content
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="payments_export_' . date('Ymd_His') . '.csv"',
+        ];
+
+        $callback = function () use ($payments) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['User Full Name', 'Uploaded At', 'Payment Type', 'Remark', 'Status', 'Rejection Reason']);
+
+            foreach ($payments as $payment) {
+                fputcsv($file, [
+                    $payment->user->application->full_name ?? 'N/A',
+                    $payment->created_at ? $payment->created_at->format('Y-m-d H:i:s') : 'N/A',
+                    $payment->payment_type ?? 'N/A',
+                    $payment->remark ?? 'N/A',
+                    $payment->status ?? 'Pending',
+                    $payment->rejection_reason ?? 'N/A',
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function details($id)
+    {
+        $payment = Payment::with('user.application')->findOrFail($id);
+        return view('frontend.paymentdetails', compact('payment'));
+    }
+
+   public function update(Request $request, $id)
+{
+    $payment = Payment::findOrFail($id);
+
+    $request->validate([
+        'status' => 'required|in:Pending,Approved,Rejected',
+        'rejection_reason' => 'required_if:status,Rejected|string|max:255',
+    ]);
+
+    $payment->status = $request->input('status');
+    if ($request->input('status') === 'Rejected' && $request->filled('rejection_reason')) {
+        $payment->rejection_reason = $request->input('rejection_reason');
+    } elseif ($request->input('status') === 'Rejected' && !$request->filled('rejection_reason')) {
+        return redirect()->back()->with('error', 'Rejection reason is required when rejecting a payment.');
+    } else {
+        $payment->rejection_reason = null;
+    }
+
+    $payment->save();
+
+    Log::info('Payment status updated', [
+        'payment_id' => $payment->id,
+        'user_id' => $payment->user_id,
+        'status' => $payment->status,
+        'rejection_reason' => $payment->rejection_reason,
+    ]);
+
+    return redirect()->back()->with('success', 'Payment status updated successfully.');
+}
 
     public function store(Request $request)
 {
@@ -61,11 +224,11 @@ class PaymentController extends Controller
             Payment::create([
                 'user_id' => $user->id,
                 'application_id' => $application->id,
-                'status' => 'Pending Verification',
+                'status' => 'Pending', // Changed from 'Pending Verification'
                 'payment_slip' => $path,
                 'payment_type' => $request->input('payment_type'),
                 'remark' => $request->input('remark'),
-                'created_at' => now(), // Manually set created_at
+                'created_at' => now(),
             ]);
 
             Log::info('Payment slip uploaded', [
@@ -83,5 +246,48 @@ class PaymentController extends Controller
     }
 
     return redirect()->back()->with('error', 'Please upload a payment slip.');
+}
+
+public function showUpdateForm($id)
+{
+    $payment = Payment::where('user_id', auth()->id())->findOrFail($id);
+    if ($payment->status !== 'Rejected') {
+        return redirect()->back()->with('error', 'Only rejected payments can be updated.');
+    }
+
+    return view('frontend.user_payment_update', compact('payment'));
+}
+
+public function updateUserPayment(Request $request, $id)
+{
+    $payment = Payment::where('user_id', auth()->id())->findOrFail($id);
+    if ($payment->status !== 'Rejected') {
+        return redirect()->back()->with('error', 'Only rejected payments can be updated.');
+    }
+
+    $request->validate([
+        'payment_slip' => 'nullable|file|mimes:pdf,png,jpg,jpeg|max:4096',
+        'remark' => 'nullable|string|max:255',
+    ]);
+
+    $data = ['remark' => $request->input('remark')];
+    $folderName = $payment->user->application->nic_number ?: ($payment->user->application->passport_number ?: ($payment->user_id . '_' . time()));
+    $storagePath = "applications/{$folderName}/payments";
+
+    if ($request->hasFile('payment_slip')) {
+        if ($payment->payment_slip) {
+            Storage::disk('public')->delete($payment->payment_slip);
+        }
+        $file = $request->file('payment_slip');
+        if ($file->isValid()) {
+            $fileName = "payment_slip_" . time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs($storagePath, $fileName, 'public');
+            $data['payment_slip'] = $path;
+        }
+    }
+
+    $payment->update($data + ['status' => 'Pending']); // Reset status to Pending after update
+
+    return redirect()->route('profile.edit')->with('success', 'Payment updated successfully and set to pending for review.');
 }
 }

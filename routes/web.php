@@ -59,6 +59,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/payment', [PaymentController::class, 'verify'])->name('payment.verify');
     Route::post('/payment', [PaymentController::class, 'store'])->name('payment.store');
+    Route::get('/user/payment/{id}/update', [PaymentController::class, 'showUpdateForm'])->name('user.payment.update');
+    Route::post('/user/payment/{id}/update', [PaymentController::class, 'updateUserPayment'])->name('user.payment.update.post');
+
 
     // Admin payment status update
     Route::post('/admin/payment/{userId}/status', [AdminController::class, 'updatePaymentStatus'])->name('admin.payment.status')->middleware(RestrictType::class . ':admin');
@@ -103,9 +106,14 @@ Route::middleware('auth')->group(function () {
         Route::patch('/subjects/{id}', [SubjectController::class, 'update'])->name('subjects.update');
 
         // New routes for course application management
-    Route::get('/admin/courseapplication/{id}/view', [CourseApplicationController::class, 'view'])->name('admin.courseapplication.view');
-    Route::put('/admin/courseapplication/{id}/update-status', [CourseApplicationController::class, 'updateStatus'])->name('admin.courseapplication.update.status');
-    });
+        Route::get('/admin/courseapplication/{id}/view', [CourseApplicationController::class, 'view'])->name('admin.courseapplication.view');
+        Route::put('/admin/courseapplication/{id}/update-status', [CourseApplicationController::class, 'updateStatus'])->name('admin.courseapplication.update.status');
+
+        Route::get('/admin/payment/manage', [PaymentController::class, 'manage'])->name('admin.payment.manage');
+        Route::get('/admin/payment/{id}/details', [PaymentController::class, 'details'])->name('admin.payment.details');
+        Route::put('/admin/payment/{id}/update', [PaymentController::class, 'update'])->name('admin.payment.update');
+        Route::get('/admin/payment/export', [PaymentController::class, 'export'])->name('admin.payment.export');
+        });
 });
 
 require __DIR__.'/auth.php';
