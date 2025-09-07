@@ -9,6 +9,9 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Carbon\Carbon;
+use App\Models\Student;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -285,5 +288,99 @@ class AdminController extends Controller
         $application->save();
 
         return redirect()->back()->with('success', 'Application status updated successfully.');
+    }
+
+
+
+
+
+
+
+
+    public function studentsIndex(Request $request)
+    {
+        $query = Student::with(['user', 'application']);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('student_id', 'like', "%{$search}%")
+                  ->orWhere('full_name', 'like', "%{$search}%")
+                  ->orWhereHas('application', function ($q2) use ($search) {
+                      $q2->where('email_address', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('user', function ($q3) use ($search) {
+                      $q3->where('email', 'like', "%{$search}%");
+                  });
+            });
+            Log::info('Applied student search filter', ['search' => $search]);
+        }
+
+        $students = $query->paginate(10);
+        $currentPage = $students->currentPage();
+        $lastPage = $students->lastPage();
+
+        return view('frontend.students_index', compact('students', 'currentPage', 'lastPage'))->with($request->all());
+    }
+
+    public function studentDetails($id)
+    {
+        $student = Student::with([
+            'user',
+            'application',
+            'application.courseApplications.studyProgram',
+            'application.courseApplications.course.batches',
+            'application.payments'
+        ])->findOrFail($id);
+        return view('frontend.student_details', compact('student'));
+    }
+
+    public function studentsExport(Request $request)
+    {
+        Log::info('Students export initiated', $request->all());
+
+        $query = Student::select(
+            'students.student_id',
+            'students.full_name',
+            DB::raw('COALESCE(applications.contact_number, "N/A") as contact_number'),
+            DB::raw('COALESCE(applications.email_address, users.email, "N/A") as email')
+        )
+        ->leftJoin('applications', 'students.user_id', '=', 'applications.user_id')
+        ->leftJoin('users', 'students.user_id', '=', 'users.id');
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('students.student_id', 'like', "%{$search}%")
+                  ->orWhere('students.full_name', 'like', "%{$search}%")
+                  ->orWhere('applications.email_address', 'like', "%{$search}%")
+                  ->orWhere('users.email', 'like', "%{$search}%");
+            });
+            Log::info('Applied export search filter', ['search' => $search]);
+        }
+
+        $students = $query->get();
+        Log::info('Students fetched for export', ['count' => $students->count()]);
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="students_' . date('Ymd_His') . '.csv"',
+        ];
+
+        $callback = function () use ($students) {
+            $output = fopen('php://output', 'w');
+            fputcsv($output, ['Student ID', 'Full Name', 'Contact Number', 'Email']);
+            foreach ($students as $student) {
+                fputcsv($output, [
+                    $student->student_id ?? 'N/A',
+                    $student->full_name ?? 'N/A',
+                    $student->contact_number ?? 'N/A',
+                    $student->email ?? 'N/A',
+                ]);
+            }
+            fclose($output);
+        };
+
+        return Response::stream($callback, 200, $headers);
     }
 }

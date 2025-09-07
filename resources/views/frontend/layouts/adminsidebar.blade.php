@@ -68,29 +68,11 @@
                 </li>
 
                 <li>
-                    <a href="#">
+                    <a href="/admin/students">
                         <i data-feather="users"></i>
                         <span> Students </span>
                     </a>
                     <div class="collapse" id="sidebarUsers"> </div>
-                </li>
-
-                <li>
-                    <a href="#sidebarUsers" data-bs-toggle="collapse">
-                        <i data-feather="users"></i>
-                        <span> Students </span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="sidebarUsers">
-                        <ul class="nav-second-level">
-                            <li>
-                                <a class='tp-link' href='index.html'>Students</a>
-                            </li>
-                            <li>
-                                <a class='tp-link' href='analytics.html'>Students</a>
-                            </li>
-                        </ul>
-                    </div>
                 </li>
 
 

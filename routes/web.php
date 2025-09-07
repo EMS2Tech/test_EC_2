@@ -113,6 +113,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/payment/{id}/details', [PaymentController::class, 'details'])->name('admin.payment.details');
         Route::put('/admin/payment/{id}/update', [PaymentController::class, 'update'])->name('admin.payment.update');
         Route::get('/admin/payment/export', [PaymentController::class, 'export'])->name('admin.payment.export');
+
+
+        Route::get('/admin/students', [AdminController::class, 'studentsIndex'])->name('admin.students.index');
+        Route::get('/admin/students/{id}', [AdminController::class, 'studentDetails'])->name('admin.student.details');
+        Route::get('/admin/students/export', [AdminController::class, 'studentsExport'])->name('admin.students.export');
         });
 });
 
