@@ -68,6 +68,14 @@
                 </li>
 
                 <li>
+                    <a href="#">
+                        <i data-feather="users"></i>
+                        <span> Students </span>
+                    </a>
+                    <div class="collapse" id="sidebarUsers"> </div>
+                </li>
+
+                <li>
                     <a href="#sidebarUsers" data-bs-toggle="collapse">
                         <i data-feather="users"></i>
                         <span> Students </span>
@@ -98,7 +106,7 @@
                                 <a class='tp-link' href='/admin/payment/manage'>Payment Details</a>
                             </li>
                             <li>
-                                <a class='tp-link' href='analytics.html'>Course Payments</a>
+                                <a class='tp-link' href='analytics.html'>Open Payments</a>
                             </li>
                         </ul>
                     </div>

@@ -103,7 +103,7 @@
                                                                     <p class="text-muted mb-1">{{ $application->full_name }}</p>
                                                                 </div>
                                                                 <div class="mb-3">
-                                                                    <label class="fw-semibold">Student ID</label>
+                                                                    <label class="fw-semibold">Application No</label>
                                                                     <p class="text-muted mb-1">{{ $student ? $student->student_id : 'N/A' }}</p>
                                                                 </div>
                                                                 <div class="mb-3">

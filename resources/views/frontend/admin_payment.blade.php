@@ -28,6 +28,11 @@
                                             <button type="submit" class="btn btn-primary btn-sm">
                                                 <i class="mdi mdi-magnify me-1"></i> Search
                                             </button>
+                                            @foreach (request()->query() as $key => $value)
+                                                @if ($key !== 'search')
+                                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                                @endif
+                                            @endforeach
                                         </form>
                                         <form class="d-flex align-items-center" method="GET" action="{{ route('admin.payment.manage') }}">
                                             <select name="status" class="form-select me-2" style="width: 150px;" onchange="this.form.submit()">
@@ -46,7 +51,7 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <form method="GET" action="{{ route('admin.payment.manage') }}" class="row g-3">
+                                <form method="GET" action="{{ route('admin.payment.manage') }}" class="row g-3" id="filterForm">
                                     <div class="col-md-3">
                                         <label for="payment_type" class="form-label">Payment Type</label>
                                         <select name="payment_type" id="payment_type" class="form-select" onchange="this.form.submit()">
@@ -67,16 +72,21 @@
                                     </div>
                                     <div class="col-md-2 custom-date-fields" style="display: {{ request('date_range') === 'custom' ? 'block' : 'none' }};">
                                         <label for="start_date" class="form-label">Start Date</label>
-                                        <input type="date" name="start_date" id="start_date" class="form-control" value="{{ request('start_date') }}" max="{{ now()->format('Y-m-d') }}">
+                                        <input type="date" name="start_date" id="start_date" class="form-control" value="{{ request('start_date') }}" max="{{ now('Asia/Colombo')->format('Y-m-d') }}">
                                     </div>
                                     <div class="col-md-2 custom-date-fields" style="display: {{ request('date_range') === 'custom' ? 'block' : 'none' }};">
                                         <label for="end_date" class="form-label">End Date</label>
-                                        <input type="date" name="end_date" id="end_date" class="form-control" value="{{ request('end_date') }}" max="{{ now()->format('Y-m-d') }}">
+                                        <input type="date" name="end_date" id="end_date" class="form-control" value="{{ request('end_date') }}" max="{{ now('Asia/Colombo')->format('Y-m-d') }}">
                                     </div>
                                     <div class="col-12 text-end">
-                                        <button type="submit" class="btn btn-primary">Filter</button>
+                                        <button type="submit" class="btn btn-primary" onclick="return validateDateRange()">Filter</button>
                                         <a href="{{ route('admin.payment.manage') }}" class="btn btn-secondary">Clear Filters</a>
                                     </div>
+                                    @foreach (request()->query() as $key => $value)
+                                        @if (!in_array($key, ['date_range', 'start_date', 'end_date', 'payment_type']))
+                                            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                        @endif
+                                    @endforeach
                                 </form>
                             </div>
                         </div>
@@ -102,10 +112,10 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($payments as $payment)
+                                            @forelse ($payments as $payment)
                                                 <tr>
                                                     <td>{{ $payment->user->application->full_name ?? 'N/A' }}</td>
-                                                    <td>{{ $payment->created_at ? $payment->created_at->format('F j, Y h:i A') : 'N/A' }}</td>
+                                                    <td>{{ $payment->created_at ? $payment->created_at->format('Y-m-d') : 'N/A' }}</td>
                                                     <td>{{ $payment->payment_type ?? 'N/A' }}</td>
                                                     <td>{{ $payment->remark ?? 'N/A' }}</td>
                                                     <td>
@@ -123,7 +133,11 @@
                                                         </a>
                                                     </td>
                                                 </tr>
-                                            @endforeach
+                                            @empty
+                                                <tr>
+                                                    <td colspan="6" class="text-center">No payments found for the selected filters.</td>
+                                                </tr>
+                                            @endforelse
                                         </tbody>
                                     </table>
                                 </div>
@@ -139,15 +153,15 @@
                                             <nav aria-label="Page navigation">
                                                 <ul class="pagination">
                                                     <li class="page-item {{ $currentPage == 1 ? 'disabled' : '' }}">
-                                                        <a class="page-link" href="{{ $payments->url($currentPage - 1) }}" tabindex="-1" aria-disabled="{{ $currentPage == 1 ? 'true' : 'false' }}">Previous</a>
+                                                        <a class="page-link" href="{{ $payments->url($currentPage - 1) . ($currentPage > 1 ? '&' . http_build_query(request()->except('page')) : '') }}" tabindex="-1" aria-disabled="{{ $currentPage == 1 ? 'true' : 'false' }}">Previous</a>
                                                     </li>
                                                     @for ($i = max(1, $currentPage - 1); $i <= min($lastPage, $currentPage + 1); $i++)
                                                         <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
-                                                            <a class="page-link" href="{{ $payments->url($i) }}">{{ $i }}</a>
+                                                            <a class="page-link" href="{{ $payments->url($i) . ($i != $currentPage ? '&' . http_build_query(request()->except('page')) : '') }}">{{ $i }}</a>
                                                         </li>
                                                     @endfor
                                                     <li class="page-item {{ $currentPage == $lastPage ? 'disabled' : '' }}">
-                                                        <a class="page-link" href="{{ $payments->url($currentPage + 1) }}" aria-disabled="{{ $currentPage == $lastPage ? 'true' : 'false' }}">Next</a>
+                                                        <a class="page-link" href="{{ $payments->url($currentPage + 1) . ($currentPage < $lastPage ? '&' . http_build_query(request()->except('page')) : '') }}" aria-disabled="{{ $currentPage == $lastPage ? 'true' : 'false' }}">Next</a>
                                                     </li>
                                                 </ul>
                                             </nav>
@@ -164,8 +178,6 @@
     </div>
 
     @section('scripts')
-        <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
-        <!-- Replace 'your-fontawesome-kit.js' with your actual Font Awesome kit URL or include it via CDN -->
         <script>
             function toggleDateFields() {
                 const dateRange = document.getElementById('date_range').value;
@@ -175,9 +187,30 @@
                 });
             }
 
+            function validateDateRange() {
+                const dateRange = document.getElementById('date_range').value;
+                if (dateRange === 'custom') {
+                    const startDate = document.getElementById('start_date').value;
+                    const endDate = document.getElementById('end_date').value;
+                    if (!startDate || !endDate) {
+                        alert('Please select both start and end dates for custom range.');
+                        return false;
+                    }
+                    const start = new Date(startDate);
+                    const end = new Date(endDate);
+                    if (start > end) {
+                        alert('Start date cannot be after end date.');
+                        return false;
+                    }
+                }
+                return true;
+            }
+
             // Initialize date fields visibility
             document.addEventListener('DOMContentLoaded', function () {
                 toggleDateFields();
+                document.getElementById('date_range').addEventListener('change', toggleDateFields);
+                document.getElementById('filterForm').addEventListener('submit', validateDateRange);
             });
         </script>
     @endsection

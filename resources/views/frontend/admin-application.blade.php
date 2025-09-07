@@ -53,7 +53,7 @@
                                 <table class="table table-traffic mb-0">
                                     <thead>
                                         <tr>
-                                            <th>Application No</th>
+                                            <th>Number</th>
                                             <th>Full Name</th>
                                             <th>Contact Number</th>
                                             <th>Email</th>
