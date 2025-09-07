@@ -8,7 +8,7 @@
                     </button>
                 </li>
                 <li class="d-none d-lg-block">
-                    <h5 class="mb-0">Good Morning, {{ Auth::user()->name }}</h5>
+                    <h5 class="mb-0">Hello, {{ Auth::user()->name }}</h5>
                 </li>
             </ul>
 

@@ -17,39 +17,22 @@ class AdminController extends Controller
 {
     public function index()
     {
-        $applications = User::select(
-            'users.id as user_id',
-            \DB::raw('COALESCE(MAX(applications.full_name), users.name) as full_name'),
-            \DB::raw('MAX(applications.id) as application_id'),
-            \DB::raw('MAX(applications.application_completed) as application_completed'),
-            \DB::raw('MAX(applications.status) as status'), // Add status column
-            \DB::raw('MAX(study_programs.program_name) as study_programme_name'),
-            \DB::raw('MAX(courses.course_name) as course_name'),
-            \DB::raw('(
-                SELECT CASE
-                    WHEN MAX(payments.payment_slip) IS NULL THEN "Not Complete"
-                    WHEN MAX(CASE WHEN payments.status = "Pending Verification" THEN 1 ELSE 0 END) = 1 THEN "Pending Verification"
-                    WHEN MAX(CASE WHEN payments.status = "Completed" THEN 1 ELSE 0 END) = 1 THEN "Completed"
-                    ELSE "Not Complete"
-                END
-                FROM payments
-                WHERE payments.user_id = users.id
-            ) as payment_status'),
-            \DB::raw('COALESCE(MAX(students.student_id), "N/A") as student_id')
+        $students = Student::select(
+            'students.id',
+            'students.student_id',
+            DB::raw('COALESCE(applications.full_name, users.name, "N/A") as full_name'),
+            DB::raw('COALESCE(applications.contact_number, "N/A") as contact_number'),
+            DB::raw('COALESCE(applications.nic_number, applications.passport_number, "N/A") as nic_number'),
+            DB::raw('COALESCE(applications.email_address, users.email, "N/A") as email'),
+            DB::raw('COALESCE(applications.photograph, NULL) as photograph')
         )
+        ->join('users', 'students.user_id', '=', 'users.id')
+        ->leftJoin('applications', 'students.user_id', '=', 'applications.user_id')
         ->where('users.type', 'student')
-        ->leftJoin('applications', 'users.id', '=', 'applications.user_id')
-        ->leftJoin('course_applications', 'users.id', '=', 'course_applications.user_id')
-        ->leftJoin('study_programs', 'course_applications.study_programme_id', '=', 'study_programs.id')
-        ->leftJoin('courses', 'course_applications.course_id', '=', 'courses.id')
-        ->leftJoin('students', 'users.id', '=', 'students.user_id')
-        ->groupBy('users.id', 'users.name')
+        ->orderBy('students.id')
         ->paginate(10); // 10 items per page
 
-        $currentPage = $applications->currentPage();
-        $lastPage = $applications->lastPage();
-
-        return view('frontend.admin', compact('applications', 'currentPage', 'lastPage'));
+        return view('frontend.admin', compact('students'));
     }
     
     public function applications(Request $request)

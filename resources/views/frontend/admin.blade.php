@@ -162,107 +162,77 @@
                 </div>
                 <!-- End Main Widgets -->
 
-                <!-- Start Product Orders -->
+                <!-- Start Students -->
                 <div class="row">
                     <div class="col-md-12">
                         <div class="card overflow-hidden">
                             <div class="card-header">
                                 <div class="d-flex align-items-center">
-                                    <h5 class="card-title mb-0">Applications</h5>
+                                    <h5 class="card-title mb-0">Students</h5>
                                 </div>
                             </div>
-
                             <div class="card-body p-0">
                                 <div class="table-responsive">
                                     <table class="table table-traffic mb-0">
                                         <thead>
                                             <tr>
                                                 <th>Application No</th>
-                                                <th>Applicant Name</th>
-                                                <th>Student ID</th>
-                                                <th>Application Status</th>
-                                                <th>Payment Status</th>
+                                                <th>Full Name</th>
+                                                <th>Contact Number</th>
+                                                <th>NIC/Passport</th>
+                                                <th>Email</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($applications as $application)
+                                            @forelse ($students as $student)
                                                 <tr>
-                                                    <td>
-                                                        <a href="javascript:void(0);" class="text-dark">{{ sprintf('%.5d', $application->application_id ?? $application->user_id) }}</a>
-                                                    </td>
+                                                    <td>{{ $student->student_id ?? 'N/A' }}</td>
                                                     <td class="d-flex align-items-center">
-                                                        <img src="{{ ($app = \App\Models\Application::where('user_id', $application->user_id)->first()) && $app->photograph ? asset('storage/' . $app->photograph) : asset('frontend/assets/images/users/default.jpg') }}"
+                                                        <img src="{{ $student->photograph ? asset('storage/' . $student->photograph) : asset('frontend/assets/images/users/default.jpg') }}"
                                                              class="avatar avatar-sm rounded-circle me-3"
-                                                             alt="user-image" />
+                                                             alt="student-image" />
                                                         <div>
-                                                            <p class="mb-0 fw-medium fs-14">{{ $application->full_name }}</p>
+                                                            <p class="mb-0 fw-medium fs-14">{{ $student->full_name ?? 'N/A' }}</p>
                                                         </div>
                                                     </td>
+                                                    <td>{{ $student->contact_number ?? 'N/A' }}</td>
+                                                    <td>{{ $student->nic_number ?? 'N/A' }}</td>
+                                                    <td>{{ $student->email ?? 'N/A' }}</td>
                                                     <td>
-                                                        <p class="mb-0 text-muted">{{ $application->student_id }}</p>
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge {{ $application->status == 'Approved' ? 'bg-success-subtle text-success' : ($application->status == 'Pending' ? 'bg-warning-subtle text-warning' : ($application->status == 'Rejected' ? 'bg-danger-subtle text-danger' : 'bg-secondary-subtle text-secondary')) }} fw-semibold">
-                                                            {{ $application->status ?? 'Not Complete' }}
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge {{ $application->payment_status == 'Completed' ? 'bg-success-subtle text-success' : ($application->payment_status == 'Pending Verification' ? 'bg-warning-subtle text-warning' : 'bg-danger-subtle text-danger') }} fw-semibold">
-                                                            {{ $application->payment_status }}
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <a href="{{ route('admin.application.details', $application->application_id ?? $application->user_id) }}" aria-label="anchor" class="btn btn-icon btn-sm bg-info-subtle me-1" data-bs-toggle="tooltip" data-bs-original-title="View">
+                                                        <a href="{{ route('admin.student.details', $student->id) }}" class="btn btn-icon btn-sm bg-info-subtle me-1" data-bs-toggle="tooltip" data-bs-original-title="View" onclick="return confirm('View details for {{ $student->full_name ?? 'Student' }}?');">
                                                             <i class="mdi mdi-eye-outline fs-12 text-info"></i>
                                                         </a>
-                                                        @if ($application->status == 'Pending')
-                                                            <form action="{{ route('admin.application.update-status', $application->application_id ?? $application->user_id) }}" method="POST" style="display:inline;">
-                                                                @csrf
-                                                                @method('PUT')
-                                                                <input type="hidden" name="status" value="Approved">
-                                                                <button type="submit" aria-label="Approve" class="btn btn-icon btn-sm bg-success-subtle me-1" data-bs-toggle="tooltip" data-bs-original-title="Approve">
-                                                                    <i class="mdi mdi-check-circle-outline fs-12 text-success"></i>
-                                                                </button>
-                                                            </form>
-                                                            <form action="{{ route('admin.application.update-status', $application->application_id ?? $application->user_id) }}" method="POST" style="display:inline;">
-                                                                @csrf
-                                                                @method('PUT')
-                                                                <input type="hidden" name="status" value="Rejected">
-                                                                <button type="submit" aria-label="Reject" class="btn btn-icon btn-sm bg-danger-subtle me-1" data-bs-toggle="tooltip" data-bs-original-title="Reject">
-                                                                    <i class="mdi mdi-close-circle-outline fs-12 text-danger"></i>
-                                                                </button>
-                                                            </form>
-                                                        @else
-                                                            <span class="text-muted">N/A</span>
-                                                        @endif
                                                     </td>
                                                 </tr>
-                                            @endforeach
+                                            @empty
+                                                <tr>
+                                                    <td colspan="6" class="text-center">No students found for the selected filters.</td>
+                                                </tr>
+                                            @endforelse
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-
                             <div class="card-footer py-0 border-top">
                                 <div class="row align-items-center">
                                     <div class="col-12">
                                         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                                             <div class="text-block text-muted">
-                                                <span class="fw-medium">{{ $applications->firstItem() }} - {{ $applications->lastItem() }} of {{ $applications->total() }}</span>
+                                                <span class="fw-medium">{{ $students->firstItem() }} - {{ $students->lastItem() }} of {{ $students->total() }}</span>
                                             </div>
                                             <nav aria-label="Page navigation">
                                                 <ul class="pagination">
-                                                    <li class="page-item {{ $currentPage == 1 ? 'disabled' : '' }}">
-                                                        <a class="page-link" href="{{ $applications->url($currentPage - 1) }}" tabindex="-1" aria-disabled="{{ $currentPage == 1 ? 'true' : 'false' }}">Previous</a>
+                                                    <li class="page-item {{ $students->currentPage() == 1 ? 'disabled' : '' }}">
+                                                        <a class="page-link" href="{{ $students->previousPageUrl() . ($students->currentPage() > 1 ? '&' . http_build_query(request()->except('page')) : '') }}" tabindex="-1" aria-disabled="{{ $students->currentPage() == 1 ? 'true' : 'false' }}">Previous</a>
                                                     </li>
-                                                    @for ($i = max(1, $currentPage - 1); $i <= min($lastPage, $currentPage + 1); $i++)
-                                                        <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
-                                                            <a class="page-link" href="{{ $applications->url($i) }}">{{ $i }}</a>
+                                                    @for ($i = max(1, $students->currentPage() - 1); $i <= min($students->lastPage(), $students->currentPage() + 1); $i++)
+                                                        <li class="page-item {{ $i == $students->currentPage() ? 'active' : '' }}">
+                                                            <a class="page-link" href="{{ $students->url($i) . ($i != $students->currentPage() ? '&' . http_build_query(request()->except('page')) : '') }}">{{ $i }}</a>
                                                         </li>
                                                     @endfor
-                                                    <li class="page-item {{ $currentPage == $lastPage ? 'disabled' : '' }}">
-                                                        <a class="page-link" href="{{ $applications->url($currentPage + 1) }}" aria-disabled="{{ $currentPage == $lastPage ? 'true' : 'false' }}">Next</a>
+                                                    <li class="page-item {{ $students->currentPage() == $students->lastPage() ? 'disabled' : '' }}">
+                                                        <a class="page-link" href="{{ $students->nextPageUrl() . ($students->currentPage() < $students->lastPage() ? '&' . http_build_query(request()->except('page')) : '') }}" aria-disabled="{{ $students->currentPage() == $students->lastPage() ? 'true' : 'false' }}">Next</a>
                                                     </li>
                                                 </ul>
                                             </nav>
@@ -273,7 +243,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- End Recent Order -->
+                <!-- End Students -->
             </div>
             <!-- container-fluid -->
         </div>
