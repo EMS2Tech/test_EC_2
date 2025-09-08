@@ -1,198 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Eurasian Campus Application Form</title>
-    <style>
-        @page {
-            size: A4;
-            margin: 20mm;
-        }
+<meta charset="UTF-8">
+<title>Eurasian Campus Application Form</title>
+<style>
+        @page { size: A4; margin: 20mm; }
         body {
-            font-family: "Times New Roman", serif;
-            margin: 0;
-            padding: 0;
-            line-height: 1.4;
-            color: #000;
-            font-size: 14px;
+            font-family: DejaVu Serif, "Times New Roman", serif;
+            margin: 0; padding: 0; line-height: 1.35; color: #000; font-size: 13px;
         }
-        .container {
-            width: 100%;
-            max-width: 190mm;
-            margin: 0 auto;
-            padding: 10px 20px;
-            box-sizing: border-box;
-        }
+        .container { width: 100%; }
+        .mb-2 { margin-bottom: 2mm; }
+        .mb-4 { margin-bottom: 4mm; }
+        .mb-6 { margin-bottom: 6mm; }
+        .b { font-weight: bold; }
+ 
         /* Header */
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 5mm;
-            height: 25mm;
-        }
-        .logo img {
-            max-width: 55mm;
-        }
-        .center-section {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            padding-top: 5mm;
-        }
-        .title-box {
-            text-align: center;
-        }
+        .header-table { width: 100%;}
+        .header-table td { vertical-align: top; }
+        .logo-cell { width: 20mm; }
+        .logo-img { height: 15mm; }
+        .title-cell { text-align: center; }
+        .reg-cell { width: 35mm; text-align: right; font-size: 12px; font-weight: bold; }
+ 
         .application-form-box {
-            background-color: #d4a574;
-            padding: 5px 15px;
-            font-weight: bold;
-            font-size: 18px;
+            display: inline-block;
+            background-color: #ebbe8fff;
+            padding: 4px 12px;
             border: 1px solid #333;
-            color: #000;
-        }
-        .reg-no {
-            font-size: 12px;
             font-weight: bold;
-            flex-shrink: 0;
-            padding-top: 10px;
+            font-size: 15px;
         }
-        /* Campus Info */
-        .campus-info {
-            text-align: center;
-            margin-bottom: 10mm;
+ 
+        /* Campus info */
+        .campus-name { font-size: 18px; text-align: center; }
+        .address { font-size: 14px; text-align: center; }
+ 
+        /* Photo + Office use row */
+        .row-table { width: 100%; border-collapse: collapse; }
+        .photo-cell { width: 55mm; vertical-align: top; }
+        .office-cell { padding-left: 43mm; }
+.office-wrap { width: 90mm; margin-left: auto; }   /* make smaller/bigger to taste */
+.office-table { width: 100%; }                     /* fills the wrapper */
+ 
+        .photo-frame {
+            border: 2px solid #333; width: 40mm; height: 40mm;
+            display: block; text-align: center; line-height: 40mm; font-size: 12px; margin-bottom: 1mm;
         }
-        .campus-name {
-            font-size: 18px;
-            margin-bottom: 2px;
-            font-weight: bold;
-        }
-        .address {
-            font-size: 13px;
-            line-height: 1.3;
-        }
-        /* Content Row */
-        .content-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8mm;
-        }
-        .photos-section {
-            width: 60mm;
-        }
-        .photo-box {
-            border: 2px solid #333;
-            width: 40mm;
-            height: 40mm;
-            background-color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-        }
-        .office-use {
-            width: 110mm;
-        }
-        .office-table {
-            border-collapse: collapse;
-            width: 100%;
-            border: 2px solid #333;
-        }
+        .photo-img { width: 40mm; height: 40mm; object-fit: cover; display: block; }
+ 
+        .office-table { width: 80%; border-collapse: collapse; border: 2px solid #333; }
         .office-table th {
-            background-color: #f5f5f5;
-            font-weight: bold;
-            text-align: center;
-            padding: 5px;
-            border-bottom: 1px solid #333;
-            font-size: 13px;
+            background: #f5f5f5; font-weight: bold; text-align: center; padding: 5px; border-bottom: 1px solid #333; font-size: 12px;
         }
         .office-table td {
-            border-bottom: 1px solid #333;
-            border-right: 1px solid #333;
-            padding: 4px 6px;
-            font-size: 12px;
-            background-color: #fff;
+            padding: 4px 6px; font-size: 12px; border-bottom: 1px solid #333; border-right: 1px solid #333; background: #fff;
         }
-        .office-table td:last-child {
-            width: 20mm;
-            border-right: none;
-        }
-        .office-table tr:last-child td {
-            border-bottom: none;
-        }
-        .batch-number {
-            font-size: 13px;
-            margin-bottom: 8mm;
-            font-weight: bold;
-        }
+        .office-table tr:last-child td { border-bottom: none; }
+        .office-table td:last-child { border-right: none; width: 22mm; }
+ 
+        .batch { font-size: 13px; font-weight: bold; }
+ 
         /* Sections */
-        .section1 {
-            margin-bottom: 5mm;
-        }
-        .section1-title {
-            font-size: 14px;
-            font-weight: normal;
-        }
-    </style>
+        .section { margin-bottom: 4mm; }
+        .label { font-size: 13px; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header-row">
-            <div class="logo">
-                <img src="{{ asset('frontend/assets/images/ec_logo.webp') }}" alt="Eurasian Campus Logo">
-            </div>
-            <div class="center-section">
-                <div class="title-box">
-                    <div class="application-form-box">APPLICATION FORM</div>
-                </div>
-            </div>
-            <div class="reg-no">
-                Reg No: {student_id}
-            </div>
-        </div>
-
-        <!-- Campus Info -->
-        <div class="campus-info">
-            <div class="campus-name">EURASIAN CAMPUS</div>
-            <div class="address">
-                No.-91, Head office, Seelanada Nahimi Mw, Delthara, Piliyandala, Sri Lanka
-            </div>
-        </div>
-
-        <!-- Content -->
-        <div class="content-row">
-            <div class="photos-section">
-                <div class="photo-box">{Photographs}</div>
-            </div>
-            <div class="office-use">
-                <table class="office-table">
-                    <tr>
-                        <th colspan="2">Office use only</th>
-                    </tr>
-                    <tr><td>NIC/PP Copy</td><td></td></tr>
-                    <tr><td>Birth Certificate copy</td><td></td></tr>
-                    <tr><td>Education Copies</td><td></td></tr>
-                    <tr><td>National ID Card</td><td></td></tr>
-                    <tr><td>Bank Slip</td><td></td></tr>
-                </table>
-            </div>
-        </div>
-
-        <!-- Batch -->
-        <div class="batch-number">
-            Batch Number - {batch_no}
-        </div>
-
-        <!-- Sections -->
-        <div class="section1"><div class="section1-title">1. Course of Study : {course_name}</div></div>
-        <div class="section1"><div class="section1-title">2. Name with Initials : {name_with_initials}</div></div>
-        <div class="section1"><div class="section1-title">3. Address : {address}</div></div>
-        <div class="section1"><div class="section1-title">4. Email Address : {email}</div></div>
-        <div class="section1"><div class="section1-title">5. Date of Birth : {birthday}</div></div>
-        <div class="section1"><div class="section1-title">6. Passport or NIC No : {nic_number}</div></div>
-        <div class="section1"><div class="section1-title">7. Telephone No : {contact_number}</div></div>
-        <div class="section1"><div class="section1-title">8. WhatsApp No : {whatsapp_number}</div></div>
-    </div>
+<div class="container">
+ 
+    <!-- Header -->
+<table class="header-table mb-4">
+<tr>
+<td class="logo-cell">
+                @if(!empty($logo_base64))
+<img class="logo-img" src="{{ $logo_base64 }}" alt="Eurasian Campus Logo">
+                @else
+<div class="b">Eurasian Campus</div>
+                @endif
+</td>
+<td class="title-cell">
+<div class="application-form-box">APPLICATION FORM</div>
+</td>
+<td class="reg-cell">
+                Application No: {{ $student_id }}
+</td>
+</tr>
+</table>
+ 
+    <!-- Campus Info -->
+<div class="campus-name mb-2">EURASIAN CAMPUS</div>
+<div class="address mb-6">No.-91, Head office, Seelanada Nahimi Mw, Delthara, Piliyandala, Sri Lanka</div>
+ 
+    <!-- Content Row -->
+<table class="row-table mb-6">
+<tr>
+<td class="photo-cell">
+                @if(!empty($photo_base64))
+<img class="photo-img" src="{{ $photo_base64 }}" alt="Photograph">
+                @else
+<div class="photo-frame">Photograph</div>
+                @endif
+</td>
+<td class="office-cell">
+<div class="office-wrap">
+<table class="office-table">
+<tr><th colspan="2">Office use only</th></tr>
+<tr><td>NIC/PP Copy</td><td></td></tr>
+<tr><td>Birth Certificate copy</td><td></td></tr>
+<tr><td>Education Copies</td><td></td></tr>
+<tr><td>National ID Card</td><td></td></tr>
+<tr><td>Bank Slip</td><td></td></tr>
+</table>
+</div>
+</td>
+</tr>
+</table>
+ 
+    <!-- Batch -->
+<div class="batch mb-6">Batch Number - {{ $batch_no }}</div>
+ 
+    <!-- Sections -->
+<div class="section"><span class="label"><b>1. Course of Study: </b></span>{{ $course_name }}</div>
+<div class="section"><span class="label"><b>2. Name with Initials: </b></span>{{ $name_with_initials }}</div>
+<div class="section"><span class="label"><b>3. Address: </b></span>{{ $address }}</div>
+<div class="section"><span class="label"><b>4. Email Address: </b></span>{{ $email }}</div>
+<div class="section"><span class="label"><b>5. Date of Birth: </b></span>{{ $birthday }}</div>
+<div class="section"><span class="label"><b>6. Passport or NIC No: </b></span>{{ $nic_number }}</div>
+<div class="section"><span class="label"><b>7. Telephone No: </b></span>{{ $contact_number }}</div>
+<div class="section"><span class="label"><b>8. WhatsApp No: </b></span>{{ $whatsapp_number }}</div>
+ 
+</div>
 </body>
 </html>
