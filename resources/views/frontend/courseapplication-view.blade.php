@@ -11,13 +11,13 @@
                         <h4 class="fs-18 fw-semibold m-0">Course Application Details</h4>
                     </div>
                     <div>
-                        <a href="{{ route('admin.course.applications') }}" class="btn btn-secondary">Back to Applications</a>
+                        <a href="{{ route('admin.course.applications') }}" class="btn btn-secondary">Back to Course Applications</a>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0">Application Information</h5>
+                        <h5 class="card-title mb-0">Course Application Information</h5>
                     </div>
                     <div class="card-body">
                         <div class="row g-4">
@@ -25,7 +25,7 @@
                             <div class="col-12">
                                 <div class="card border-0 shadow-sm">
                                     <div class="card-header bg-light">
-                                        <h6 class="card-title mb-0">Application Details</h6>
+                                        <h6 class="card-title mb-0">Course Application Details</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="row g-3">
@@ -47,7 +47,7 @@
                             <div class="col-12">
                                 <div class="card border-0 shadow-sm">
                                     <div class="card-header bg-light">
-                                        <h6 class="card-title mb-0">Application Status</h6>
+                                        <h6 class="card-title mb-0">Course Application Status</h6>
                                     </div>
                                     <div class="card-body">
                                         <p><strong>Status:</strong> 
@@ -91,6 +91,58 @@
                                                 @endif
                                             @endforeach
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payment Details -->
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-header bg-light">
+                                        <h6 class="card-title mb-0">Payment Details</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        @php
+                                            $payments = \App\Models\Payment::where('user_id', $courseApplication->user_id)->get();
+                                        @endphp
+                                        @if ($payments->isNotEmpty())
+                                            <div class="table-responsive">
+                                                <table class="table table-hover table-bordered">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th scope="col">Date</th>
+                                                            <th scope="col">Type</th>
+                                                            <th scope="col">Remark</th>
+                                                            <th scope="col">Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($payments as $payment)
+                                                            <tr>
+                                                                <td>{{ $payment->created_at ? $payment->created_at->format('F j, Y h:i A') : 'N/A' }}</td>
+                                                                <td>{{ $payment->payment_type ?? 'N/A' }}</td>
+                                                                <td>{{ $payment->remark ?? 'N/A' }}</td>
+                                                                <td>
+                                                                    <span class="badge bg-{{ 
+                                                                        $payment->status === 'Approved' ? 'success' : 
+                                                                        ($payment->status === 'Pending' ? 'warning' : 
+                                                                        ($payment->status === 'Rejected' ? 'danger' : 'secondary')) 
+                                                                    }} me-2">
+                                                                        {{ $payment->status ?? 'Pending' }}
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        @else
+                                            <div class="alert alert-info text-center" role="alert">
+                                                <h5 class="alert-heading">No Payments Done Yet</h5>
+                                                <p>No payment records found for this user.</p>
+                                                
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

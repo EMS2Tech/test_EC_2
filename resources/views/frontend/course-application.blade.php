@@ -109,7 +109,7 @@
                                                     <td>{{ $courseApplication->study_programme_name }}</td>
                                                     <td>{{ $courseApplication->course_name }}</td>
                                                     <td>{{ $courseApplication->batch_no ?? 'N/A' }}</td>
-                                                    <td>{{ $courseApplication->apply_date }}</td>
+                                                    <td>{{ $courseApplication->created_at ? $courseApplication->created_at->format('Y-m-d') : 'N/A' }}</td>
                                                     <td>
                                                         <span class="badge {{ $courseApplication->status == 'Approved' ? 'bg-success-subtle text-success' : ($courseApplication->status == 'Pending' ? 'bg-warning-subtle text-warning' : ($courseApplication->status == 'Rejected' ? 'bg-danger-subtle text-danger' : 'bg-secondary-subtle text-secondary')) }} fw-semibold">
                                                             {{ $courseApplication->status ?? 'N/A' }}

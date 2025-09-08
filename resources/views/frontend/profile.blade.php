@@ -260,7 +260,7 @@
                                                                                             No active batches
                                                                                         @endif
                                                                                     </td>
-                                                                                    <td>{{ $application->created_at->format('F j, Y h:i A') }}</td>
+                                                                                    <td>{{ $application->created_at ? $application->created_at->format('Y-m-d') : 'N/A' }}</td>
                                                                                     <td>
                                                                                         <span class="badge bg-{{ $application->status == 'Approved' ? 'success' : ($application->status == 'Pending' ? 'warning' : ($application->status == 'Rejected' ? 'danger' : 'secondary')) }} me-2">
                                                                                             {{ $application->status ?? 'N/A' }}
@@ -371,7 +371,7 @@
                                                                                             <span class="text-muted">Not uploaded</span>
                                                                                         @endif
                                                                                     </td>
-                                                                                    <td>{{ $payment->created_at ? $payment->created_at->format('F j, Y h:i A') : 'N/A' }}</td>
+                                                                                    <td>{{ $payment->created_at ? $payment->created_at->format('Y-m-d') : 'N/A' }}</td>
                                                                                     <td>{{ $payment->payment_type ?? 'N/A' }}</td>
                                                                                     <td>{{ $payment->remark ?? 'N/A' }}</td>
                                                                                     <td>
