@@ -11,7 +11,7 @@
                         <h4 class="fs-18 fw-semibold m-0">Initiate Payment Request</h4>
                     </div>
                     <div>
-                        <a href="{{ route('admin.course.applications') }}" class="btn btn-secondary">Back to Course Applications</a>
+                        
                     </div>
                 </div>
 
