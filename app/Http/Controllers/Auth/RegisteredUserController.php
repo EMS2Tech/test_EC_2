@@ -47,9 +47,9 @@ class RegisteredUserController extends Controller
         // Skipping email verification event to redirect directly to login
         event(new UserRegistered($user)); //need to send welcome mail
 
-        Auth::login($user);
+        //Auth::login($user);
         //when redirect login after register (Auth::logout();)
 
-        return redirect(route('login', absolute: false));
+        return redirect()->route('login')->with('status', 'Account created! Please log in.');
     }
 }
