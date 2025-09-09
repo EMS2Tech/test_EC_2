@@ -10,6 +10,7 @@ class CourseApplication extends Model
         'user_id',
         'study_programme_id',
         'course_id',
+        'batch_id',
         'status',
         'rejection_reason',
         'ol_certificate',
@@ -64,5 +65,10 @@ class CourseApplication extends Model
     public function getApplyDateAttribute()
     {
         return $this->created_at->format('Y-m-d H:i:s');
+    }
+
+    public function batch()
+    {
+        return $this->belongsTo(Batch::class);
     }
 }

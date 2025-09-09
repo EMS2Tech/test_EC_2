@@ -77,10 +77,21 @@ class CourseApplicationController extends Controller
             Storage::disk('public')->makeDirectory($storagePath);
         }
 
+        // Determine the batch_id from the course's active batches
+        $batch = Batch::where('course_id', $courseId)
+            ->where('start_date', '<=', Carbon::now('Asia/Colombo'))
+            ->where('end_date', '>=', Carbon::now('Asia/Colombo'))
+            ->first();
+
+        if (!$batch) {
+            return redirect()->back()->with('error', 'No active batch available for the selected course.');
+        }
+
         $courseApplication = new CourseApplication([
             'user_id' => $user->id,
             'study_programme_id' => $request->study_programme,
             'course_id' => $request->course,
+            'batch_id' => $batch->id, // Store the batch_id
             'status' => 'Pending', // Ensure status is set to Pending
         ]);
 

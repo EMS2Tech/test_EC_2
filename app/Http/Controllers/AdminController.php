@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Carbon\Carbon;
 use App\Models\Student;
+use App\Models\Course;
+use App\Models\Batch;
+use App\Models\PaymentRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -365,5 +368,51 @@ class AdminController extends Controller
         };
 
         return Response::stream($callback, 200, $headers);
+    }
+
+
+
+
+
+    public function showPaymentRequestForm()
+    {
+        $courses = Course::all();
+        return view('frontend.payment_request', compact('courses'));
+    }
+
+    public function sendPaymentRequest(Request $request)
+{
+    $request->validate([
+        'course_id' => 'required|exists:courses,id',
+        'batch_id' => 'required|exists:batches,id',
+        'message' => 'required|string',
+    ]);
+
+    $courseApplications = CourseApplication::where('course_id', $request->course_id)
+        ->where('batch_id', $request->batch_id)
+        ->get();
+
+    foreach ($courseApplications as $application) {
+        PaymentRequest::updateOrCreate(
+            [
+                'user_id' => $application->user_id,
+                'course_id' => $request->course_id,
+                'batch_id' => $request->batch_id,
+            ],
+            [
+                'status' => 'pending',
+                'message' => $request->message,
+                'updated_at' => now(),
+            ]
+        );
+    }
+
+    return back()->with('success', 'Payment request sent to all users in the selected course and batch.');
+}
+
+    public function getBatches($course_id)
+    {
+        $batches = Batch::where('course_id', $course_id)->get();
+        return response()->json($batches);
     }
 }

@@ -119,6 +119,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/students', [AdminController::class, 'studentsIndex'])->name('admin.students.index');
         Route::get('/admin/students/{id}', [AdminController::class, 'studentDetails'])->name('admin.student.details');
         Route::get('/admin/students/export', [AdminController::class, 'studentsExport'])->name('admin.students.export');
+
+
+
+        // Payment Request
+    Route::get('/admin/payment/request', [AdminController::class, 'showPaymentRequestForm'])->name('admin.payment.request');
+    Route::post('/admin/payment/request/send', [AdminController::class, 'sendPaymentRequest'])->name('admin.payment.request.send');
+    Route::get('/admin/get-batches/{course_id}', [AdminController::class, 'getBatches'])->name('admin.get.batches');
         });
 });
 
