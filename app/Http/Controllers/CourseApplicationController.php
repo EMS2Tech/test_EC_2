@@ -23,102 +23,108 @@ class CourseApplicationController extends Controller
     }
 
     public function create()
-    {
-        $user = Auth::user();
-        if ($user->isUser() && !($user->application_completed ?? false)) {
-            return redirect()->route('application.start')->with('error', 'Please complete your application before registering for a course.');
-        }
-        $studyPrograms = StudyProgram::with('courses')->get();
-        $today = Carbon::now('Asia/Colombo');
-        $courses = Course::with(['batches' => function ($query) use ($today) {
-            $query->where('start_date', '<=', $today)
-                  ->where('end_date', '>=', $today);
-        }])->get()->filter(function ($course) {
-            return $course->batches->isNotEmpty();
-        })->values();
-        return view('frontend.course-apply', compact('studyPrograms', 'courses'));
+{
+    $user = Auth::user();
+    if ($user->isUser() && !($user->application_completed ?? false)) {
+        return redirect()->route('application.start')->with('error', 'Please complete your application before registering for a course.');
     }
+    $studyPrograms = StudyProgram::with('courses')->get();
+    $today = Carbon::now('Asia/Colombo');
+    $courses = Course::with(['batches' => function ($query) use ($today) {
+        $query->where('start_date', '<=', $today)
+              ->where('end_date', '>=', $today);
+    }])->get()->filter(function ($course) {
+        return $course->batches->isNotEmpty();
+    })->values();
+
+    // Flatten courses with their active batches
+    $courseBatches = [];
+    foreach ($courses as $course) {
+        foreach ($course->batches as $batch) {
+            $courseBatches[] = [
+                'course_id' => $course->id,
+                'course_name' => $course->course_name,
+                'batch_id' => $batch->id,
+                'batch_no' => $batch->batch_no,
+                'program_id' => $course->program_id,
+            ];
+        }
+    }
+
+    return view('frontend.course-apply', compact('studyPrograms', 'courseBatches'));
+}
 
     public function store(Request $request)
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        $studyProgramId = $request->study_programme;
-        $courseId = $request->course;
-        $course = Course::with('studyProgram')->findOrFail($courseId);
-        $requiredDocuments = $course->studyProgram->required_documents ?? [];
+    $studyProgramId = $request->study_programme;
+    $courseBatchId = $request->course; // e.g., "1_1"
+    list($courseId, $batchId) = explode('_', $courseBatchId);
+    $course = Course::with('studyProgram')->findOrFail($courseId);
+    $requiredDocuments = $course->studyProgram->required_documents ?? [];
 
-        $validationRules = [
-            'study_programme' => 'required|exists:study_programs,id',
-            'course' => 'required|exists:courses,id',
-            'ol_certificate' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
-            'al_certificate' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
-            'diploma_certificates' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'], // Single file
-            'degree_certificate' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
-            'transcript_certificate' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
-            'other_certificates' => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'], // Single file
-        ];
+    $validationRules = [
+        'study_programme' => 'required|exists:study_programs,id',
+        'course' => 'required|regex:/^\d+_\d+$/', // Validate the format "course_id_batch_id"
+        'ol_certificate' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
+        'al_certificate' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
+        'diploma_certificates' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'], // Single file
+        'degree_certificate' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
+        'transcript_certificate' => ['sometimes', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
+        'other_certificates' => ['nullable', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'], // Single file
+    ];
 
-        foreach ($requiredDocuments as $doc) {
-            $validationRules[$doc] = ['required', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'];
-        }
+    foreach ($requiredDocuments as $doc) {
+        $validationRules[$doc] = ['required', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'];
+    }
 
-        $request->validate($validationRules);
+    $request->validate($validationRules);
 
-        $application = Application::where('user_id', $user->id)->first();
-        if (!$application) {
-            return redirect()->route('application.start')->with('error', 'Please complete your application first.');
-        }
+    $application = Application::where('user_id', $user->id)->first();
+    if (!$application) {
+        return redirect()->route('application.start')->with('error', 'Please complete your application first.');
+    }
 
-        $folderName = $application->nic_number ?: ($application->passport_number ?: ($user->id . '_' . time()));
-        $storagePath = "applications/{$folderName}";
+    $folderName = $application->nic_number ?: ($application->passport_number ?: ($user->id . '_' . time()));
+    $storagePath = "applications/{$folderName}";
 
-        if (!Storage::disk('public')->exists($storagePath)) {
-            Storage::disk('public')->makeDirectory($storagePath);
-        }
+    if (!Storage::disk('public')->exists($storagePath)) {
+        Storage::disk('public')->makeDirectory($storagePath);
+    }
 
-        // Determine the batch_id from the course's active batches
-        $batch = Batch::where('course_id', $courseId)
-            ->where('start_date', '<=', Carbon::now('Asia/Colombo'))
-            ->where('end_date', '>=', Carbon::now('Asia/Colombo'))
-            ->first();
+    $courseApplication = new CourseApplication([
+        'user_id' => $user->id,
+        'study_programme_id' => $request->study_programme,
+        'course_id' => $courseId,
+        'batch_id' => $batchId, // Use the extracted batch_id
+        'status' => 'Pending',
+    ]);
 
-        if (!$batch) {
-            return redirect()->back()->with('error', 'No active batch available for the selected course.');
-        }
-
-        $courseApplication = new CourseApplication([
-            'user_id' => $user->id,
-            'study_programme_id' => $request->study_programme,
-            'course_id' => $request->course,
-            'batch_id' => $batch->id, // Store the batch_id
-            'status' => 'Pending', // Ensure status is set to Pending
-        ]);
-
-        $uploadFields = ['ol_certificate', 'al_certificate', 'degree_certificate', 'transcript_certificate', 'diploma_certificates', 'other_certificates'];
-        foreach ($uploadFields as $field) {
-            if ($request->hasFile($field)) {
-                if ($request->file($field)->isValid()) {
-                    $filename = "{$field}_{$request->file($field)->getClientOriginalName()}";
-                    $path = $request->file($field)->storeAs($storagePath, $filename, 'public');
-                    $courseApplication->$field = $path;
-                    Log::info("{$field} uploaded", ['path' => $path]);
-                } else {
-                    Log::error("Invalid {$field} upload", ['file' => $request->file($field)]);
-                    return redirect()->back()->with('error', "Invalid {$field} file.")->withInput();
-                }
+    $uploadFields = ['ol_certificate', 'al_certificate', 'degree_certificate', 'transcript_certificate', 'diploma_certificates', 'other_certificates'];
+    foreach ($uploadFields as $field) {
+        if ($request->hasFile($field)) {
+            if ($request->file($field)->isValid()) {
+                $filename = "{$field}_{$request->file($field)->getClientOriginalName()}";
+                $path = $request->file($field)->storeAs($storagePath, $filename, 'public');
+                $courseApplication->$field = $path;
+                Log::info("{$field} uploaded", ['path' => $path]);
+            } else {
+                Log::error("Invalid {$field} upload", ['file' => $request->file($field)]);
+                return redirect()->back()->with('error', "Invalid {$field} file.")->withInput();
             }
         }
-
-        $courseApplication->save();
-
-        Log::info('Course application submitted', [
-            'user_id' => $user->id,
-            'course_application_id' => $courseApplication->id,
-        ]);
-
-        return redirect()->route('profile.edit')->with('status', 'Course application submitted successfully!');
     }
+
+    $courseApplication->save();
+
+    Log::info('Course application submitted', [
+        'user_id' => $user->id,
+        'course_application_id' => $courseApplication->id,
+    ]);
+
+    return redirect()->route('profile.edit')->with('status', 'Course application submitted successfully!');
+}
 
     public function view($id)
     {

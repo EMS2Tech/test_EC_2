@@ -223,114 +223,114 @@
                                     </div>
 
                                     <div class="tab-pane pt-4" id="profile_education" role="tabpanel">
-                                        <div class="container-fluid">
-                                            @php
-                                                $courseApplications = App\Models\CourseApplication::with(['studyProgram', 'course.batches'])->where('user_id', Auth::id())->get();
-                                            @endphp
+    <div class="container-fluid">
+        @php
+            $courseApplications = App\Models\CourseApplication::with(['studyProgram', 'course', 'batch'])->where('user_id', Auth::id())->get();
+        @endphp
 
-                                            @if ($courseApplications->isNotEmpty())
-                                                <div class="row g-4">
-                                                    <div class="col-12">
-                                                        <div class="card border-0 shadow-sm">
-                                                            <div class="card-header bg-primary text-white">
-                                                                <h5 class="card-title mb-0">Course Applications</h5>
-                                                            </div>
-                                                            <div class="card-body">
-                                                                <div class="table-responsive">
-                                                                    <table class="table table-hover table-bordered">
-                                                                        <thead class="table-light">
-                                                                            <tr>
-                                                                                <th scope="col">Study Programme</th>
-                                                                                <th scope="col">Course</th>
-                                                                                <th scope="col">Batch(s)</th>
-                                                                                <th scope="col">Apply Date</th>
-                                                                                <th scope="col">Status</th>
-                                                                                <th scope="col">Rejection Reason</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            @foreach ($courseApplications as $application)
-                                                                                <tr>
-                                                                                    <td>{{ $application->studyProgram->program_name ?? 'N/A' }}</td>
-                                                                                    <td>{{ $application->course->course_name ?? 'N/A' }}</td>
-                                                                                    <td>
-                                                                                        @if ($application->course->batches->isNotEmpty())
-                                                                                            {{ $application->course->batches->pluck('batch_no')->join(', ') }}
-                                                                                        @else
-                                                                                            No active batches
-                                                                                        @endif
-                                                                                    </td>
-                                                                                    <td>{{ $application->created_at ? $application->created_at->format('Y-m-d') : 'N/A' }}</td>
-                                                                                    <td>
-                                                                                        <span class="badge bg-{{ $application->status == 'Approved' ? 'success' : ($application->status == 'Pending' ? 'warning' : ($application->status == 'Rejected' ? 'danger' : 'secondary')) }} me-2">
-                                                                                            {{ $application->status ?? 'N/A' }}
-                                                                                        </span>
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        @if ($application->status === 'Rejected' && $application->rejection_reason)
-                                                                                            {{ $application->rejection_reason }}
-                                                                                        @else
-                                                                                            N/A
-                                                                                        @endif
-                                                                                    </td>
-                                                                                </tr>
-                                                                            @endforeach
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    @php
-                                                        $hasRejected = $courseApplications->contains('status', 'Rejected');
-                                                    @endphp
-                                                    @if ($hasRejected)
-                                                        <div class="col-12">
-                                                            <div class="card border-0 shadow-sm">
-                                                                <div class="card-header bg-primary text-white">
-                                                                    <h5 class="card-title mb-0">Update Rejected Documents</h5>
-                                                                </div>
-                                                                <div class="card-body">
-                                                                    <form action="{{ route('user.courseapplication.update.documents') }}" method="POST" enctype="multipart/form-data">
-                                                                        @csrf
-                                                                        @method('PUT')
-                                                                        <div class="row g-3">
-                                                                            @php
-                                                                                $documents = [
-                                                                                    'ol_certificate' => 'O/L Certificate',
-                                                                                    'al_certificate' => 'A/L Certificate',
-                                                                                    'degree_certificate' => 'Degree Certificate',
-                                                                                    'transcript_certificate' => 'Transcript Certificate',
-                                                                                    'diploma_certificates' => 'Diploma Certificate',
-                                                                                    'other_certificates' => 'Other Certificate',
-                                                                                ];
-                                                                            @endphp
-                                                                            @foreach ($documents as $field => $label)
-                                                                                <div class="col-md-4 mb-3">
-                                                                                    <label for="{{ $field }}" class="form-label">{{ $label }}</label>
-                                                                                    <input type="file" name="{{ $field }}" id="{{ $field }}" class="form-control" accept=".pdf,.jpg,.png">
-                                                                                </div>
-                                                                            @endforeach
-                                                                            <div class="col-12 text-end">
-                                                                                <button type="submit" class="btn btn-primary">Upload Updated Documents</button>
-                                                                            </div>
-                                                                        </div>
-                                                                    </form>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+        @if ($courseApplications->isNotEmpty())
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">Course Applications</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th scope="col">Study Programme</th>
+                                            <th scope="col">Course</th>
+                                            <th scope="col">Batch</th>
+                                            <th scope="col">Apply Date</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Rejection Reason</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($courseApplications as $application)
+                                            <tr>
+                                                <td>{{ $application->studyProgram->program_name ?? 'N/A' }}</td>
+                                                <td>{{ $application->course->course_name ?? 'N/A' }}</td>
+                                                <td>
+                                                    @if ($application->batch)
+                                                        {{ $application->batch->batch_no ?? 'N/A' }}
+                                                    @else
+                                                        No assigned batch
                                                     @endif
-                                                </div>
-                                            @else
-                                                <div class="alert alert-info text-center" role="tabpanel">
-                                                    <h5 class="alert-heading">No Course Applications Found</h5>
-                                                    <p>Please apply for a course to view your application details.</p>
-                                                    <a href="{{ route('course-application.create') }}" class="btn btn-primary">Apply for a Course</a>
-                                                </div>
-                                            @endif
+                                                </td>
+                                                <td>{{ $application->created_at ? $application->created_at->format('Y-m-d') : 'N/A' }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ $application->status == 'Approved' ? 'success' : ($application->status == 'Pending' ? 'warning' : ($application->status == 'Rejected' ? 'danger' : 'secondary')) }} me-2">
+                                                        {{ $application->status ?? 'N/A' }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    @if ($application->status === 'Rejected' && $application->rejection_reason)
+                                                        {{ $application->rejection_reason }}
+                                                    @else
+                                                        N/A
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @php
+                    $hasRejected = $courseApplications->contains('status', 'Rejected');
+                @endphp
+                @if ($hasRejected)
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">Update Rejected Documents</h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="{{ route('user.courseapplication.update.documents') }}" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="row g-3">
+                                        @php
+                                            $documents = [
+                                                'ol_certificate' => 'O/L Certificate',
+                                                'al_certificate' => 'A/L Certificate',
+                                                'degree_certificate' => 'Degree Certificate',
+                                                'transcript_certificate' => 'Transcript Certificate',
+                                                'diploma_certificates' => 'Diploma Certificate',
+                                                'other_certificates' => 'Other Certificate',
+                                            ];
+                                        @endphp
+                                        @foreach ($documents as $field => $label)
+                                            <div class="col-md-4 mb-3">
+                                                <label for="{{ $field }}" class="form-label">{{ $label }}</label>
+                                                <input type="file" name="{{ $field }}" id="{{ $field }}" class="form-control" accept=".pdf,.jpg,.png">
+                                            </div>
+                                        @endforeach
+                                        <div class="col-12 text-end">
+                                            <button type="submit" class="btn btn-primary">Upload Updated Documents</button>
                                         </div>
                                     </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        @else
+            <div class="alert alert-info text-center" role="tabpanel">
+                <h5 class="alert-heading">No Course Applications Found</h5>
+                <p>Please apply for a course to view your application details.</p>
+                <a href="{{ route('course-application.create') }}" class="btn btn-primary">Apply for a Course</a>
+            </div>
+        @endif
+    </div>
+</div>
 
                                     <div class="tab-pane pt-4" id="profile_payment" role="tabpanel">
                                         <div class="container-fluid">

@@ -1,6 +1,6 @@
 @extends('frontend.layouts.master')
 
-@section('title', 'Application')
+@section('title', 'Course Application')
 
 @section('content')
     <div class="content-page">
@@ -32,28 +32,25 @@
                                             <div class="invalid-feedback">Please select a study programme.</div>
                                         </div>
                                         <div class="mb-3" id="courseWrapper" style="display: none;">
-                                            <label class="form-label">Course <span class="text-danger">*</span></label>
+                                            <label class="form-label">Course & Batch <span class="text-danger">*</span></label>
                                             <select class="form-select" id="course" name="course" required>
-                                                <option value="">-- Select Course --</option>
-                                                @foreach ($courses as $course)
-                                                    <option value="{{ $course->id }}" data-study-program-id="{{ $course->program_id }}">
-                                                        {{ $course->course_name }} (Batch(s): @php
-                                                            $activeBatches = $course->batches;
-                                                            echo $activeBatches->isNotEmpty() ? $activeBatches->pluck('batch_no')->implode(', ') : 'No active batches';
-                                                        @endphp)
+                                                <option value="">-- Select Course & Batch --</option>
+                                                @foreach ($courseBatches as $courseBatch)
+                                                    <option value="{{ $courseBatch['course_id'] }}_{{ $courseBatch['batch_id'] }}" data-study-program-id="{{ $courseBatch['program_id'] }}">
+                                                        {{ $courseBatch['course_name'] }} (Batch: {{ $courseBatch['batch_no'] }})
                                                     </option>
                                                 @endforeach
                                             </select>
                                             <x-input-error :messages="$errors->get('course')" class="mt-2" />
-                                            <div class="invalid-feedback">Please select a course.</div>
+                                            <div class="invalid-feedback">Please select a course and batch.</div>
                                         </div>
                                         <hr>
                                         <div id="uploads" style="display: none;">
                                             <div id="dynamicDocumentFields"></div>
                                             <div class="mb-3" id="otherCertificatesUpload">
                                                 <label for="otherCertificates" class="form-label">Other Certificate (if any)</label>
-                                                <input type="file" class="form-control" id="otherCertificates" name="other_certificates"> <!-- Removed multiple and [] -->
-                                                <x-input-error :messages="$errors->get('other_certificates')" class="mt-2" /> <!-- Updated error binding -->
+                                                <input type="file" class="form-control" id="otherCertificates" name="other_certificates">
+                                                <x-input-error :messages="$errors->get('other_certificates')" class="mt-2" />
                                                 <div class="invalid-feedback">Please upload a valid certificate (PDF, JPEG, PNG, JPG, max 2MB).</div>
                                             </div>
                                         </div>

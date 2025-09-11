@@ -152,64 +152,68 @@
                 <!-- End Uploaded Documents -->
 
                 <!-- Start Course Applications -->
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">Course Applications</h5>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-traffic mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th>CAID</th>
-                                                <th>Study Program</th>
-                                                <th>Course</th>
-                                                <th>Batch</th>
-                                                <th>Status</th>
-                                                <th>Applied Date</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @forelse ($student->application ? $student->application->courseApplications : [] as $courseApplication)
-                                                <tr>
-                                                    <td>{{ $courseApplication->id ?? 'N/A' }}</td>
-                                                    <td>{{ $courseApplication->studyProgram ? $courseApplication->studyProgram->program_name : 'N/A' }}</td>
-                                                    <td>{{ $courseApplication->course ? $courseApplication->course->course_name : 'N/A' }}</td>
-                                                    <td>
-                                                        {{ $courseApplication->course && $courseApplication->course->batches->isNotEmpty() ? $courseApplication->course->batches->pluck('batch_no')->implode(', ') : 'N/A' }}
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge {{ $courseApplication->status === 'Approved' ? 'bg-success-subtle text-success' : ($courseApplication->status === 'Rejected' ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning') }}">
-                                                            {{ $courseApplication->status ?? 'N/A' }}
-                                                        </span>
-                                                    </td>
-                                                    <td>{{ $courseApplication->created_at ? $courseApplication->created_at->format('Y-m-d') : 'N/A' }}</td>
-                                                    <td>
-                                                        <a href="{{ route('admin.courseapplication.view', $courseApplication->id) }}"
-                                                           class="btn btn-icon btn-sm bg-info-subtle me-1"
-                                                           data-bs-toggle="tooltip"
-                                                           data-bs-original-title="View"
-                                                           onclick="return confirm('View course application details?');">
-                                                            <i class="mdi mdi-eye-outline fs-12 text-info"></i>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="7" class="text-center">No course applications found.</td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Course Applications</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-traffic mb-0">
+                        <thead>
+                            <tr>
+                                <th>CAID</th>
+                                <th>Study Program</th>
+                                <th>Course</th>
+                                <th>Batch</th>
+                                <th>Status</th>
+                                <th>Applied Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($student->application ? $student->application->courseApplications : [] as $courseApplication)
+                                <tr>
+                                    <td>{{ $courseApplication->id ?? 'N/A' }}</td>
+                                    <td>{{ $courseApplication->studyProgram ? $courseApplication->studyProgram->program_name : 'N/A' }}</td>
+                                    <td>{{ $courseApplication->course ? $courseApplication->course->course_name : 'N/A' }}</td>
+                                    <td>
+                                        @if ($courseApplication->batch)
+                                            {{ $courseApplication->batch->batch_no ?? 'N/A' }}
+                                        @else
+                                            No assigned batch
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span class="badge {{ $courseApplication->status === 'Approved' ? 'bg-success-subtle text-success' : ($courseApplication->status === 'Rejected' ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning') }}">
+                                            {{ $courseApplication->status ?? 'N/A' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $courseApplication->created_at ? $courseApplication->created_at->format('Y-m-d') : 'N/A' }}</td>
+                                    <td>
+                                        <a href="{{ route('admin.courseapplication.view', $courseApplication->id) }}"
+                                           class="btn btn-icon btn-sm bg-info-subtle me-1"
+                                           data-bs-toggle="tooltip"
+                                           data-bs-original-title="View"
+                                           onclick="return confirm('View course application details?');">
+                                            <i class="mdi mdi-eye-outline fs-12 text-info"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center">No course applications found.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
-                <!-- End Course Applications -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Course Applications -->
 
                 <!-- Start Payment Details -->
                 <div class="row">
