@@ -187,20 +187,25 @@
                                         </div>
                                         <hr>
 
-                                        <!-- Address -->
+                                        <!-- Address Section -->
 <div class="mb-3">
     <label class="form-label">Address</label>
     <div class="row g-3">
+        <!-- House Number -->
         <div class="col-md-6">
             <x-text-input id="house_number" name="house_number" type="text" class="form-control"
                 :value="old('house_number', $application->house_number ?? '')" placeholder="House Number (Optional)" />
             <x-input-error :messages="$errors->get('house_number')" class="mt-2" />
         </div>
+
+        <!-- Street Name -->
         <div class="col-md-6">
             <x-text-input id="street_name" name="street_name" type="text" class="form-control"
                 :value="old('street_name', $application->street_name ?? '')" placeholder="Street Name" required />
             <x-input-error :messages="$errors->get('street_name')" class="mt-2" />
         </div>
+
+        <!-- Apartment / Building -->
         <div class="col-md-12">
             <x-text-input id="apartment" name="apartment" type="text" class="form-control"
                 :value="old('apartment', $application->apartment ?? '')" placeholder="Apartment / Building (Optional)" />
@@ -234,29 +239,53 @@
             </select>
             <x-input-error :messages="$errors->get('province')" class="mt-2" />
         </div>
-    </div>
+
+        @php
+    $countries = [
+        ['name' => 'Sri Lanka', 'code' => '94'],
+        ['name' => 'United States', 'code' => '1'],
+        ['name' => 'India', 'code' => '91'],
+        ['name' => 'United Kingdom', 'code' => '44'],
+        ['name' => 'Australia', 'code' => '61'],
+        // add more countries as needed
+    ];
+@endphp
+
+        <!-- Country -->
+<div class="col-md-6 mb-3">
+    <label class="form-label">Country</label>
+    <select class="form-select" id="country" name="country" required onchange="updatePhonePrefix()">
+        <option value="">-- Select Country --</option>
+        @foreach($countries as $country)
+            <option value="{{ $country['name'] }}" data-code="+{{ $country['code'] }}"
+                {{ old('country', $application->country ?? '') === $country['name'] ? 'selected' : '' }}>
+                {{ $country['name'] }} (+{{ $country['code'] }})
+            </option>
+        @endforeach
+    </select>
+    <x-input-error :messages="$errors->get('country')" class="mt-2" />
 </div>
 
-                                        <!-- Contact Phone -->
+<!-- Contact Phone -->
 <div class="mb-3">
     <label class="form-label">Contact Phone</label>
     <div class="input-group has-validation">
-        <span class="input-group-text">+94</span>
+        <span class="input-group-text phone-prefix">+94</span>
         <x-text-input class="form-control" type="tel" name="contact_number"
-            placeholder="7XXXXXXXX" :value="old('contact_number', $application->contact_number ?? '')" required
-            pattern="^[1-9][0-9]{8}$" />
+            placeholder="Enter number" :value="old('contact_number', $application->contact_number ?? '')"
+            required pattern="^[0-9]{6,15}$" />
         <x-input-error :messages="$errors->get('contact_number')" class="mt-2" />
     </div>
 </div>
 
-                                        <!-- WhatsApp Phone -->
+<!-- WhatsApp Phone -->
 <div class="mb-3">
     <label class="form-label">WhatsApp Phone</label>
     <div class="input-group has-validation">
-        <span class="input-group-text">+94</span>
+        <span class="input-group-text phone-prefix">+94</span>
         <x-text-input class="form-control" type="tel" name="whatsapp_number"
-            placeholder="7XXXXXXXX" :value="old('whatsapp_number', $application->whatsapp_number ?? '')"
-            pattern="^[1-9][0-9]{8}$" />
+            placeholder="Enter number" :value="old('whatsapp_number', $application->whatsapp_number ?? '')"
+            pattern="^[0-9]{6,15}$" />
         <x-input-error :messages="$errors->get('whatsapp_number')" class="mt-2" />
     </div>
 </div>
@@ -265,10 +294,10 @@
 <div class="mb-3">
     <label class="form-label">Home Phone (Optional)</label>
     <div class="input-group">
-        <span class="input-group-text">+94</span>
+        <span class="input-group-text phone-prefix">+94</span>
         <x-text-input class="form-control" type="tel" name="home_number"
-            placeholder="9XXXXXXXX" :value="old('home_number', $application->home_number ?? '')"
-            pattern="^[1-9][0-9]{8}$" />
+            placeholder="Enter number" :value="old('home_number', $application->home_number ?? '')"
+            pattern="^[0-9]{6,15}$" />
         <x-input-error :messages="$errors->get('home_number')" class="mt-2" />
     </div>
 </div>
@@ -346,6 +375,22 @@
                                     handleNationalityChange();
                                 });
                             </script>
+                            <script>
+function updatePhonePrefix() {
+    const countrySelect = document.getElementById('country');
+    const phonePrefix = countrySelect.selectedOptions[0]?.dataset.code || '+94';
+    const prefixSpans = document.querySelectorAll('.phone-prefix');
+
+    prefixSpans.forEach(span => {
+        span.textContent = phonePrefix;
+    });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function () {
+    updatePhonePrefix();
+});
+</script>
                         @endsection
                     </div>
                 </div>

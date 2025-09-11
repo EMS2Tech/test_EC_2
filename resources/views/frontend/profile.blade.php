@@ -120,13 +120,19 @@
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">Mobile Number</label>
                                                                     <p class="text-muted mb-1"><i
-                                                                            class="mdi mdi-phone-outline me-2"></i>+{{ $application->contact_number }}
+                                                                            class="mdi mdi-phone-outline me-2"></i> {{ $application->contact_number }}
                                                                     </p>
                                                                 </div>
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">WhatsApp Number</label>
                                                                     <p class="text-muted mb-1"><i
-                                                                            class="mdi mdi-whatsapp me-2"></i>{{ $application->whatsapp_number ?? 'N/A' }}
+                                                                            class="mdi mdi-whatsapp me-2"></i> {{ $application->whatsapp_number ?? 'N/A' }}
+                                                                    </p>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="fw-semibold">Home Phone</label>
+                                                                    <p class="text-muted mb-1"><i
+                                                                            class="mdi mdi-home me-2"></i> {{ $application->home_number ?? 'N/A' }}
                                                                     </p>
                                                                 </div>
                                                                 <div class="mb-3">

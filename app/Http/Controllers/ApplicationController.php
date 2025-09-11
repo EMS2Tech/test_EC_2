@@ -16,17 +16,27 @@ class ApplicationController extends Controller
     }
 
     public function create()
-    {
-        $user = Auth::user();
-        $application = Application::where('user_id', $user->id)->first();
-
-        if ($application && $application->application_completed && $application->status !== 'Rejected') {
-            return redirect()->route('profile.edit')->with('error', 'You have already submitted an application.');
-        }
-
-        $application = $application ?? new Application(['user_id' => $user->id]);
-        return view('application.application', compact('application'));
+{
+    $user = Auth::user();
+    $application = Application::where('user_id', $user->id)->first();
+    if ($application && $application->application_completed && $application->status !== 'Rejected') {
+        return redirect()->route('profile.edit')->with('error', 'You have already submitted an application.');
     }
+    $application = $application ?? new Application(['user_id' => $user->id]);
+
+    // Countries array (name and phone code)
+    $countries = [
+        ['name' => 'Sri Lanka', 'code' => '94'],
+        ['name' => 'India', 'code' => '91'],
+        ['name' => 'United States', 'code' => '1'],
+        ['name' => 'United Kingdom', 'code' => '44'],
+        ['name' => 'Australia', 'code' => '61'],
+        ['name' => 'Canada', 'code' => '1'],
+        // Add more countries as needed
+    ];
+
+    return view('application.application', compact('application', 'countries'));
+}
 
     public function store(Request $request)
     {
@@ -38,6 +48,16 @@ class ApplicationController extends Controller
         if ($application && $application->application_completed && $application->status !== 'Rejected') {
             return redirect()->route('course-application.create')->with('error', 'You have already submitted an application.');
         }
+
+        // Countries array (needed for country code mapping)
+        $countries = [
+            ['name' => 'Sri Lanka', 'code' => '94'],
+            ['name' => 'India', 'code' => '91'],
+            ['name' => 'United States', 'code' => '1'],
+            ['name' => 'United Kingdom', 'code' => '44'],
+            ['name' => 'Australia', 'code' => '61'],
+            ['name' => 'Canada', 'code' => '1'],
+        ];
 
         $rules = [
     'title' => 'required|in:Mr,Mrs,Miss,Rev',
@@ -52,11 +72,12 @@ class ApplicationController extends Controller
     'apartment' => 'nullable|string|max:255',
     'district' => 'required|string|max:100',
     'province' => 'required|string|max:100',
+    'country' => 'required|string',
 
     // Phones (+94 format, store only 9 digits after +94)
-    'contact_number' => 'required|string|regex:/^[1-9][0-9]{8}$/',
-    'whatsapp_number' => 'nullable|string|regex:/^[1-9][0-9]{8}$/',
-    'home_number' => 'nullable|string|regex:/^[1-9][0-9]{8}$/',
+    'contact_number' => 'required|string|regex:/^[0-9]{6,15}$/',
+    'whatsapp_number' => 'nullable|string|regex:/^[0-9]{6,15}$/',
+    'home_number' => 'nullable|string|regex:/^[0-9]{6,15}$/',
 
     'email_address' => 'required|email|max:255',
     'photograph' => 'required|image|mimes:jpeg,png,jpg|max:4096',
@@ -143,11 +164,16 @@ $addressParts = [
     $request->street_name,   // required
     $request->apartment,     // optional
     $request->district,      // required
-    $request->province       // required
+    $request->province,       // required
+    $request->country       // required
 ];
 
 // Filter out empty values
 $address = implode(', ', array_filter($addressParts, fn($part) => !empty($part)));
+
+// Add country code to phone numbers
+        $countryCode = collect($countries)->firstWhere('name', $request->country)['code'] ?? '94';
+        $prefix = '+' . $countryCode;
 
         // Fill application data
         $application->fill([
@@ -160,9 +186,9 @@ $address = implode(', ', array_filter($addressParts, fn($part) => !empty($part))
     'other_nationality' => $request->nationality === 'Other' ? $request->other_nationality : null,
     'passport_number' => $request->nationality === 'Other' ? $request->passport_number : null,
     'address' => $address,
-    'contact_number' => $request->contact_number,
-    'whatsapp_number' => $request->whatsapp_number,
-    'home_number' => $request->home_number, // optional Home Phone
+    'contact_number' => $prefix . ltrim($request->contact_number, '0'),
+    'whatsapp_number' => $request->whatsapp_number ? $prefix . ltrim($request->whatsapp_number, '0') : null,
+    'home_number' => $request->home_number ? $prefix . ltrim($request->home_number, '0') : null,
     'email_address' => $request->email_address,
     'application_completed' => true,
     'status' => 'Pending', // Reset status to Pending on resubmission
