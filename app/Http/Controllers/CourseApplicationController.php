@@ -133,104 +133,111 @@ class CourseApplicationController extends Controller
     }
 
     public function updateStatus(Request $request, $id)
-    {
-        $courseApplication = CourseApplication::findOrFail($id);
-        $status = $request->input('status');
-        $reason = $request->input('reason');
+{
+    $courseApplication = CourseApplication::findOrFail($id);
+    $status = $request->input('status');
+    $reason = $request->input('reason');
 
-        $courseApplication->status = $status;
-        if ($status === 'Rejected' && $reason) {
-            $courseApplication->rejection_reason = $reason;
-        } elseif ($status === 'Rejected' && !$reason) {
-            return redirect()->back()->with('error', 'Rejection reason is required when rejecting an application.');
+    $courseApplication->status = $status;
+    if ($status === 'Rejected' && $reason) {
+        $courseApplication->rejection_reason = $reason;
+    } elseif ($status === 'Rejected' && !$reason) {
+        return redirect()->back()->with('error', 'Rejection reason is required when rejecting an application.');
+    } elseif ($status === 'Pending') {
+        // If status is set to Pending manually by admin (e.g., for review), retain rejection reason
+        if ($courseApplication->rejection_reason) {
+            $courseApplication->rejection_reason = $courseApplication->rejection_reason; // Keep existing reason
         }
-
-        $courseApplication->save();
-
-        if ($status === 'Approved') {
-            $userId = $courseApplication->user_id;
-            $existingStudent = Student::where('user_id', $userId)->first();
-
-            if (!$existingStudent) {
-                $application = Application::where('user_id', $userId)->first();
-                $course = Course::find($courseApplication->course_id);
-                $batch = $course->batches()->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
-                $fullName = $application->full_name ?? 'Unknown';
-                $shortName = $course->short_name;
-                $batchNo = $batch ? $batch->batch_no : '01';
-                $currentYear = date('Y');
-                $applicationNo = $application->id;
-
-                $studentId = "EC/{$shortName}/{$batchNo}/{$currentYear}/{$applicationNo}";
-                Student::create([
-                    'user_id' => $userId,
-                    'student_id' => $studentId,
-                    'full_name' => $fullName,
-                ]);
-
-                Log::info('Student ID created on first approval', ['user_id' => $userId, 'student_id' => $studentId]);
-            } else {
-                Log::info('Student ID already exists, no new student ID created', ['user_id' => $userId, 'existing_student_id' => $existingStudent->student_id]);
-            }
-        }
-
-        return redirect()->route('admin.course.applications')->with('status', 'Application status updated successfully!');
+    } else {
+        $courseApplication->rejection_reason = null; // Clear reason for Approved
     }
+
+    $courseApplication->save();
+
+    if ($status === 'Approved') {
+        $userId = $courseApplication->user_id;
+        $existingStudent = Student::where('user_id', $userId)->first();
+
+        if (!$existingStudent) {
+            $application = Application::where('user_id', $userId)->first();
+            $course = Course::find($courseApplication->course_id);
+            $batch = $course->batches()->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
+            $fullName = $application->full_name ?? 'Unknown';
+            $shortName = $course->short_name;
+            $batchNo = $batch ? $batch->batch_no : '01';
+            $currentYear = date('Y');
+            $applicationNo = $application->id;
+
+            $studentId = "EC/{$shortName}/{$batchNo}/{$currentYear}/{$applicationNo}";
+            Student::create([
+                'user_id' => $userId,
+                'student_id' => $studentId,
+                'full_name' => $fullName,
+            ]);
+
+            Log::info('Student ID created on first approval', ['user_id' => $userId, 'student_id' => $studentId]);
+        } else {
+            Log::info('Student ID already exists, no new student ID created', ['user_id' => $userId, 'existing_student_id' => $existingStudent->student_id]);
+        }
+    }
+
+    return redirect()->route('admin.course.applications')->with('status', 'Application status updated successfully!');
+}
 
     public function userUpdateDocuments(Request $request)
-    {
-        $user = Auth::user();
-        $courseApplications = CourseApplication::where('user_id', $user->id)->where('status', 'Rejected')->get();
+{
+    $user = Auth::user();
+    $courseApplications = CourseApplication::where('user_id', $user->id)->where('status', 'Rejected')->get();
 
-        if ($courseApplications->isEmpty()) {
-            return redirect()->back()->with('error', 'No rejected applications found to update.');
-        }
-
-        $application = Application::where('user_id', $user->id)->first();
-        if (!$application) {
-            return redirect()->route('application.start')->with('error', 'Please complete your application first.');
-        }
-
-        $folderName = $application->nic_number ?: ($application->passport_number ?: ($user->id . '_' . time()));
-        $storagePath = "applications/{$folderName}";
-
-        if (!Storage::disk('public')->exists($storagePath)) {
-            Storage::disk('public')->makeDirectory($storagePath);
-        }
-
-        $validatedData = $request->validate([
-            'ol_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-            'al_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-            'degree_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-            'transcript_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-            'diploma_certificates' => 'nullable|file|mimes:pdf,jpg,png|max:2048', // Single file
-            'other_certificates' => 'nullable|file|mimes:pdf,jpg,png|max:2048', // Single file
-        ]);
-
-        foreach ($courseApplications as $courseApplication) {
-            // Handle single file uploads
-            $uploadFields = ['ol_certificate', 'al_certificate', 'degree_certificate', 'transcript_certificate', 'diploma_certificates', 'other_certificates'];
-            foreach ($uploadFields as $field) {
-                if ($request->hasFile($field)) {
-                    // Get the existing file path if it exists
-                    $oldPath = $courseApplication->$field;
-                    if ($oldPath && Storage::disk('public')->exists($oldPath)) {
-                        // Delete the old file
-                        Storage::disk('public')->delete($oldPath);
-                    }
-                    // Store the new file with the same naming convention as store method
-                    $file = $request->file($field);
-                    $filename = "{$field}_{$file->getClientOriginalName()}";
-                    $path = $file->storeAs($storagePath, $filename, 'public');
-                    $courseApplication->$field = $path;
-                }
-            }
-
-            $courseApplication->status = 'Pending'; // Reset status to Pending after re-upload
-            $courseApplication->rejection_reason = null; // Clear rejection reason
-            $courseApplication->save();
-        }
-
-        return redirect()->back()->with('success', 'Documents updated successfully. Your application status has been set to Pending for review.');
+    if ($courseApplications->isEmpty()) {
+        return redirect()->back()->with('error', 'No rejected applications found to update.');
     }
+
+    $application = Application::where('user_id', $user->id)->first();
+    if (!$application) {
+        return redirect()->route('application.start')->with('error', 'Please complete your application first.');
+    }
+
+    $folderName = $application->nic_number ?: ($application->passport_number ?: ($user->id . '_' . time()));
+    $storagePath = "applications/{$folderName}";
+
+    if (!Storage::disk('public')->exists($storagePath)) {
+        Storage::disk('public')->makeDirectory($storagePath);
+    }
+
+    $validatedData = $request->validate([
+        'ol_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+        'al_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+        'degree_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+        'transcript_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+        'diploma_certificates' => 'nullable|file|mimes:pdf,jpg,png|max:2048', // Single file
+        'other_certificates' => 'nullable|file|mimes:pdf,jpg,png|max:2048', // Single file
+    ]);
+
+    foreach ($courseApplications as $courseApplication) {
+        // Handle single file uploads
+        $uploadFields = ['ol_certificate', 'al_certificate', 'degree_certificate', 'transcript_certificate', 'diploma_certificates', 'other_certificates'];
+        foreach ($uploadFields as $field) {
+            if ($request->hasFile($field)) {
+                // Get the existing file path if it exists
+                $oldPath = $courseApplication->$field;
+                if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+                    // Delete the old file
+                    Storage::disk('public')->delete($oldPath);
+                }
+                // Store the new file with the same naming convention as store method
+                $file = $request->file($field);
+                $filename = "{$field}_{$file->getClientOriginalName()}";
+                $path = $file->storeAs($storagePath, $filename, 'public');
+                $courseApplication->$field = $path;
+            }
+        }
+
+        $courseApplication->status = 'Pending'; // Reset status to Pending after re-upload
+        // Retain the rejection reason to show it was previously rejected
+        $courseApplication->save();
+    }
+
+    return redirect()->back()->with('success', 'Documents updated successfully. Your application status has been set to Pending for review.');
+}
 }

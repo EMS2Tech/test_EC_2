@@ -43,7 +43,7 @@
                                 </div>
                             </div>
 
-                            <!-- Status -->
+                            <!-- Status and Rejection Reason -->
                             <div class="col-12">
                                 <div class="card border-0 shadow-sm">
                                     <div class="card-header bg-light">
@@ -56,7 +56,14 @@
                                             </span>
                                         </p>
                                         @if ($courseApplication->rejection_reason)
-                                            <p><strong>Rejection Reason:</strong> {{ $courseApplication->rejection_reason }}</p>
+                                            <p><strong>Rejection Reason:</strong> 
+                                                <span class="badge bg-danger-subtle text-danger">
+                                                    {{ $courseApplication->rejection_reason }}
+                                                </span>
+                                                @if ($courseApplication->status === 'Pending' && $courseApplication->rejection_reason)
+                                                    <small class="text-muted">(Previously Rejected)</small>
+                                                @endif
+                                            </p>
                                         @endif
                                     </div>
                                 </div>
@@ -140,7 +147,6 @@
                                             <div class="alert alert-info text-center" role="alert">
                                                 <h5 class="alert-heading">No Payments Done Yet</h5>
                                                 <p>No payment records found for this user.</p>
-                                                
                                             </div>
                                         @endif
                                     </div>
