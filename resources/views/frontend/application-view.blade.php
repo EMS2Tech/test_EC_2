@@ -117,6 +117,9 @@
                                         @if ($application->rejection_reason)
                                             <p><strong>Rejection Reason:</strong> {{ $application->rejection_reason }}</p>
                                         @endif
+                                        @if ($application->updated_by && in_array($application->status, ['Approved', 'Rejected']))
+                                            <p><strong>Updated By:</strong> <span class="text-primary">{{ $application->updatedBy->name ?? 'N/A' }}</span></p>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
