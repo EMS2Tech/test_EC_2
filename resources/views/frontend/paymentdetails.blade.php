@@ -61,6 +61,9 @@
                                         @if ($payment->rejection_reason)
                                             <p><strong>Rejection Reason:</strong> {{ $payment->rejection_reason }}</p>
                                         @endif
+                                        @if ($payment->updated_by && in_array($payment->status, ['Approved', 'Rejected']))
+                                            <p><strong>Updated By:</strong> <span class="text-primary">{{ $payment->updatedBy->name ?? 'N/A' }}</span></p>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

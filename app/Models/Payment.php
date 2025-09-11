@@ -14,7 +14,8 @@ class Payment extends Model
         'payment_slip',
         'payment_type',
         'remark',
-        'rejection_reason', // Added
+        'rejection_reason',
+        'updated_by', // Added to track the admin who updated the status
     ];
 
     public $timestamps = true; // Enable timestamps
@@ -27,5 +28,11 @@ class Payment extends Model
     public function application()
     {
         return $this->belongsTo(Application::class);
+    }
+
+    // Optional: Relationship to the admin who updated the status
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }
