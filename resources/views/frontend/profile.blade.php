@@ -155,47 +155,64 @@
                                                                 <h5 class="card-title mb-0">Nationality Details</h5>
                                                             </div>
                                                             <div class="card-body">
-                                                                <div class="mb-3">
-                                                                    <label class="fw-semibold">Nationality</label>
-                                                                    <p class="text-muted mb-1">{{ $application->nationality }}
-                                                                    </p>
-                                                                </div>
-                                                                @if ($application->nationality === 'Sri Lanka')
-                                                                    <div class="mb-3">
-                                                                        <label class="fw-semibold">NIC Number</label>
-                                                                        <p class="text-muted mb-1">
-                                                                            {{ $application->nic_number ?? 'N/A' }}</p>
-                                                                    </div>
-                                                                    @if ($application->nic_photo)
-                                                                        <div class="mb-3">
-                                                                            <label class="fw-semibold">NIC Photo</label>
-                                                                            <a href="{{ asset('storage/' . $application->nic_photo) }}"
-                                                                                target="_blank" class="d-block mt-1">
-                                                                                <img src="{{ asset('storage/' . $application->nic_photo) }}"
-                                                                                    alt="NIC Photo" class="img-thumbnail"
-                                                                                    style="max-width: 150px;">
-                                                                            </a>
-                                                                        </div>
-                                                                    @endif
-                                                                @else
-                                                                    <div class="mb-3">
-                                                                        <label class="fw-semibold">Other Nationality</label>
-                                                                        <p class="text-muted mb-1">
-                                                                            {{ $application->other_nationality ?? 'N/A' }}</p>
-                                                                    </div>
-                                                                    @if ($application->passport_photo)
-                                                                        <div class="mb-3">
-                                                                            <label class="fw-semibold">Passport Photo</label>
-                                                                            <a href="{{ asset('storage/' . $application->passport_photo) }}"
-                                                                                target="_blank" class="d-block mt-1">
-                                                                                <img src="{{ asset('storage/' . $application->passport_photo) }}"
-                                                                                    alt="Passport Photo" class="img-thumbnail"
-                                                                                    style="max-width: 150px;">
-                                                                            </a>
-                                                                        </div>
-                                                                    @endif
-                                                                @endif
-                                                            </div>
+    <div class="mb-3">
+        <label class="fw-semibold">Nationality</label>
+        <p class="text-muted mb-1">{{ $application->nationality }}</p>
+    </div>
+
+    @if ($application->nationality === 'Sri Lanka')
+        <div class="mb-3">
+            <label class="fw-semibold">NIC Number</label>
+            <p class="text-muted mb-1">{{ $application->nic_number ?? 'N/A' }}</p>
+        </div>
+
+        @if ($application->nic_photo)
+            <div class="mb-3">
+                <label class="fw-semibold">NIC Document</label>
+                @php
+                    $ext = pathinfo($application->nic_photo, PATHINFO_EXTENSION);
+                @endphp
+
+                {{-- Always provide link --}}
+                <a href="{{ asset('storage/' . $application->nic_photo) }}" target="_blank" class="d-block mt-1">
+                    View NIC {{ strtoupper($ext) }}
+                </a>
+
+                {{-- If image, also show thumbnail --}}
+                @if(in_array(strtolower($ext), ['jpg','jpeg','png']))
+                    <img src="{{ asset('storage/' . $application->nic_photo) }}" 
+                         alt="NIC Photo" class="img-thumbnail mt-2" style="max-width: 150px;">
+                @endif
+            </div>
+        @endif
+    @else
+        <div class="mb-3">
+            <label class="fw-semibold">Other Nationality</label>
+            <p class="text-muted mb-1">{{ $application->other_nationality ?? 'N/A' }}</p>
+        </div>
+
+        @if ($application->passport_photo)
+            <div class="mb-3">
+                <label class="fw-semibold">Passport Document</label>
+                @php
+                    $ext = pathinfo($application->passport_photo, PATHINFO_EXTENSION);
+                @endphp
+
+                {{-- Always provide link --}}
+                <a href="{{ asset('storage/' . $application->passport_photo) }}" target="_blank" class="d-block mt-1">
+                    View Passport {{ strtoupper($ext) }}
+                </a>
+
+                {{-- If image, also show thumbnail --}}
+                @if(in_array(strtolower($ext), ['jpg','jpeg','png']))
+                    <img src="{{ asset('storage/' . $application->passport_photo) }}" 
+                         alt="Passport Photo" class="img-thumbnail mt-2" style="max-width: 150px;">
+                @endif
+            </div>
+        @endif
+    @endif
+</div>
+
                                                         </div>
                                                     </div>
 

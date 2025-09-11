@@ -60,9 +60,9 @@
                                         <!-- Full Name -->
                                         <div class="mb-3">
                                             <label for="full_name" class="form-label">Full Name</label>
-                                            <x-text-input id="full_name" name="full_name" type="text" class="form-control"
-                                                :value="old('full_name', $application->full_name ?? '')" required
-                                                autocomplete="name" />
+                                            <x-text-input id="full_name" name="full_name" type="text"
+                                                class="form-control text-uppercase" :value="old('full_name', $application->full_name ?? '')" required autocomplete="name"
+                                                oninput="this.value = this.value.toUpperCase()" />
                                             <x-input-error :messages="$errors->get('full_name')" class="mt-2" />
                                             <small class="form-text text-muted">Use Block Letters</small>
                                         </div>
@@ -71,10 +71,12 @@
                                         <div class="mb-3">
                                             <label for="name_with_initials" class="form-label">Name With Initials</label>
                                             <x-text-input id="name_with_initials" name="name_with_initials" type="text"
-                                                class="form-control" :value="old('name_with_initials', $application->name_with_initials ?? '')" required />
+                                                class="form-control text-uppercase" :value="old('name_with_initials', $application->name_with_initials ?? '')" required
+                                                oninput="this.value = this.value.toUpperCase()" />
                                             <x-input-error :messages="$errors->get('name_with_initials')" class="mt-2" />
                                             <small class="form-text text-muted">Use Block Letters</small>
                                         </div>
+
 
                                         <!-- Birth Day -->
                                         <div class="mb-3">
@@ -111,8 +113,9 @@
                                                 <label for="nic_photo" class="form-label">Scan Copy of National ID
                                                     Card</label>
                                                 <input class="form-control" type="file" id="nic_photo" name="nic_photo"
-                                                    accept="image/*" required />
+                                                    accept=".pdf, .png, .jpg, .jpeg" required />
                                                 <x-input-error :messages="$errors->get('nic_photo')" class="mt-2" />
+                                                <small class="form-text text-muted">Maximum Size 4MB - Accepted formats: PDF, PNG, JPG</small>
                                             </div>
                                         </div>
 
@@ -135,9 +138,9 @@
                                             <div class="mb-3">
                                                 <label for="passport_photo" class="form-label">Scan Copy Passport</label>
                                                 <input class="form-control" type="file" id="passport_photo"
-                                                    name="passport_photo" accept="image/*" />
+                                                    name="passport_photo" accept=".pdf, .png, .jpg, .jpeg" />
                                                 <x-input-error :messages="$errors->get('passport_photo')" class="mt-2" />
-                                                <small class="form-text text-muted">Maximum Size 4MB</small>
+                                                <small class="form-text text-muted">Maximum Size 4MB - Accepted formats: PDF, PNG, JPG</small>
                                             </div>
                                         </div>
 
@@ -180,7 +183,7 @@
                                             <input class="form-control" type="file" id="photograph" name="photograph"
                                                 accept="image/*" required />
                                             <x-input-error :messages="$errors->get('photograph')" class="mt-2" />
-                                            <small class="form-text text-muted">Maximum Size 4MB</small>
+                                            <small class="form-text text-muted">Maximum Size 4MB - Accepted formats: PNG, JPG</small>
                                         </div>
                                         <hr>
 
@@ -188,60 +191,87 @@
 <div class="mb-3">
     <label class="form-label">Address</label>
     <div class="row g-3">
-        <div class="col-md-12">
-            <x-text-input id="address_line_1" name="address_line_1" type="text" class="form-control" :value="old('address_line_1', explode(',', $application->address ?? '')[0] ?? '')" placeholder="Address Line 1" required />
-            <x-input-error :messages="$errors->get('address_line_1')" class="mt-2" />
-            <small class="form-text text-muted">Address Line 1 (e.g., Street Name, House Number)</small>
-        </div>
-        <div class="col-md-12">
-            <x-text-input id="address_line_2" name="address_line_2" type="text" class="form-control" :value="old('address_line_2', explode(',', $application->address ?? '')[1] ?? '')" placeholder="Address Line 2" />
-            <x-input-error :messages="$errors->get('address_line_2')" class="mt-2" />
-            <small class="form-text text-muted">Address Line 2 (e.g., Apartment, Building)</small>
+        <div class="col-md-6">
+            <x-text-input id="house_number" name="house_number" type="text" class="form-control"
+                :value="old('house_number', $application->house_number ?? '')" placeholder="House Number (Optional)" />
+            <x-input-error :messages="$errors->get('house_number')" class="mt-2" />
         </div>
         <div class="col-md-6">
-            <x-text-input id="city" name="city" type="text" class="form-control" :value="old('city', explode(',', $application->address ?? '')[2] ?? '')" placeholder="City" required />
-            <x-input-error :messages="$errors->get('city')" class="mt-2" />
+            <x-text-input id="street_name" name="street_name" type="text" class="form-control"
+                :value="old('street_name', $application->street_name ?? '')" placeholder="Street Name" required />
+            <x-input-error :messages="$errors->get('street_name')" class="mt-2" />
         </div>
+        <div class="col-md-12">
+            <x-text-input id="apartment" name="apartment" type="text" class="form-control"
+                :value="old('apartment', $application->apartment ?? '')" placeholder="Apartment / Building (Optional)" />
+            <x-input-error :messages="$errors->get('apartment')" class="mt-2" />
+        </div>
+
+        <!-- District -->
         <div class="col-md-6">
-            <x-text-input id="province" name="province" type="text" class="form-control" :value="old('province', explode(',', $application->address ?? '')[3] ?? '')" placeholder="Province" required />
+            <select class="form-select" id="district" name="district" required>
+                <option value="">-- Select District --</option>
+                @foreach(['Colombo','Gampaha','Kalutara','Kandy','Matale','Nuwara Eliya','Galle','Matara','Hambantota',
+                          'Jaffna','Kilinochchi','Mannar','Vavuniya','Mullaitivu','Batticaloa','Ampara','Trincomalee',
+                          'Kurunegala','Puttalam','Anuradhapura','Polonnaruwa','Badulla','Monaragala','Ratnapura','Kegalle'] as $district)
+                    <option value="{{ $district }}" {{ old('district', $application->district ?? '') === $district ? 'selected' : '' }}>
+                        {{ $district }}
+                    </option>
+                @endforeach
+            </select>
+            <x-input-error :messages="$errors->get('district')" class="mt-2" />
+        </div>
+
+        <!-- Province -->
+        <div class="col-md-6">
+            <select class="form-select" id="province" name="province" required>
+                <option value="">-- Select Province --</option>
+                @foreach(['Western','Central','Southern','Northern','Eastern','North Western','North Central','Uva','Sabaragamuwa'] as $province)
+                    <option value="{{ $province }}" {{ old('province', $application->province ?? '') === $province ? 'selected' : '' }}>
+                        {{ $province }}
+                    </option>
+                @endforeach
+            </select>
             <x-input-error :messages="$errors->get('province')" class="mt-2" />
         </div>
     </div>
 </div>
 
                                         <!-- Contact Phone -->
-                                        <div class="mb-3">
-                                            <label class="form-label">Contact Phone</label>
-                                            <div class="col-lg-12 col-xl-12">
-                                                <div class="input-group has-validation">
-                                                    <span class="input-group-text">
-                                                        <i data-feather="phone" style="width: 16px; height: 16px;"></i>
-                                                    </span>
-                                                    <x-text-input class="form-control" type="tel" name="contact_number"
-                                                        placeholder="07XXXXXXXX" :value="old('contact_number', $application->contact_number ?? '')" required
-                                                        pattern="^07[0-9]{8}$" />
-                                                    <x-input-error :messages="$errors->get('contact_number')"
-                                                        class="mt-2" />
-                                                </div>
-                                            </div>
-                                        </div>
+<div class="mb-3">
+    <label class="form-label">Contact Phone</label>
+    <div class="input-group has-validation">
+        <span class="input-group-text">+94</span>
+        <x-text-input class="form-control" type="tel" name="contact_number"
+            placeholder="7XXXXXXXX" :value="old('contact_number', $application->contact_number ?? '')" required
+            pattern="^[1-9][0-9]{8}$" />
+        <x-input-error :messages="$errors->get('contact_number')" class="mt-2" />
+    </div>
+</div>
 
                                         <!-- WhatsApp Phone -->
-                                        <div class="mb-3">
-                                            <label class="form-label">WhatsApp Phone</label>
-                                            <div class="col-lg-12 col-xl-12">
-                                                <div class="input-group has-validation">
-                                                    <span class="input-group-text">
-                                                        <i data-feather="message-circle"
-                                                            style="width: 16px; height: 16px;"></i>
-                                                    </span>
-                                                    <x-text-input class="form-control" type="tel" name="whatsapp_number"
-                                                        placeholder="07XXXXXXXX" :value="old('whatsapp_number', $application->whatsapp_number ?? '')" pattern="^07[0-9]{8}$" />
-                                                    <x-input-error :messages="$errors->get('whatsapp_number')"
-                                                        class="mt-2" />
-                                                </div>
-                                            </div>
-                                        </div>
+<div class="mb-3">
+    <label class="form-label">WhatsApp Phone</label>
+    <div class="input-group has-validation">
+        <span class="input-group-text">+94</span>
+        <x-text-input class="form-control" type="tel" name="whatsapp_number"
+            placeholder="7XXXXXXXX" :value="old('whatsapp_number', $application->whatsapp_number ?? '')"
+            pattern="^[1-9][0-9]{8}$" />
+        <x-input-error :messages="$errors->get('whatsapp_number')" class="mt-2" />
+    </div>
+</div>
+
+<!-- Home Phone -->
+<div class="mb-3">
+    <label class="form-label">Home Phone (Optional)</label>
+    <div class="input-group">
+        <span class="input-group-text">+94</span>
+        <x-text-input class="form-control" type="tel" name="home_number"
+            placeholder="9XXXXXXXX" :value="old('home_number', $application->home_number ?? '')"
+            pattern="^[1-9][0-9]{8}$" />
+        <x-input-error :messages="$errors->get('home_number')" class="mt-2" />
+    </div>
+</div>
 
                                         <!-- Email Address -->
                                         <div class="mb-3">

@@ -56,7 +56,7 @@
                                                     <p><strong>NIC Number:</strong> {{ $application->nic_number }}</p>
                                                     @if ($application->nic_photo)
                                                         <p><strong>NIC Photo:</strong> 
-                                                            <a href="#" data-bs-toggle="modal" data-bs-target="#nicPhotoModal" onclick="loadImage('{{ asset('storage/' . $application->nic_photo) }}', 'nicPhotoImage')">View</a>
+                                                            <a href="#" onclick="loadFile('{{ asset('storage/' . $application->nic_photo) }}', 'nicPhotoContainer')">View</a>
                                                         </p>
                                                     @endif
                                                 @else
@@ -64,7 +64,7 @@
                                                     <p><strong>Passport Number:</strong> {{ $application->passport_number ?? 'N/A' }}</p>
                                                     @if ($application->passport_photo)
                                                         <p><strong>Passport Photo:</strong> 
-                                                            <a href="#" data-bs-toggle="modal" data-bs-target="#passportPhotoModal" onclick="loadImage('{{ asset('storage/' . $application->passport_photo) }}', 'passportPhotoImage')">View</a>
+                                                            <a href="#" onclick="loadFile('{{ asset('storage/' . $application->passport_photo) }}', 'passportPhotoContainer')">View</a>
                                                         </p>
                                                     @endif
                                                 @endif
@@ -168,41 +168,42 @@
         </div>
     </div>
 
-    <!-- Modal for NIC Photo -->
-    <div class="modal fade" id="nicPhotoModal" tabindex="-1" aria-labelledby="nicPhotoModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="nicPhotoModalLabel">NIC Photo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <img id="nicPhotoImage" src="" alt="NIC Photo" class="img-fluid" style="max-height: 80vh;">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
+    <!-- Modal for NIC Document -->
+<div class="modal fade" id="nicPhotoModal" tabindex="-1" aria-labelledby="nicPhotoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="nicPhotoModalLabel">NIC Document</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center" id="nicPhotoContainer">
+                {{-- Content (image or PDF) will be injected via JS --}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal for Passport Photo -->
-    <div class="modal fade" id="passportPhotoModal" tabindex="-1" aria-labelledby="passportPhotoModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="passportPhotoModalLabel">Passport Photo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <img id="passportPhotoImage" src="" alt="Passport Photo" class="img-fluid" style="max-height: 80vh;">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
+<!-- Modal for Passport Document -->
+<div class="modal fade" id="passportPhotoModal" tabindex="-1" aria-labelledby="passportPhotoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="passportPhotoModalLabel">Passport Document</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center" id="passportPhotoContainer">
+                {{-- Content (image or PDF) will be injected via JS --}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
+</div>
+
 
     <!-- Modal for Photograph -->
     <div class="modal fade" id="photographModal" tabindex="-1" aria-labelledby="photographModalLabel" aria-hidden="true">
@@ -223,25 +224,57 @@
     </div>
 
     <script>
-        function loadImage(src, imageId) {
-            const imgElement = document.getElementById(imageId);
-            if (imgElement) {
-                imgElement.src = src;
-                // Ensure modal is shown after loading the image
-                const modalId = imageId === 'nicPhotoImage' ? '#nicPhotoModal' :
-                               imageId === 'passportPhotoImage' ? '#passportPhotoModal' :
-                               '#photographModal';
-                $(modalId).modal('show'); // Use jQuery to show modal
-            } else {
-                console.error('Image element not found:', imageId);
-            }
+    function loadFile(src, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error('Container element not found:', containerId);
+            return;
         }
 
-        // Ensure jQuery and Bootstrap JS are loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof $ === 'undefined') {
-                console.error('jQuery is not loaded. Please include it in your layout.');
-            }
-        });
-    </script>
+        // Clear previous content
+        container.innerHTML = '';
+
+        // Detect file type
+        const fileExtension = src.split('.').pop().toLowerCase();
+
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
+            // Render image
+            const img = document.createElement('img');
+            img.src = src;
+            img.alt = 'Preview';
+            img.className = 'img-fluid';
+            img.style.maxHeight = '80vh';
+            container.appendChild(img);
+        } else if (fileExtension === 'pdf') {
+            // Render PDF
+            const iframe = document.createElement('iframe');
+            iframe.src = src;
+            iframe.width = '100%';
+            iframe.height = '600px';
+            iframe.style.border = 'none';
+            container.appendChild(iframe);
+        } else {
+            // Fallback
+            container.innerHTML = `<p class="text-danger">Unsupported file type: ${fileExtension}</p>`;
+        }
+
+        // Show modal
+        const modalId =
+            containerId === 'nicPhotoContainer' ? '#nicPhotoModal' :
+            containerId === 'passportPhotoContainer' ? '#passportPhotoModal' :
+            '#photographModal';
+
+        $(modalId).modal('show');
+    }
+
+    // Keep Photograph modal working with <img>
+    function loadImage(src, imageId) {
+        const imgElement = document.getElementById(imageId);
+        if (imgElement) {
+            imgElement.src = src;
+            $(imageId === 'photographImage' ? '#photographModal' : '').modal('show');
+        }
+    }
+</script>
+
 @endsection

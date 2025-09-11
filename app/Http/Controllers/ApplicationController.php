@@ -40,29 +40,37 @@ class ApplicationController extends Controller
         }
 
         $rules = [
-            'title' => 'required|in:Mr,Mrs,Miss,Rev',
-            'full_name' => 'required|string|max:255',
-            'name_with_initials' => 'required|string|max:255',
-            'birthday' => 'required|date|before:today',
-            'nationality' => 'required|in:Sri Lanka,Other',
-            'address_line_1' => 'required|string|max:255',
-            'address_line_2' => 'nullable|string|max:255',
-            'city' => 'required|string|max:255',
-            'province' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:10|regex:/^07[0-9]{8}$/',
-            'whatsapp_number' => 'nullable|string|max:10|regex:/^07[0-9]{8}$/',
-            'email_address' => 'required|email|max:255',
-            'photograph' => 'required|image|mimes:jpeg,png,jpg|max:4096',
-        ];
+    'title' => 'required|in:Mr,Mrs,Miss,Rev',
+    'full_name' => 'required|string|max:255',
+    'name_with_initials' => 'required|string|max:255',
+    'birthday' => 'required|date|before:today',
+    'nationality' => 'required|in:Sri Lanka,Other',
+
+    // Address
+    'house_number' => 'nullable|string|max:50',
+    'street_name' => 'required|string|max:255',
+    'apartment' => 'nullable|string|max:255',
+    'district' => 'required|string|max:100',
+    'province' => 'required|string|max:100',
+
+    // Phones (+94 format, store only 9 digits after +94)
+    'contact_number' => 'required|string|regex:/^[1-9][0-9]{8}$/',
+    'whatsapp_number' => 'nullable|string|regex:/^[1-9][0-9]{8}$/',
+    'home_number' => 'nullable|string|regex:/^[1-9][0-9]{8}$/',
+
+    'email_address' => 'required|email|max:255',
+    'photograph' => 'required|image|mimes:jpeg,png,jpg|max:4096',
+];
+
 
         // Conditional validation based on nationality
         if ($request->nationality === 'Sri Lanka') {
             $rules['nic_number'] = 'required|string|max:12';
-            $rules['nic_photo'] = 'required|image|mimes:jpeg,png,jpg|max:4096';
+            $rules['nic_photo'] = 'required|file|mimes:jpeg,png,jpg,pdf|max:4096';
         } else {
             $rules['other_nationality'] = 'required|string|max:255';
             $rules['passport_number'] = 'required|string|max:20';
-            $rules['passport_photo'] = 'required|image|mimes:jpeg,png,jpg|max:4096';
+            $rules['passport_photo'] = 'required|file|mimes:jpeg,png,jpg,pdf|max:4096';
         }
 
         try {
@@ -129,26 +137,36 @@ class ApplicationController extends Controller
             }
         }
 
-        // Merge address fields into a single address string
-        $address = trim("{$request->address_line_1}, {$request->address_line_2}, {$request->city}, {$request->province}");
+        // Merge address fields into a single string
+$addressParts = [
+    $request->house_number,  // optional
+    $request->street_name,   // required
+    $request->apartment,     // optional
+    $request->district,      // required
+    $request->province       // required
+];
+
+// Filter out empty values
+$address = implode(', ', array_filter($addressParts, fn($part) => !empty($part)));
 
         // Fill application data
         $application->fill([
-            'title' => $request->title,
-            'full_name' => $request->full_name,
-            'name_with_initials' => $request->name_with_initials,
-            'birthday' => $request->birthday,
-            'nationality' => $request->nationality,
-            'nic_number' => $request->nationality === 'Sri Lanka' ? $request->nic_number : null,
-            'other_nationality' => $request->nationality === 'Other' ? $request->other_nationality : null,
-            'passport_number' => $request->nationality === 'Other' ? $request->passport_number : null,
-            'address' => $address,
-            'contact_number' => $request->contact_number,
-            'whatsapp_number' => $request->whatsapp_number,
-            'email_address' => $request->email_address,
-            'application_completed' => true,
-            'status' => 'Pending', // Reset status to Pending on resubmission
-        ]);
+    'title' => $request->title,
+    'full_name' => $request->full_name,
+    'name_with_initials' => $request->name_with_initials,
+    'birthday' => $request->birthday,
+    'nationality' => $request->nationality,
+    'nic_number' => $request->nationality === 'Sri Lanka' ? $request->nic_number : null,
+    'other_nationality' => $request->nationality === 'Other' ? $request->other_nationality : null,
+    'passport_number' => $request->nationality === 'Other' ? $request->passport_number : null,
+    'address' => $address,
+    'contact_number' => $request->contact_number,
+    'whatsapp_number' => $request->whatsapp_number,
+    'home_number' => $request->home_number, // optional Home Phone
+    'email_address' => $request->email_address,
+    'application_completed' => true,
+    'status' => 'Pending', // Reset status to Pending on resubmission
+]);
 
         $application->save();
 
