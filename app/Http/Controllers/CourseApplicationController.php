@@ -152,6 +152,9 @@ class CourseApplicationController extends Controller
         $courseApplication->rejection_reason = null; // Clear reason for Approved
     }
 
+    // Set the admin who updated the status
+    $courseApplication->updated_by = Auth::id();
+
     $courseApplication->save();
 
     if ($status === 'Approved') {
@@ -180,6 +183,14 @@ class CourseApplicationController extends Controller
             Log::info('Student ID already exists, no new student ID created', ['user_id' => $userId, 'existing_student_id' => $existingStudent->student_id]);
         }
     }
+
+    Log::info('Course application status updated', [
+        'course_application_id' => $courseApplication->id,
+        'user_id' => $courseApplication->user_id,
+        'status' => $courseApplication->status,
+        'rejection_reason' => $courseApplication->rejection_reason,
+        'updated_by' => $courseApplication->updated_by,
+    ]);
 
     return redirect()->route('admin.course.applications')->with('status', 'Application status updated successfully!');
 }

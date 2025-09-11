@@ -65,6 +65,9 @@
                                                 @endif
                                             </p>
                                         @endif
+                                        @if ($courseApplication->updated_by && in_array($courseApplication->status, ['Approved', 'Rejected']))
+                                            <p><strong>Updated By:</strong> <span class="text-primary">{{ $courseApplication->updatedBy->name ?? 'N/A' }}</span></p>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

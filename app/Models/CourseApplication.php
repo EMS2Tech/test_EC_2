@@ -19,6 +19,7 @@ class CourseApplication extends Model
         'transcript_certificate',
         'diploma_certificates',
         'other_certificates',
+        'updated_by', // Added
     ];
 
     protected $casts = [
@@ -70,5 +71,11 @@ class CourseApplication extends Model
     public function batch()
     {
         return $this->belongsTo(Batch::class);
+    }
+
+    // Relationship to the admin who updated the status
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }
