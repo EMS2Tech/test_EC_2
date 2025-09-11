@@ -126,6 +126,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/payment/request', [AdminController::class, 'showPaymentRequestForm'])->name('admin.payment.request');
     Route::post('/admin/payment/request/send', [AdminController::class, 'sendPaymentRequest'])->name('admin.payment.request.send');
     Route::get('/admin/get-batches/{course_id}', [AdminController::class, 'getBatches'])->name('admin.get.batches');
+
+    Route::get('/admin/get-courses', [AdminController::class, 'getCourses'])->name('admin.getCourses');
+Route::get('/admin/get-batches', [AdminController::class, 'getBatches'])->name('admin.getBatches');
         });
 });
 
