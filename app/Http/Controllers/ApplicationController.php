@@ -78,7 +78,7 @@ class ApplicationController extends Controller
     'contact_number' => 'required|string|regex:/^[0-9]{6,15}$/',
     'whatsapp_number' => 'nullable|string|regex:/^[0-9]{6,15}$/',
     'home_number' => 'nullable|string|regex:/^[0-9]{6,15}$/',
-
+    'mentor_name' => 'required|string|max:255',
     'email_address' => 'required|email|max:255',
     'photograph' => 'required|image|mimes:jpeg,png,jpg|max:4096',
 ];
@@ -189,6 +189,7 @@ $address = implode(', ', array_filter($addressParts, fn($part) => !empty($part))
     'contact_number' => $prefix . ltrim($request->contact_number, '0'),
     'whatsapp_number' => $request->whatsapp_number ? $prefix . ltrim($request->whatsapp_number, '0') : null,
     'home_number' => $request->home_number ? $prefix . ltrim($request->home_number, '0') : null,
+    'mentor_name' => $request->mentor_name,
     'email_address' => $request->email_address,
     'application_completed' => true,
     'status' => 'Pending', // Reset status to Pending on resubmission

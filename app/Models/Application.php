@@ -9,7 +9,7 @@ class Application extends Model
     protected $fillable = [
         'user_id', 'title', 'full_name', 'name_with_initials', 'birthday', 'nationality',
         'nic_number', 'other_nationality', 'passport_number', 'address', 'contact_number',
-        'whatsapp_number', 'home_number', 'email_address', 'nic_photo', 'passport_photo', 'photograph',
+        'whatsapp_number', 'home_number', 'mentor_name', 'email_address', 'nic_photo', 'passport_photo', 'photograph',
         'application_completed', 'status', 'rejection_reason', 'updated_by' // Added
     ];
 

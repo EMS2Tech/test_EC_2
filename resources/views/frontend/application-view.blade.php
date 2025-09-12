@@ -37,6 +37,7 @@
                                                 <p><strong>WhatsApp Number:</strong> {{ $application->whatsapp_number ?? 'N/A' }}</p>
                                                 <p><strong>Home Phone:</strong> {{ $application->home_number ?? 'N/A' }}</p>
                                                 <p><strong>Email Address:</strong> {{ $application->email_address }}</p>
+                                                <p><strong>Mentor Name:</strong> {{ $application->mentor_name ?? 'N/A' }}</p>
                                             </div>
                                         </div>
                                     </div>

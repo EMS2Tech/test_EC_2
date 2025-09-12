@@ -302,6 +302,35 @@
     </div>
 </div>
 
+<!-- Mentor Name -->
+<div class="mb-3">
+    <label for="mentor_name" class="form-label">Mentor Name </label>
+    <select class="form-select" id="mentor_name" name="mentor_name" required>
+        <option value="" disabled {{ !old('mentor_name', $application->mentor_name ?? '') ? 'selected' : '' }}>-- Select Mentor --</option>
+        @foreach([
+            'Wijeneka Mudalige Harshani Ruwanthika',
+            'Nethmi Nisansala',
+            'Udari Madhuwanthi',
+            'Lasika Supun Nadi Hewa Vitharana',
+            'Sandeepa Wathurathanthri',
+            'M Chathurika Harshani De Costa',
+            'Saradha Samaraweera',
+            'Dissanayaka Mudiyanselage Darshika Lanka Sanjeewani',
+            'Sethun Pullige Prabhath Tharindu',
+            'Erosha Shiromi Vithanage',
+            'K K Sameera Tharanga',
+            'Pimmachcharige Sulana Dulmika',
+            'G A Tharindu Uthpala Rajathilaka',
+            'A Nilaksha Harshani Silva'
+        ] as $mentor)
+            <option value="{{ $mentor }}" {{ old('mentor_name', $application->mentor_name ?? '') === $mentor ? 'selected' : '' }}>
+                {{ $mentor }}
+            </option>
+        @endforeach
+    </select>
+    <x-input-error :messages="$errors->get('mentor_name')" class="mt-2" />
+</div>
+
                                         <!-- Email Address -->
                                         <div class="mb-3">
                                             <label class="form-label">Email Address</label>

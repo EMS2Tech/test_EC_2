@@ -136,6 +136,10 @@
                                                                     </p>
                                                                 </div>
                                                                 <div class="mb-3">
+    <label class="fw-semibold">Mentor Name</label>
+    <p class="text-muted mb-1"><i class="mdi mdi-account-tie me-2"></i> {{ $application->mentor_name ?? 'N/A' }}</p>
+</div>
+                                                                <div class="mb-3">
                                                                     <label class="fw-semibold">Birthday</label>
                                                                     <p class="text-muted mb-1">
                                                                         {{ $application->birthday->format('F j, Y') }}</p>
