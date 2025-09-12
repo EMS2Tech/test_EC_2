@@ -34,7 +34,7 @@
                                 <small class="text-muted">Upload PDF, PNG, JPG, or JPEG (max 4MB). Leave blank to keep existing slip.</small>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Remark</label>
+                                <label class="form-label">Remark (NIC Number)<span class="text-danger">*</span></label>
                                 <textarea class="form-control" name="remark" rows="3" placeholder="Enter any additional remarks">{{ $payment->remark ?? '' }}</textarea>
                             </div>
                             <button type="submit" class="btn btn-primary">Update Payment</button>

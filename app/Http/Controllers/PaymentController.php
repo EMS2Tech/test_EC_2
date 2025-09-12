@@ -228,7 +228,7 @@ class PaymentController extends Controller
         $request->validate([
             'payment_type' => 'required|in:registration,course',
             'payment_slip' => 'required|file|mimes:pdf,png,jpg,jpeg|max:4096',
-            'remark' => 'nullable|string|max:255',
+            'remark' => 'required|string|max:20',
         ]);
 
         if ($request->hasFile('payment_slip')) {
@@ -290,7 +290,7 @@ class PaymentController extends Controller
 
         $request->validate([
             'payment_slip' => 'nullable|file|mimes:pdf,png,jpg,jpeg|max:4096',
-            'remark' => 'nullable|string|max:255',
+            'remark' => 'required|string|max:20',
         ]);
 
         $data = ['remark' => $request->input('remark')];
