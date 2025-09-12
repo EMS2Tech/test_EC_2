@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 
 class CourseApplicationController extends Controller
 {
@@ -250,5 +252,121 @@ class CourseApplicationController extends Controller
     }
 
     return redirect()->back()->with('success', 'Documents updated successfully. Your application status has been set to Pending for review.');
+}
+
+public function export(Request $request)
+{
+    $query = DB::table('course_applications as ca')
+        ->select(
+            'ca.id',
+            'ca.user_id',
+            'ca.created_at as apply_date',
+            'ca.status',
+            'sp.program_name as study_programme_name',
+            'c.course_name',
+            'b.batch_no',
+            DB::raw('COALESCE(a.full_name, u.name) as full_name'),
+            DB::raw('COALESCE(a.nic_number, a.passport_number) as nic_passport') // Combine NIC and Passport into one column
+        )
+        ->leftJoin('study_programs as sp', 'ca.study_programme_id', '=', 'sp.id')
+        ->leftJoin('courses as c', 'ca.course_id', '=', 'c.id')
+        ->leftJoin('batches as b', 'ca.batch_id', '=', 'b.id')
+        ->leftJoin('applications as a', 'ca.user_id', '=', 'a.user_id')
+        ->leftJoin('users as u', 'ca.user_id', '=', 'u.id');
+
+    // Apply filters
+    if ($request->filled('study_program_name')) {
+        $query->where('sp.program_name', 'like', '%' . $request->input('study_program_name') . '%');
+    }
+    if ($request->filled('course_name')) {
+        $query->where('c.course_name', 'like', '%' . $request->input('course_name') . '%');
+    }
+    if ($request->filled('batch_no')) {
+        $query->where('b.batch_no', 'like', '%' . $request->input('batch_no') . '%');
+    }
+    if ($request->filled('status')) {
+        $query->where('ca.status', $request->input('status'));
+    }
+
+    // Apply date range filter
+    if ($request->filled('date_range')) {
+        $now = Carbon::now('Asia/Colombo');
+        switch ($request->input('date_range')) {
+            case 'last_24h':
+                $query->where('ca.created_at', '>=', $now->subHours(24));
+                break;
+            case 'last_7d':
+                $query->where('ca.created_at', '>=', $now->subDays(7));
+                break;
+            case 'last_month':
+                $query->where('ca.created_at', '>=', $now->subMonth());
+                break;
+            case 'custom':
+                if ($request->filled('start_date') && $request->filled('end_date')) {
+                    $startDate = Carbon::parse($request->input('start_date'))->startOfDay();
+                    $endDate = Carbon::parse($request->input('end_date'))->endOfDay();
+                    if ($startDate->lte($endDate)) {
+                        $query->whereBetween('ca.created_at', [$startDate, $endDate]);
+                    }
+                }
+                break;
+        }
+    }
+
+    // Apply search filter for NIC/Passport or full name
+    if ($request->filled('search')) {
+        $search = $request->input('search');
+        $query->where(function ($q) use ($search) {
+            $q->where('a.full_name', 'like', '%' . $search . '%')
+              ->orWhere('a.nic_number', 'like', '%' . $search . '%')
+              ->orWhere('a.passport_number', 'like', '%' . $search . '%')
+              ->orWhere(DB::raw('COALESCE(a.nic_number, a.passport_number)'), 'like', '%' . $search . '%');
+        });
+    }
+
+    // Fetch the filtered data
+    $applications = $query->get();
+
+    // Debug the raw data
+    \Log::info('Export Data: ' . json_encode($applications->toArray()));
+
+    $headers = [
+        'Content-Type' => 'text/csv',
+        'Content-Disposition' => 'attachment; filename="course_applications_' . date('Ymd_His') . '.csv"',
+    ];
+
+    $callback = function () use ($applications) {
+        $output = fopen('php://output', 'w');
+
+        // Add CSV header (replaced NIC and Passport with NIC/Passport)
+        fputcsv($output, ['User Full Name', 'Study Programme Name', 'Course Name', 'Batch No', 'Apply Date', 'Status', 'NIC/Passport']);
+
+        // Add data rows
+        foreach ($applications as $application) {
+            // Convert created_at to a formatted date if it's a string or Carbon instance
+            $applyDate = $application->apply_date;
+            if ($applyDate && !$applyDate instanceof Carbon) {
+                $applyDate = Carbon::parse($applyDate)->format('Y-m-d H:i:s');
+            } elseif ($applyDate) {
+                $applyDate = $applyDate->format('Y-m-d H:i:s');
+            } else {
+                $applyDate = 'N/A';
+            }
+
+            fputcsv($output, [
+                $application->full_name ?? 'N/A',
+                $application->study_programme_name ?? 'N/A',
+                $application->course_name ?? 'N/A',
+                $application->batch_no ?? 'N/A',
+                $applyDate,
+                $application->status ?? 'N/A',
+                $application->nic_passport ?? 'N/A', // Use the combined NIC/Passport column
+            ]);
+        }
+
+        fclose($output);
+    };
+
+    return Response::stream($callback, 200, $headers);
 }
 }

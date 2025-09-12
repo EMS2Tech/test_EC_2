@@ -24,7 +24,7 @@
                                     <h5 class="card-title mb-0">All Course Applicants</h5>
                                     <div class="d-flex align-items-center">
                                         <form class="d-flex align-items-center me-3" method="GET" action="{{ route('admin.course.applications') }}">
-                                            <input type="text" class="form-control me-2" name="search" placeholder="Search by Full Name or Email" value="{{ request('search') }}" style="width: 250px;">
+                                            <input type="text" class="form-control me-2" name="search" placeholder="Search by NIC or Full Name" value="{{ request('search') }}" style="width: 250px;">
                                             <button type="submit" class="btn btn-primary btn-sm">
                                                 <i class="mdi mdi-magnify me-1"></i> Search
                                             </button>

@@ -239,4 +239,97 @@ $address = implode(', ', array_filter($addressParts, fn($part) => !empty($part))
             'newPhotographUrl' => asset('storage/' . $path)
         ]);
     }
+
+    public function export(Request $request)
+{
+    $query = Application::select(
+        'applications.id',
+        'full_name',
+        'contact_number',
+        'email_address',
+        'nic_number',
+        'passport_number',
+        'nationality',
+        'status',
+        'updated_by',
+        'applications.created_at'
+    )->leftJoin('users', 'applications.user_id', '=', 'users.id')->latest('applications.created_at');
+
+    // Apply filters from the request
+    if ($request->has('search')) {
+        $search = $request->input('search');
+        $query->where(function ($q) use ($search) {
+            $q->where('nic_number', 'like', "%{$search}%")
+              ->orWhere('passport_number', 'like', "%{$search}%")
+              ->orWhere('applications.id', 'like', "%{$search}%")
+              ->orWhere('email_address', 'like', "%{$search}%");
+        });
+    }
+
+    if ($request->has('status') && $request->input('status') !== '') {
+        $query->where('status', $request->input('status'));
+    }
+
+    if ($request->has('updated_by') && $request->input('updated_by') !== '') {
+        $query->where('updated_by', $request->input('updated_by'));
+    }
+
+    // Apply date range filter
+    if ($request->has('date_range')) {
+        $now = \Carbon\Carbon::now('Asia/Colombo');
+        switch ($request->input('date_range')) {
+            case 'last_24h':
+                $query->where('applications.created_at', '>=', $now->subHours(24));
+                break;
+            case 'last_7d':
+                $query->where('applications.created_at', '>=', $now->subDays(7));
+                break;
+            case 'last_month':
+                $query->where('applications.created_at', '>=', $now->subMonth());
+                break;
+            case 'custom':
+                if ($request->has('start_date') && $request->has('end_date')) {
+                    $startDate = \Carbon\Carbon::parse($request->input('start_date'))->startOfDay();
+                    $endDate = \Carbon\Carbon::parse($request->input('end_date'))->endOfDay();
+                    if ($startDate->lte($endDate)) {
+                        $query->whereBetween('applications.created_at', [$startDate, $endDate]);
+                    }
+                }
+                break;
+        }
+    }
+
+    $applications = $query->get();
+
+    // Generate CSV content
+    $headers = [
+        'Content-Type' => 'text/csv',
+        'Content-Disposition' => 'attachment; filename="applications_export_' . date('Ymd_His') . '.csv"',
+    ];
+
+    $callback = function () use ($applications) {
+        $file = fopen('php://output', 'w');
+        fputcsv($file, ['ID', 'Full Name', 'Contact Number', 'Email', 'NIC/Passport', 'Nationality', 'Status', 'Updated By', 'Created At']);
+
+        foreach ($applications as $application) {
+            $updatedByName = $application->updatedBy ? ($application->updatedBy->name ?? 'N/A') : 'N/A';
+            $nicPassport = $application->nationality === 'Sri Lanka' ? ($application->nic_number ?? 'N/A') : ($application->passport_number ?? 'N/A');
+            fputcsv($file, [
+                sprintf('%.5d', $application->id ?? 0),
+                $application->full_name ?? 'N/A',
+                $application->contact_number ?? 'N/A',
+                $application->email_address ?? 'N/A',
+                $nicPassport,
+                $application->nationality ?? 'N/A',
+                $application->status ?? 'Not Complete',
+                $updatedByName,
+                $application->created_at ? $application->created_at->format('Y-m-d H:i:s') : 'N/A',
+            ]);
+        }
+
+        fclose($file);
+    };
+
+    return response()->stream($callback, 200, $headers);
+}
 }

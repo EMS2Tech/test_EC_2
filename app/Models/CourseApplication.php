@@ -59,13 +59,14 @@ class CourseApplication extends Model
 
     public function getBatchNoAttribute()
     {
-        $batch = $this->course->batches()->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
-        return $batch ? $batch->batch_no : 'N/A';
+        //$batch = $this->course->batches()->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
+        //return $batch ? $batch->batch_no : 'N/A';
+        return $this->batch ? $this->batch->batch_no ?? 'N/A' : 'N/A';
     }
 
     public function getApplyDateAttribute()
     {
-        return $this->created_at->format('Y-m-d H:i:s');
+        return $this->created_at ? $this->created_at->format('Y-m-d H:i:s') : 'N/A';
     }
 
     public function batch()

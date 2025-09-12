@@ -118,13 +118,14 @@ Route::middleware('auth')->group(function () {
     // Front Manager and Admin
     Route::middleware(['auth', RestrictType::class . ':admin,front_manager'])->group(function () {
         Route::get('/course-applications', [AdminController::class, 'courseApplications'])->name('admin.course.applications');
-        Route::get('/admin/course/applications/export', [AdminController::class, 'export'])->name('admin.course.applications.export');
+        Route::get('/admin/course/applications/export', [CourseApplicationController::class, 'export'])->name('admin.course.applications.export');
         Route::get('/admin/courseapplication/{id}/view', [CourseApplicationController::class, 'view'])->name('admin.courseapplication.view');
         Route::put('/admin/courseapplication/{id}/update-status', [CourseApplicationController::class, 'updateStatus'])->name('admin.courseapplication.update.status');
 
         Route::get('/admin/applications', [AdminController::class, 'applications'])->name('admin.applications');
         Route::get('/admin/application/{id}/view', [AdminController::class, 'viewApplicationDetails'])->name('admin.application.details');
         Route::put('/admin/application/{id}/update-status', [AdminController::class, 'updateApplicationStatus'])->name('admin.application.update-status');
+        Route::get('/admin/applications/export', [ApplicationController::class, 'export'])->name('admin.applications.export');
     });
        
 });

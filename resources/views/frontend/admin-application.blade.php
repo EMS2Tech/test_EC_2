@@ -11,6 +11,9 @@
                 <div class="flex-grow-1">
                     <h4 class="fs-18 fw-semibold m-0">Application Details</h4>
                 </div>
+                <div>
+                    <a href="{{ route('admin.applications.export') . '?' . http_build_query(request()->query()) }}" class="btn btn-success">Export to CSV</a>
+                </div>
             </div>
 
             <!-- Start Search and Filter -->
@@ -26,6 +29,11 @@
                                         <button type="submit" class="btn btn-primary btn-sm">
                                             <i class="mdi mdi-magnify me-1"></i> Search
                                         </button>
+                                        @foreach (request()->query() as $key => $value)
+                                            @if ($key !== 'search')
+                                                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                            @endif
+                                        @endforeach
                                     </form>
                                     <form class="d-flex align-items-center" method="GET" action="{{ route('admin.applications') }}">
                                         <select name="status" class="form-select me-2" style="width: 150px;" onchange="this.form.submit()">
@@ -35,9 +43,45 @@
                                             <option value="Rejected" {{ request('status') === 'Rejected' ? 'selected' : '' }}>Rejected</option>
                                         </select>
                                         <input type="hidden" name="search" value="{{ request('search') }}">
+                                        @foreach (request()->query() as $key => $value)
+                                            @if ($key !== 'status' && $key !== 'search')
+                                                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                            @endif
+                                        @endforeach
                                     </form>
                                 </div>
                             </div>
+                        </div>
+                        <div class="card-body">
+                            <form method="GET" action="{{ route('admin.applications') }}" class="row g-3" id="filterForm">
+                                <div class="col-md-2">
+                                    <label for="date_range" class="form-label">Date Range</label>
+                                    <select name="date_range" id="date_range" class="form-select" onchange="toggleDateFields()">
+                                        <option value="" {{ !request('date_range') ? 'selected' : '' }}>Select Date Range</option>
+                                        <option value="last_24h" {{ request('date_range') === 'last_24h' ? 'selected' : '' }}>Last 24 Hours</option>
+                                        <option value="last_7d" {{ request('date_range') === 'last_7d' ? 'selected' : '' }}>Last 7 Days</option>
+                                        <option value="last_month" {{ request('date_range') === 'last_month' ? 'selected' : '' }}>Last Month</option>
+                                        <option value="custom" {{ request('date_range') === 'custom' ? 'selected' : '' }}>Custom Date Range</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 custom-date-fields" style="display: {{ request('date_range') === 'custom' ? 'block' : 'none' }};">
+                                    <label for="start_date" class="form-label">Start Date</label>
+                                    <input type="date" name="start_date" id="start_date" class="form-control" value="{{ request('start_date') }}" max="{{ now('Asia/Colombo')->format('Y-m-d') }}">
+                                </div>
+                                <div class="col-md-2 custom-date-fields" style="display: {{ request('date_range') === 'custom' ? 'block' : 'none' }};">
+                                    <label for="end_date" class="form-label">End Date</label>
+                                    <input type="date" name="end_date" id="end_date" class="form-control" value="{{ request('end_date') }}" max="{{ now('Asia/Colombo')->format('Y-m-d') }}">
+                                </div>
+                                <div class="col-12 text-end">
+                                    <button type="submit" class="btn btn-primary" onclick="return validateDateRange()">Filter</button>
+                                    <a href="{{ route('admin.applications') }}" class="btn btn-secondary">Clear Filters</a>
+                                </div>
+                                @foreach (request()->query() as $key => $value)
+                                    @if (!in_array($key, ['date_range', 'start_date', 'end_date']))
+                                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                    @endif
+                                @endforeach
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -130,4 +174,42 @@
     </div>
     <!-- content -->
 </div>
+
+@section('scripts')
+    <script>
+        function toggleDateFields() {
+            const dateRange = document.getElementById('date_range').value;
+            const customDateFields = document.querySelectorAll('.custom-date-fields');
+            customDateFields.forEach(field => {
+                field.style.display = dateRange === 'custom' ? 'block' : 'none';
+            });
+        }
+
+        function validateDateRange() {
+            const dateRange = document.getElementById('date_range').value;
+            if (dateRange === 'custom') {
+                const startDate = document.getElementById('start_date').value;
+                const endDate = document.getElementById('end_date').value;
+                if (!startDate || !endDate) {
+                    alert('Please select both start and end dates for custom range.');
+                    return false;
+                }
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                if (start > end) {
+                    alert('Start date cannot be after end date.');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Initialize date fields visibility
+        document.addEventListener('DOMContentLoaded', function () {
+            toggleDateFields();
+            document.getElementById('date_range').addEventListener('change', toggleDateFields);
+            document.getElementById('filterForm').addEventListener('submit', validateDateRange);
+        });
+    </script>
+@endsection
 @endsection
