@@ -12,9 +12,9 @@
                     </div>
                     <div class="mt-2 mt-sm-0">
                         @if(auth()->user()->type === 'student')
-                        <button id="export-pdf-btn" class="btn btn-primary">
-                            <i class="mdi mdi-file-pdf-box me-1"></i> Export as PDF
-                        </button>
+                            <button id="export-pdf-btn" class="btn btn-primary">
+                                <i class="mdi mdi-file-pdf-box me-1"></i> Export as PDF
+                            </button>
                         @endif
                     </div>
                 </div>
@@ -28,14 +28,15 @@
                                         <div class="hando-profile-main">
                                             <img src="{{ Auth::user()->application && Auth::user()->application->photograph ? asset('storage/' . Auth::user()->application->photograph) : asset('frontend/assets/images/users/default.jpg') }}"
                                                 class="rounded-circle img-fluid avatar-xxl img-thumbnail float-start"
-                                                alt="image profile"
-                                                id="profile-image">
+                                                alt="image profile" id="profile-image">
                                             @if(auth()->user()->type === 'student')
-                                            <span class="sil-profile_main-pic-change img-thumbnail" onclick="document.getElementById('photograph-input').click();">
-                                                <i class="mdi mdi-camera text-white"></i>
-                                            </span>
+                                                <span class="sil-profile_main-pic-change img-thumbnail"
+                                                    onclick="document.getElementById('photograph-input').click();">
+                                                    <i class="mdi mdi-camera text-white"></i>
+                                                </span>
                                             @endif
-                                            <input type="file" id="photograph-input" name="photograph" accept="image/*" style="display: none;" onchange="updateProfilePicture(this)">
+                                            <input type="file" id="photograph-input" name="photograph" accept="image/*"
+                                                style="display: none;" onchange="updateProfilePicture(this)">
                                         </div>
                                         <div class="overflow-hidden ms-md-4 ms-0">
                                             <h4 class="m-0 text-dark fs-20 mt-2 mt-md-0">{{ Auth::user()->name }}</h4>
@@ -55,38 +56,38 @@
                         <div class="card shadow sm:rounded-lg">
                             <div class="card-body pt-0">
                                 <ul class="nav nav-underline border-bottom pt-2" id="pills-tab" role="tablist">
-    @if(auth()->user()->type === 'student')
-        <li class="nav-item" role="presentation">
-            <a class="nav-link active p-2" id="profile_about_tab" data-bs-toggle="tab"
-                href="#profile_about" role="tab">
-                <span class="d-block d-sm-none"><i class="mdi mdi-information"></i></span>
-                <span class="d-none d-sm-block">About</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link p-2" id="portfolio_education_tab" data-bs-toggle="tab"
-                href="#profile_education" role="tab">
-                <span class="d-block d-sm-none"><i class="mdi mdi-school"></i></span>
-                <span class="d-none d-sm-block">Education</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link p-2" id="portfolio_payment_tab" data-bs-toggle="tab"
-                href="#profile_payment" role="tab">
-                <span class="d-block d-sm-none"><i class="mdi mdi-school"></i></span>
-                <span class="d-none d-sm-block">Payment</span>
-            </a>
-        </li>
-    @endif
+                                    @if(auth()->user()->type === 'student')
+                                        <li class="nav-item" role="presentation">
+                                            <a class="nav-link active p-2" id="profile_about_tab" data-bs-toggle="tab"
+                                                href="#profile_about" role="tab">
+                                                <span class="d-block d-sm-none"><i class="mdi mdi-information"></i></span>
+                                                <span class="d-none d-sm-block">About</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link p-2" id="portfolio_education_tab" data-bs-toggle="tab"
+                                                href="#profile_education" role="tab">
+                                                <span class="d-block d-sm-none"><i class="mdi mdi-school"></i></span>
+                                                <span class="d-none d-sm-block">Education</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link p-2" id="portfolio_payment_tab" data-bs-toggle="tab"
+                                                href="#profile_payment" role="tab">
+                                                <span class="d-block d-sm-none"><i class="mdi mdi-school"></i></span>
+                                                <span class="d-none d-sm-block">Payment</span>
+                                            </a>
+                                        </li>
+                                    @endif
 
-    <li class="nav-item">
-        <a class="nav-link p-2" id="setting_tab" data-bs-toggle="tab"
-            href="#profile_setting" role="tab">
-            <span class="d-block d-sm-none"><i class="mdi mdi-information"></i></span>
-            <span class="d-none d-sm-block">Setting</span>
-        </a>
-    </li>
-</ul>
+                                    <li class="nav-item">
+                                        <a class="nav-link p-2" id="setting_tab" data-bs-toggle="tab"
+                                            href="#profile_setting" role="tab">
+                                            <span class="d-block d-sm-none"><i class="mdi mdi-information"></i></span>
+                                            <span class="d-none d-sm-block">Setting</span>
+                                        </a>
+                                    </li>
+                                </ul>
 
                                 <div class="tab-content text-muted">
                                     <div class="tab-pane active show pt-4" id="profile_about" role="tabpanel">
@@ -111,12 +112,14 @@
                                                                 </div>
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">Application No</label>
-                                                                    <p class="text-muted mb-1">{{ $student ? $student->student_id : 'N/A' }}</p>
+                                                                    <p class="text-muted mb-1">
+                                                                        {{ $student ? $student->student_id : 'N/A' }}</p>
                                                                 </div>
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">Name with Initials</label>
                                                                     <p class="text-muted mb-1">
-                                                                        {{ $application->name_with_initials }}</p>
+                                                                        {{ $application->name_with_initials }}
+                                                                    </p>
                                                                 </div>
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">Email Address</label>
@@ -127,29 +130,34 @@
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">Mobile Number</label>
                                                                     <p class="text-muted mb-1"><i
-                                                                            class="mdi mdi-phone-outline me-2"></i> {{ $application->contact_number }}
+                                                                            class="mdi mdi-phone-outline me-2"></i>
+                                                                        {{ $application->contact_number }}
                                                                     </p>
                                                                 </div>
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">WhatsApp Number</label>
                                                                     <p class="text-muted mb-1"><i
-                                                                            class="mdi mdi-whatsapp me-2"></i> {{ $application->whatsapp_number ?? 'N/A' }}
+                                                                            class="mdi mdi-whatsapp me-2"></i>
+                                                                        {{ $application->whatsapp_number ?? 'N/A' }}
                                                                     </p>
                                                                 </div>
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">Home Phone</label>
-                                                                    <p class="text-muted mb-1"><i
-                                                                            class="mdi mdi-home me-2"></i> {{ $application->home_number ?? 'N/A' }}
+                                                                    <p class="text-muted mb-1"><i class="mdi mdi-home me-2"></i>
+                                                                        {{ $application->home_number ?? 'N/A' }}
                                                                     </p>
                                                                 </div>
                                                                 <div class="mb-3">
-    <label class="fw-semibold">Mentor Name</label>
-    <p class="text-muted mb-1"><i class="mdi mdi-account-tie me-2"></i> {{ $application->mentor_name ?? 'N/A' }}</p>
-</div>
+                                                                    <label class="fw-semibold">Coordinator Name</label>
+                                                                    <p class="text-muted mb-1"><i
+                                                                            class="mdi mdi-account-tie me-2"></i>
+                                                                        {{ $application->mentor_name ?? 'N/A' }}</p>
+                                                                </div>
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">Birthday</label>
                                                                     <p class="text-muted mb-1">
-                                                                        {{ $application->birthday->format('F j, Y') }}</p>
+                                                                        {{ $application->birthday->format('F j, Y') }}
+                                                                    </p>
                                                                 </div>
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">Application Status</label>
@@ -158,7 +166,8 @@
                                                                         {{ $application->status ?? 'Not Complete' }}
                                                                     </span>
                                                                     @if ($application->status === 'Rejected' && $application->rejection_reason)
-                                                                        <span class="text-danger">Reason: {{ $application->rejection_reason }}</span>
+                                                                        <span class="text-danger">Reason:
+                                                                            {{ $application->rejection_reason }}</span>
                                                                     @endif
                                                                 </div>
                                                             </div>
@@ -172,63 +181,70 @@
                                                                 <h5 class="card-title mb-0">Nationality Details</h5>
                                                             </div>
                                                             <div class="card-body">
-    <div class="mb-3">
-        <label class="fw-semibold">Nationality</label>
-        <p class="text-muted mb-1">{{ $application->nationality }}</p>
-    </div>
+                                                                <div class="mb-3">
+                                                                    <label class="fw-semibold">Nationality</label>
+                                                                    <p class="text-muted mb-1">{{ $application->nationality }}
+                                                                    </p>
+                                                                </div>
 
-    @if ($application->nationality === 'Sri Lanka')
-        <div class="mb-3">
-            <label class="fw-semibold">NIC Number</label>
-            <p class="text-muted mb-1">{{ $application->nic_number ?? 'N/A' }}</p>
-        </div>
+                                                                @if ($application->nationality === 'Sri Lanka')
+                                                                    <div class="mb-3">
+                                                                        <label class="fw-semibold">NIC Number</label>
+                                                                        <p class="text-muted mb-1">
+                                                                            {{ $application->nic_number ?? 'N/A' }}</p>
+                                                                    </div>
 
-        @if ($application->nic_photo)
-            <div class="mb-3">
-                <label class="fw-semibold">NIC Document</label>
-                @php
-                    $ext = pathinfo($application->nic_photo, PATHINFO_EXTENSION);
-                @endphp
+                                                                    @if ($application->nic_photo)
+                                                                        <div class="mb-3">
+                                                                            <label class="fw-semibold">NIC Document</label>
+                                                                            @php
+                                                                                $ext = pathinfo($application->nic_photo, PATHINFO_EXTENSION);
+                                                                            @endphp
 
-                {{-- Always provide link --}}
-                <a href="{{ asset('storage/' . $application->nic_photo) }}" target="_blank" class="d-block mt-1">
-                    View NIC {{ strtoupper($ext) }}
-                </a>
+                                                                            {{-- Always provide link --}}
+                                                                            <a href="{{ asset('storage/' . $application->nic_photo) }}"
+                                                                                target="_blank" class="d-block mt-1">
+                                                                                View NIC {{ strtoupper($ext) }}
+                                                                            </a>
 
-                {{-- If image, also show thumbnail --}}
-                @if(in_array(strtolower($ext), ['jpg','jpeg','png']))
-                    <img src="{{ asset('storage/' . $application->nic_photo) }}" 
-                         alt="NIC Photo" class="img-thumbnail mt-2" style="max-width: 150px;">
-                @endif
-            </div>
-        @endif
-    @else
-        <div class="mb-3">
-            <label class="fw-semibold">Other Nationality</label>
-            <p class="text-muted mb-1">{{ $application->other_nationality ?? 'N/A' }}</p>
-        </div>
+                                                                            {{-- If image, also show thumbnail --}}
+                                                                            @if(in_array(strtolower($ext), ['jpg', 'jpeg', 'png']))
+                                                                                <img src="{{ asset('storage/' . $application->nic_photo) }}"
+                                                                                    alt="NIC Photo" class="img-thumbnail mt-2"
+                                                                                    style="max-width: 150px;">
+                                                                            @endif
+                                                                        </div>
+                                                                    @endif
+                                                                @else
+                                                                    <div class="mb-3">
+                                                                        <label class="fw-semibold">Other Nationality</label>
+                                                                        <p class="text-muted mb-1">
+                                                                            {{ $application->other_nationality ?? 'N/A' }}</p>
+                                                                    </div>
 
-        @if ($application->passport_photo)
-            <div class="mb-3">
-                <label class="fw-semibold">Passport Document</label>
-                @php
-                    $ext = pathinfo($application->passport_photo, PATHINFO_EXTENSION);
-                @endphp
+                                                                    @if ($application->passport_photo)
+                                                                        <div class="mb-3">
+                                                                            <label class="fw-semibold">Passport Document</label>
+                                                                            @php
+                                                                                $ext = pathinfo($application->passport_photo, PATHINFO_EXTENSION);
+                                                                            @endphp
 
-                {{-- Always provide link --}}
-                <a href="{{ asset('storage/' . $application->passport_photo) }}" target="_blank" class="d-block mt-1">
-                    View Passport {{ strtoupper($ext) }}
-                </a>
+                                                                            {{-- Always provide link --}}
+                                                                            <a href="{{ asset('storage/' . $application->passport_photo) }}"
+                                                                                target="_blank" class="d-block mt-1">
+                                                                                View Passport {{ strtoupper($ext) }}
+                                                                            </a>
 
-                {{-- If image, also show thumbnail --}}
-                @if(in_array(strtolower($ext), ['jpg','jpeg','png']))
-                    <img src="{{ asset('storage/' . $application->passport_photo) }}" 
-                         alt="Passport Photo" class="img-thumbnail mt-2" style="max-width: 150px;">
-                @endif
-            </div>
-        @endif
-    @endif
-</div>
+                                                                            {{-- If image, also show thumbnail --}}
+                                                                            @if(in_array(strtolower($ext), ['jpg', 'jpeg', 'png']))
+                                                                                <img src="{{ asset('storage/' . $application->passport_photo) }}"
+                                                                                    alt="Passport Photo" class="img-thumbnail mt-2"
+                                                                                    style="max-width: 150px;">
+                                                                            @endif
+                                                                        </div>
+                                                                    @endif
+                                                                @endif
+                                                            </div>
 
                                                         </div>
                                                     </div>
@@ -245,7 +261,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                           @else
+                                            @else
                                                 @if(auth()->user()->type === 'student')
                                                     <div class="alert alert-info text-center" role="alert">
                                                         <h5 class="alert-heading">No Application Found</h5>
@@ -260,114 +276,125 @@
                                     </div>
 
                                     <div class="tab-pane pt-4" id="profile_education" role="tabpanel">
-    <div class="container-fluid">
-        @php
-            $courseApplications = App\Models\CourseApplication::with(['studyProgram', 'course', 'batch'])->where('user_id', Auth::id())->get();
-        @endphp
+                                        <div class="container-fluid">
+                                            @php
+                                                $courseApplications = App\Models\CourseApplication::with(['studyProgram', 'course', 'batch'])->where('user_id', Auth::id())->get();
+                                            @endphp
 
-        @if ($courseApplications->isNotEmpty())
-            <div class="row g-4">
-                <div class="col-12">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="card-title mb-0">Course Applications</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover table-bordered">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th scope="col">Study Programme</th>
-                                            <th scope="col">Course</th>
-                                            <th scope="col">Batch</th>
-                                            <th scope="col">Apply Date</th>
-                                            <th scope="col">Status</th>
-                                            <th scope="col">Rejection Reason</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($courseApplications as $application)
-                                            <tr>
-                                                <td>{{ $application->studyProgram->program_name ?? 'N/A' }}</td>
-                                                <td>{{ $application->course->course_name ?? 'N/A' }}</td>
-                                                <td>
-                                                    @if ($application->batch)
-                                                        {{ $application->batch->batch_no ?? 'N/A' }}
-                                                    @else
-                                                        No assigned batch
-                                                    @endif
-                                                </td>
-                                                <td>{{ $application->created_at ? $application->created_at->format('Y-m-d') : 'N/A' }}</td>
-                                                <td>
-                                                    <span class="badge bg-{{ $application->status == 'Approved' ? 'success' : ($application->status == 'Pending' ? 'warning' : ($application->status == 'Rejected' ? 'danger' : 'secondary')) }} me-2">
-                                                        {{ $application->status ?? 'N/A' }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    @if ($application->status === 'Rejected' && $application->rejection_reason)
-                                                        {{ $application->rejection_reason }}
-                                                    @else
-                                                        N/A
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                            @if ($courseApplications->isNotEmpty())
+                                                <div class="row g-4">
+                                                    <div class="col-12">
+                                                        <div class="card border-0 shadow-sm">
+                                                            <div class="card-header bg-primary text-white">
+                                                                <h5 class="card-title mb-0">Course Applications</h5>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <div class="table-responsive">
+                                                                    <table class="table table-hover table-bordered">
+                                                                        <thead class="table-light">
+                                                                            <tr>
+                                                                                <th scope="col">Study Programme</th>
+                                                                                <th scope="col">Course</th>
+                                                                                <th scope="col">Batch</th>
+                                                                                <th scope="col">Apply Date</th>
+                                                                                <th scope="col">Status</th>
+                                                                                <th scope="col">Rejection Reason</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            @foreach ($courseApplications as $application)
+                                                                                <tr>
+                                                                                    <td>{{ $application->studyProgram->program_name ?? 'N/A' }}
+                                                                                    </td>
+                                                                                    <td>{{ $application->course->course_name ?? 'N/A' }}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        @if ($application->batch)
+                                                                                            {{ $application->batch->batch_no ?? 'N/A' }}
+                                                                                        @else
+                                                                                            No assigned batch
+                                                                                        @endif
+                                                                                    </td>
+                                                                                    <td>{{ $application->created_at ? $application->created_at->format('Y-m-d') : 'N/A' }}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <span
+                                                                                            class="badge bg-{{ $application->status == 'Approved' ? 'success' : ($application->status == 'Pending' ? 'warning' : ($application->status == 'Rejected' ? 'danger' : 'secondary')) }} me-2">
+                                                                                            {{ $application->status ?? 'N/A' }}
+                                                                                        </span>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        @if ($application->status === 'Rejected' && $application->rejection_reason)
+                                                                                            {{ $application->rejection_reason }}
+                                                                                        @else
+                                                                                            N/A
+                                                                                        @endif
+                                                                                    </td>
+                                                                                </tr>
+                                                                            @endforeach
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
 
-                @php
-                    $hasRejected = $courseApplications->contains('status', 'Rejected');
-                @endphp
-                @if ($hasRejected)
-                    <div class="col-12">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="card-title mb-0">Update Rejected Documents</h5>
-                            </div>
-                            <div class="card-body">
-                                <form action="{{ route('user.courseapplication.update.documents') }}" method="POST" enctype="multipart/form-data">
-                                    @csrf
-                                    @method('PUT')
-                                    <div class="row g-3">
-                                        @php
-                                            $documents = [
-                                                'ol_certificate' => 'O/L Certificate',
-                                                'al_certificate' => 'A/L Certificate',
-                                                'degree_certificate' => 'Degree Certificate',
-                                                'transcript_certificate' => 'Transcript Certificate',
-                                                'diploma_certificates' => 'Diploma Certificate',
-                                                'other_certificates' => 'Other Certificate',
-                                            ];
-                                        @endphp
-                                        @foreach ($documents as $field => $label)
-                                            <div class="col-md-4 mb-3">
-                                                <label for="{{ $field }}" class="form-label">{{ $label }}</label>
-                                                <input type="file" name="{{ $field }}" id="{{ $field }}" class="form-control" accept=".pdf,.jpg,.png">
-                                            </div>
-                                        @endforeach
-                                        <div class="col-12 text-end">
-                                            <button type="submit" class="btn btn-primary">Upload Updated Documents</button>
+                                                    @php
+                                                        $hasRejected = $courseApplications->contains('status', 'Rejected');
+                                                    @endphp
+                                                    @if ($hasRejected)
+                                                        <div class="col-12">
+                                                            <div class="card border-0 shadow-sm">
+                                                                <div class="card-header bg-primary text-white">
+                                                                    <h5 class="card-title mb-0">Update Rejected Documents</h5>
+                                                                </div>
+                                                                <div class="card-body">
+                                                                    <form
+                                                                        action="{{ route('user.courseapplication.update.documents') }}"
+                                                                        method="POST" enctype="multipart/form-data">
+                                                                        @csrf
+                                                                        @method('PUT')
+                                                                        <div class="row g-3">
+                                                                            @php
+                                                                                $documents = [
+                                                                                    'ol_certificate' => 'O/L Certificate',
+                                                                                    'al_certificate' => 'A/L Certificate',
+                                                                                    'degree_certificate' => 'Degree Certificate',
+                                                                                    'transcript_certificate' => 'Transcript Certificate',
+                                                                                    'diploma_certificates' => 'Diploma Certificate',
+                                                                                    'other_certificates' => 'Other Certificate',
+                                                                                ];
+                                                                            @endphp
+                                                                            @foreach ($documents as $field => $label)
+                                                                                <div class="col-md-4 mb-3">
+                                                                                    <label for="{{ $field }}"
+                                                                                        class="form-label">{{ $label }}</label>
+                                                                                    <input type="file" name="{{ $field }}"
+                                                                                        id="{{ $field }}" class="form-control"
+                                                                                        accept=".pdf,.jpg,.png">
+                                                                                </div>
+                                                                            @endforeach
+                                                                            <div class="col-12 text-end">
+                                                                                <button type="submit" class="btn btn-primary">Upload
+                                                                                    Updated Documents</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <div class="alert alert-info text-center" role="tabpanel">
+                                                    <h5 class="alert-heading">No Course Applications Found</h5>
+                                                    <p>Please apply for a course to view your application details.</p>
+                                                    <a href="{{ route('course-application.create') }}"
+                                                        class="btn btn-primary">Apply for a Course</a>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-            </div>
-        @else
-            <div class="alert alert-info text-center" role="tabpanel">
-                <h5 class="alert-heading">No Course Applications Found</h5>
-                <p>Please apply for a course to view your application details.</p>
-                <a href="{{ route('course-application.create') }}" class="btn btn-primary">Apply for a Course</a>
-            </div>
-        @endif
-    </div>
-</div>
 
                                     <div class="tab-pane pt-4" id="profile_payment" role="tabpanel">
                                         <div class="container-fluid">
@@ -376,12 +403,12 @@
                                                 $courseApplications = \App\Models\CourseApplication::where('user_id', auth()->id())->with('course.batches')->get();
                                                 $paymentRequest = false;
                                                 $requestMessage = 'An admin has requested you to make a payment.';
-                                                
+
                                                 foreach ($courseApplications as $application) {
                                                     $request = \App\Models\PaymentRequest::where('course_id', $application->course_id)
-                                                                 ->where('batch_id', $application->batch_id)
-                                                                 ->where('status', 'pending')
-                                                                 ->first();
+                                                        ->where('batch_id', $application->batch_id)
+                                                        ->where('status', 'pending')
+                                                        ->first();
                                                     if ($request) {
                                                         $paymentRequest = true;
                                                         $requestMessage = $request->message ?: $requestMessage;
@@ -391,95 +418,105 @@
                                             @endphp
 
                                             @if ($payments->isNotEmpty())
-    <div class="row g-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">Payment History</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th scope="col">Slip</th>
-                                    <th scope="col">Uploaded At</th>
-                                    <th scope="col">Payment Type</th>
-                                    <th scope="col">Remark</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Rejection Reason</th>
-                                    <th scope="col">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($payments as $payment)
-                                    <tr>
-                                        <td>
-                                            @if ($payment->payment_slip)
-                                                <a href="{{ Storage::url($payment->payment_slip) }}" target="_blank" class="btn btn-sm btn-info">
-                                                    View Slip
-                                                </a>
-                                            @else
-                                                <span class="text-muted">Not uploaded</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $payment->created_at ? $payment->created_at->format('Y-m-d') : 'N/A' }}</td>
-                                        <td>{{ $payment->payment_type ?? 'N/A' }}</td>
-                                        <td>{{ $payment->remark ?? 'N/A' }}</td>
-                                        <td>
-                                            <span class="badge bg-{{ 
-                                                $payment->status === 'Approved' ? 'success' : 
-                                                ($payment->status === 'Pending' ? 'warning' : 
-                                                ($payment->status === 'Rejected' ? 'danger' : 'secondary')) 
-                                            }} me-2">
-                                                {{ $payment->status ?? 'Pending' }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            @if ($payment->status === 'Rejected' && $payment->rejection_reason)
-                                                {{ $payment->rejection_reason }}
-                                            @else
-                                                <span class="text-muted">N/A</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($payment->status === 'Rejected')
-                                                <a href="{{ route('user.payment.update', $payment->id) }}" class="btn btn-sm btn-warning">Update</a>
-                                            @else
-                                                <span class="text-muted">N/A</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                                                <div class="row g-4">
+                                                    <div class="col-12">
+                                                        <div class="card border-0 shadow-sm">
+                                                            <div class="card-header bg-primary text-white">
+                                                                <h5 class="card-title mb-0">Payment History</h5>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <div class="table-responsive">
+                                                                    <table class="table table-hover table-bordered">
+                                                                        <thead class="table-light">
+                                                                            <tr>
+                                                                                <th scope="col">Slip</th>
+                                                                                <th scope="col">Uploaded At</th>
+                                                                                <th scope="col">Payment Type</th>
+                                                                                <th scope="col">Remark</th>
+                                                                                <th scope="col">Status</th>
+                                                                                <th scope="col">Rejection Reason</th>
+                                                                                <th scope="col">Action</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            @foreach ($payments as $payment)
+                                                                                                                                        <tr>
+                                                                                                                                            <td>
+                                                                                                                                                @if ($payment->payment_slip)
+                                                                                                                                                    <a href="{{ Storage::url($payment->payment_slip) }}"
+                                                                                                                                                        target="_blank"
+                                                                                                                                                        class="btn btn-sm btn-info">
+                                                                                                                                                        View Slip
+                                                                                                                                                    </a>
+                                                                                                                                                @else
+                                                                                                                                                    <span class="text-muted">Not uploaded</span>
+                                                                                                                                                @endif
+                                                                                                                                            </td>
+                                                                                                                                            <td>{{ $payment->created_at ? $payment->created_at->format('Y-m-d') : 'N/A' }}
+                                                                                                                                            </td>
+                                                                                                                                            <td>{{ $payment->payment_type ?? 'N/A' }}</td>
+                                                                                                                                            <td>{{ $payment->remark ?? 'N/A' }}</td>
+                                                                                                                                            <td>
+                                                                                                                                                <span class="badge bg-{{ 
+                                                                                                                    $payment->status === 'Approved' ? 'success' :
+                                                                                ($payment->status === 'Pending' ? 'warning' :
+                                                                                    ($payment->status === 'Rejected' ? 'danger' : 'secondary')) 
+                                                                                                                }} me-2">
+                                                                                                                                                    {{ $payment->status ?? 'Pending' }}
+                                                                                                                                                </span>
+                                                                                                                                            </td>
+                                                                                                                                            <td>
+                                                                                                                                                @if ($payment->status === 'Rejected' && $payment->rejection_reason)
+                                                                                                                                                    {{ $payment->rejection_reason }}
+                                                                                                                                                @else
+                                                                                                                                                    <span class="text-muted">N/A</span>
+                                                                                                                                                @endif
+                                                                                                                                            </td>
+                                                                                                                                            <td>
+                                                                                                                                                @if ($payment->status === 'Rejected')
+                                                                                                                                                    <a href="{{ route('user.payment.update', $payment->id) }}"
+                                                                                                                                                        class="btn btn-sm btn-warning">Update</a>
+                                                                                                                                                @else
+                                                                                                                                                    <span class="text-muted">N/A</span>
+                                                                                                                                                @endif
+                                                                                                                                            </td>
+                                                                                                                                        </tr>
+                                                                            @endforeach
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-    {{-- Always show payment request section if it exists --}}
-@if ($paymentRequest)
-    <div class="alert alert-danger alert-dismissible fade show text-center mt-4" role="alert">
-        <h5 class="alert-heading text-white">You Have a Payment Request</h5>
-        <p class="text-white">{{ $requestMessage }}</p>
-        <a href="{{ route('payment.verify') }}" class="btn btn-danger">Pay Now</a>
-        <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 mt-2 me-2" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
+                                                {{-- Always show payment request section if it exists --}}
+                                                @if ($paymentRequest)
+                                                    <div class="alert alert-danger alert-dismissible fade show text-center mt-4"
+                                                        role="alert">
+                                                        <h5 class="alert-heading text-white">You Have a Payment Request</h5>
+                                                        <p class="text-white">{{ $requestMessage }}</p>
+                                                        <a href="{{ route('payment.verify') }}" class="btn btn-danger">Pay Now</a>
+                                                        <button type="button"
+                                                            class="btn-close btn-close-white position-absolute top-0 end-0 mt-2 me-2"
+                                                            data-bs-dismiss="alert" aria-label="Close"></button>
+                                                    </div>
+                                                @endif
 
-@else
-    <div class="alert {{ $paymentRequest ? 'alert-danger' : 'alert-info' }} text-center" role="alert">
-        <h5 class="alert-heading {{ $paymentRequest ? 'text-white' : '' }}">
-            {{ $paymentRequest ? 'You Have a Payment Request' : 'No Payment Found' }}
-        </h5>
-        <p class="{{ $paymentRequest ? 'text-white' : 'text-muted' }}">
-            {{ $paymentRequest ? $requestMessage : 'Please make a payment to view your payment history.' }}
-        </p>
-        <a href="{{ route('payment.verify') }}" class="btn {{ $paymentRequest ? 'btn-danger' : 'btn-primary' }}">Pay Now</a>
-    </div>
-@endif
+                                            @else
+                                                <div class="alert {{ $paymentRequest ? 'alert-danger' : 'alert-info' }} text-center"
+                                                    role="alert">
+                                                    <h5 class="alert-heading {{ $paymentRequest ? 'text-white' : '' }}">
+                                                        {{ $paymentRequest ? 'You Have a Payment Request' : 'No Payment Found' }}
+                                                    </h5>
+                                                    <p class="{{ $paymentRequest ? 'text-white' : 'text-muted' }}">
+                                                        {{ $paymentRequest ? $requestMessage : 'Please make a payment to view your payment history.' }}
+                                                    </p>
+                                                    <a href="{{ route('payment.verify') }}"
+                                                        class="btn {{ $paymentRequest ? 'btn-danger' : 'btn-primary' }}">Pay
+                                                        Now</a>
+                                                </div>
+                                            @endif
 
                                         </div>
                                     </div>
@@ -487,7 +524,7 @@
                                     <div class="tab-pane pt-4" id="profile_setting" role="tabpanel">
                                         <div class="row">
                                             <div class="col-lg-6 col-xl-6">
-                                                <div class="card border bg-white shadow sm:rounded-lg">
+                                                <div class="card border shadow sm:rounded-lg">
                                                     <div class="card-header">
                                                         <div class="row align-items-center">
                                                             <div class="col">
@@ -572,7 +609,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 col-xl-6">
-                                                <div class="card border bg-white shadow sm:rounded-lg">
+                                                <div class="card border shadow sm:rounded-lg">
                                                     <div class="card-header">
                                                         <div class="row align-items-center">
                                                             <div class="col">
@@ -656,49 +693,49 @@
     </div>
 
     @section('scripts')
-    <!-- Include SweetAlert2 CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Include jQuery for AJAX -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <!-- Include SweetAlert2 CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <!-- Include jQuery for AJAX -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <script>
-        document.getElementById('export-pdf-btn').addEventListener('click', function() {
-            $.ajax({
-                url: '{{ route('profile.export.application') }}',
-                method: 'GET',
-                xhrFields: {
-                    responseType: 'blob'
-                },
-                success: function(data) {
-                    var a = document.createElement('a');
-                    var url = window.URL.createObjectURL(data);
-                    a.href = url;
-                    a.download = 'application_form_{{ Auth::id() }}_' + new Date().toISOString().replace(/[:.]/g, '-') + '.pdf';
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                },
-                error: function(xhr, status, error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Failed to export PDF. Please try again or contact support.'
-                    });
-                }
+        <script>
+            document.getElementById('export-pdf-btn').addEventListener('click', function () {
+                $.ajax({
+                    url: '{{ route('profile.export.application') }}',
+                    method: 'GET',
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
+                    success: function (data) {
+                        var a = document.createElement('a');
+                        var url = window.URL.createObjectURL(data);
+                        a.href = url;
+                        a.download = 'application_form_{{ Auth::id() }}_' + new Date().toISOString().replace(/[:.]/g, '-') + '.pdf';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Failed to export PDF. Please try again or contact support.'
+                        });
+                    }
+                });
             });
-        });
 
-        // Existing profile picture update function (if needed)
-        function updateProfilePicture(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    $('#profile-image').attr('src', e.target.result);
-                };
-                reader.readAsDataURL(input.files[0]);
+            // Existing profile picture update function (if needed)
+            function updateProfilePicture(input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#profile-image').attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
             }
-        }
-    </script>
+        </script>
     @endsection
 @endsection

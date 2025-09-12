@@ -304,9 +304,9 @@
 
 <!-- Mentor Name -->
 <div class="mb-3">
-    <label for="mentor_name" class="form-label">Mentor Name </label>
+    <label for="mentor_name" class="form-label">Coordinator Name </label>
     <select class="form-select" id="mentor_name" name="mentor_name" required>
-        <option value="" disabled {{ !old('mentor_name', $application->mentor_name ?? '') ? 'selected' : '' }}>-- Select Mentor --</option>
+        <option value="" disabled {{ !old('mentor_name', $application->mentor_name ?? '') ? 'selected' : '' }}>-- Select Coordinator --</option>
         @foreach([
             'Wijeneka Mudalige Harshani Ruwanthika',
             'Nethmi Nisansala',
