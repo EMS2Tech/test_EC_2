@@ -63,10 +63,6 @@
                                                 <label class="form-label fw-semibold">Passport Number</label>
                                                 <p class="mb-0 text-muted">{{ $student->application && $student->application->passport_number ? $student->application->passport_number : 'N/A' }}</p>
                                             </div>
-                                            <div class="col-md-12 mb-3">
-                                                <label class="form-label fw-semibold">Address</label>
-                                                <p class="mb-0 text-muted">{{ $student->application ? $student->application->address : 'N/A' }}</p>
-                                            </div>
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label fw-semibold">Contact Number</label>
                                                 <p class="mb-0 text-muted">{{ $student->application ? $student->application->contact_number : 'N/A' }}</p>
@@ -76,8 +72,20 @@
                                                 <p class="mb-0 text-muted">{{ $student->application ? $student->application->whatsapp_number : 'N/A' }}</p>
                                             </div>
                                             <div class="col-md-6 mb-3">
+                                                <label class="form-label fw-semibold">Home Phone</label>
+                                                <p class="mb-0 text-muted">{{ $student->application ? $student->application->home_number : 'N/A' }}</p>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
                                                 <label class="form-label fw-semibold">Email</label>
                                                 <p class="mb-0 text-muted">{{ $student->application ? $student->application->email_address : ($student->user->email ?? 'N/A') }}</p>
+                                            </div>
+                                            <div class="col-md-12 mb-3">
+                                                <label class="form-label fw-semibold">Address</label>
+                                                <p class="mb-0 text-muted">{{ $student->application ? $student->application->address : 'N/A' }}</p>
+                                            </div>
+                                            <div class="col-md-12 mb-3">
+                                                <label class="form-label fw-semibold">Mentor Name</label>
+                                                <p class="mb-0 text-muted">{{ $student->application ? $student->application->mentor_name : 'N/A' }}</p>
                                             </div>
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label fw-semibold">Application Status</label>
@@ -85,6 +93,7 @@
                                                     {{ $student->application ? $student->application->status : 'N/A' }}
                                                 </span>
                                             </div>
+                                            
                                             @if ($student->application && $student->application->rejection_reason)
                                                 <div class="col-md-12 mb-3">
                                                     <label class="form-label fw-semibold">Rejection Reason</label>
