@@ -22,7 +22,7 @@ class User extends Authenticatable
     ];
 
     protected $attributes = [
-        'type' => 'student', // Changed default to 'student' for new users, adjust as needed
+        'type' => 'user', 
     ];
 
     protected $hidden = [
@@ -49,9 +49,9 @@ class User extends Authenticatable
         return $this->type === 'admin';
     }
 
-    public function isStudent(): bool
+    public function isUser(): bool
     {
-        return $this->type === 'student';
+        return $this->type === 'user';
     }
 
     public function isManager(): bool

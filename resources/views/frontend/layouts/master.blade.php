@@ -47,6 +47,8 @@
                 @include('frontend.layouts.financesidebar')
             @elseif (Auth::user()->isCourseManager())
                 @include('frontend.layouts.coursesidebar')
+            @elseif (Auth::user()->isFrontManager())
+                @include('frontend.layouts.frontsidebar')
             @else
                 @include('frontend.layouts.sidebar')
             @endif

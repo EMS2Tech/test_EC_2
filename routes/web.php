@@ -33,27 +33,18 @@ Route::middleware('auth')->group(function () {
             'admin' => route('admin.dashboard'),
             'student' => Application::where('user_id', $user->id)->value('application_completed') ? route('profile.edit') : route('user.dashboard'),
             'manager' => route('manager.dashboard'),
-            default => route('user.dashboard'),
+            default => route('profile.edit'),
         } : route('login');
         Redirect::setIntendedUrl($intendedRoute);
         return view('auth.lock-screen');
     })->name('lock-screen');
 
     // Apply middleware class directly
-    Route::get('/admin/dashboard', [AdminController::class, 'index'])
-        ->name('admin.dashboard')
-        ->middleware(RestrictType::class . ':admin');
-    Route::get('/admin/applications', [AdminController::class, 'applications'])
-        ->name('admin.applications')
-        ->middleware(RestrictType::class . ':admin');
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard')->middleware(RestrictType::class . ':admin');
 
-    Route::get('/student/application', function () {
-        return view('frontend.application');
-    })->name('user.dashboard')->middleware(RestrictType::class . ':student');
+    Route::get('/student/application', function () {return view('frontend.application');})->name('user.dashboard')->middleware(RestrictType::class . ':student');
 
-    Route::get('/manager/dashboard', function () {
-        return view('dashboards.manager');
-    })->name('manager.dashboard');
+    Route::get('/manager/dashboard', function () {return view('dashboards.manager');})->name('manager.dashboard');
 
     Route::get('/application', [ApplicationController::class, 'create'])->name('application.create');
     Route::post('/application', [ApplicationController::class, 'store'])->name('application.store');
@@ -65,38 +56,21 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/admin/get-courses', [AdminController::class, 'getCourses'])->name('admin.getCourses');
     Route::get('/admin/get-batches', [AdminController::class, 'getBatches'])->name('admin.getBatches');
-    
-
-    // View application details
-    Route::get('/admin/application/{id}/view', [AdminController::class, 'viewApplicationDetails'])->name('admin.application.details')->middleware(RestrictType::class . ':admin');
-
-    // Update application status
-    Route::put('/admin/application/{id}/update-status', [AdminController::class, 'updateApplicationStatus'])->name('admin.application.update-status')->middleware(RestrictType::class . ':admin');
-
+      
     Route::get('/course-apply', [CourseApplicationController::class, 'create'])->name('course-application.create');
     Route::post('/course-apply', [CourseApplicationController::class, 'store'])->name('course-application.store');
     Route::put('/user/courseapplication/update-documents', [CourseApplicationController::class, 'userUpdateDocuments'])->name('user.courseapplication.update.documents')->middleware('auth');
 
     // Admin only pages route
     Route::middleware(['auth', RestrictType::class . ':admin'])->group(function () {
-        
-
-        Route::get('/course-applications', [AdminController::class, 'courseApplications'])->name('admin.course.applications');
-        Route::get('/admin/course/applications/export', [AdminController::class, 'export'])->name('admin.course.applications.export');
-        // New routes for course application management
-        Route::get('/admin/courseapplication/{id}/view', [CourseApplicationController::class, 'view'])->name('admin.courseapplication.view');
-        Route::put('/admin/courseapplication/{id}/update-status', [CourseApplicationController::class, 'updateStatus'])->name('admin.courseapplication.update.status');
-       
         Route::get('/admin/students', [AdminController::class, 'studentsIndex'])->name('admin.students.index');
         Route::get('/admin/students/{id}', [AdminController::class, 'studentDetails'])->name('admin.student.details');
         Route::get('/admin/students/export', [AdminController::class, 'studentsExport'])->name('admin.students.export');
 
-    
-
-    Route::get('/add-manager', [AdminController::class, 'showAddManagerForm'])->name('admin.manager.add');
-    Route::post('/manager/store', [AdminController::class, 'storeManager'])->name('admin.manager.store');
-    Route::delete('/manager/{id}/delete', [AdminController::class, 'deleteManager'])->name('admin.manager.delete');
-        });
+        Route::get('/add-manager', [AdminController::class, 'showAddManagerForm'])->name('admin.manager.add');
+        Route::post('/manager/store', [AdminController::class, 'storeManager'])->name('admin.manager.store');
+        Route::delete('/manager/{id}/delete', [AdminController::class, 'deleteManager'])->name('admin.manager.delete');
+    });
 
     // Finance Manager and Admin
     Route::middleware(['auth', RestrictType::class . ':admin,finance_manager'])->group(function () {
@@ -139,6 +113,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/subjects/{id}/edit', [SubjectController::class, 'edit'])->name('subjects.edit');
         Route::delete('/subjects/{id}', [SubjectController::class, 'destroy'])->name('subjects.destroy');
         Route::patch('/subjects/{id}', [SubjectController::class, 'update'])->name('subjects.update');
+    });
+
+    // Front Manager and Admin
+    Route::middleware(['auth', RestrictType::class . ':admin,front_manager'])->group(function () {
+        Route::get('/course-applications', [AdminController::class, 'courseApplications'])->name('admin.course.applications');
+        Route::get('/admin/course/applications/export', [AdminController::class, 'export'])->name('admin.course.applications.export');
+        Route::get('/admin/courseapplication/{id}/view', [CourseApplicationController::class, 'view'])->name('admin.courseapplication.view');
+        Route::put('/admin/courseapplication/{id}/update-status', [CourseApplicationController::class, 'updateStatus'])->name('admin.courseapplication.update.status');
+
+        Route::get('/admin/applications', [AdminController::class, 'applications'])->name('admin.applications');
+        Route::get('/admin/application/{id}/view', [AdminController::class, 'viewApplicationDetails'])->name('admin.application.details');
+        Route::put('/admin/application/{id}/update-status', [AdminController::class, 'updateApplicationStatus'])->name('admin.application.update-status');
     });
        
 });
