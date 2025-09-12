@@ -63,7 +63,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/payment/{id}/update', [PaymentController::class, 'showUpdateForm'])->name('user.payment.update');
     Route::post('/user/payment/{id}/update', [PaymentController::class, 'updateUserPayment'])->name('user.payment.update.post');
 
-
+    Route::get('/admin/get-courses', [AdminController::class, 'getCourses'])->name('admin.getCourses');
+    Route::get('/admin/get-batches', [AdminController::class, 'getBatches'])->name('admin.getBatches');
     
 
     // View application details
@@ -78,33 +79,10 @@ Route::middleware('auth')->group(function () {
 
     // Admin only pages route
     Route::middleware(['auth', RestrictType::class . ':admin'])->group(function () {
-        Route::get('/add-studyprogram', [StudyProgramController::class, 'index'])->name('admin.add-studyprogram');
-        Route::post('/study-programs', [StudyProgramController::class, 'store'])->name('study-programs.store');
-        Route::get('/study-programs/{id}/edit', [StudyProgramController::class, 'edit'])->name('study-programs.edit');
-        Route::delete('/study-programs/{id}', [StudyProgramController::class, 'destroy'])->name('study-programs.destroy');
-        Route::patch('/study-programs/{id}', [StudyProgramController::class, 'update'])->name('study-programs.update');
-
-        Route::get('/add-course', [CourseController::class, 'index'])->name('admin.add-course');
-        Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
-        Route::get('/courses/{id}/edit', [CourseController::class, 'edit'])->name('courses.edit');
-        Route::delete('/courses/{id}', [CourseController::class, 'destroy'])->name('courses.destroy');
-        Route::patch('/courses/{id}', [CourseController::class, 'update'])->name('courses.update');
-
-        Route::get('/add-batch', [BatchController::class, 'index'])->name('admin.add-batch');
-        Route::post('/batches', [BatchController::class, 'store'])->name('batches.store');
-        Route::get('/batches/{id}/edit', [BatchController::class, 'edit'])->name('batches.edit');
-        Route::delete('/batches/{id}', [BatchController::class, 'destroy'])->name('batches.destroy');
-        Route::patch('/batches/{id}', [BatchController::class, 'update'])->name('batches.update');
+        
 
         Route::get('/course-applications', [AdminController::class, 'courseApplications'])->name('admin.course.applications');
         Route::get('/admin/course/applications/export', [AdminController::class, 'export'])->name('admin.course.applications.export');
-
-        Route::get('/add-subject', [SubjectController::class, 'index'])->name('admin.add-subject');
-        Route::post('/subjects', [SubjectController::class, 'store'])->name('subjects.store');
-        Route::get('/subjects/{id}/edit', [SubjectController::class, 'edit'])->name('subjects.edit');
-        Route::delete('/subjects/{id}', [SubjectController::class, 'destroy'])->name('subjects.destroy');
-        Route::patch('/subjects/{id}', [SubjectController::class, 'update'])->name('subjects.update');
-
         // New routes for course application management
         Route::get('/admin/courseapplication/{id}/view', [CourseApplicationController::class, 'view'])->name('admin.courseapplication.view');
         Route::put('/admin/courseapplication/{id}/update-status', [CourseApplicationController::class, 'updateStatus'])->name('admin.courseapplication.update.status');
@@ -113,8 +91,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/students/{id}', [AdminController::class, 'studentDetails'])->name('admin.student.details');
         Route::get('/admin/students/export', [AdminController::class, 'studentsExport'])->name('admin.students.export');
 
-    Route::get('/admin/get-courses', [AdminController::class, 'getCourses'])->name('admin.getCourses');
-    Route::get('/admin/get-batches', [AdminController::class, 'getBatches'])->name('admin.getBatches');
+    
 
     Route::get('/add-manager', [AdminController::class, 'showAddManagerForm'])->name('admin.manager.add');
     Route::post('/manager/store', [AdminController::class, 'storeManager'])->name('admin.manager.store');
@@ -136,7 +113,33 @@ Route::middleware('auth')->group(function () {
         // Admin payment status update
         Route::post('/admin/payment/{userId}/status', [AdminController::class, 'updatePaymentStatus'])->name('admin.payment.status');
     });
-        
+       
+    // Course Manager and Admin
+    Route::middleware(['auth', RestrictType::class . ':admin,course_manager'])->group(function () {
+        Route::get('/add-studyprogram', [StudyProgramController::class, 'index'])->name('admin.add-studyprogram');
+        Route::post('/study-programs', [StudyProgramController::class, 'store'])->name('study-programs.store');
+        Route::get('/study-programs/{id}/edit', [StudyProgramController::class, 'edit'])->name('study-programs.edit');
+        Route::delete('/study-programs/{id}', [StudyProgramController::class, 'destroy'])->name('study-programs.destroy');
+        Route::patch('/study-programs/{id}', [StudyProgramController::class, 'update'])->name('study-programs.update');
+
+        Route::get('/add-course', [CourseController::class, 'index'])->name('admin.add-course');
+        Route::post('/courses', [CourseController::class, 'store'])->name('courses.store');
+        Route::get('/courses/{id}/edit', [CourseController::class, 'edit'])->name('courses.edit');
+        Route::delete('/courses/{id}', [CourseController::class, 'destroy'])->name('courses.destroy');
+        Route::patch('/courses/{id}', [CourseController::class, 'update'])->name('courses.update');
+
+        Route::get('/add-batch', [BatchController::class, 'index'])->name('admin.add-batch');
+        Route::post('/batches', [BatchController::class, 'store'])->name('batches.store');
+        Route::get('/batches/{id}/edit', [BatchController::class, 'edit'])->name('batches.edit');
+        Route::delete('/batches/{id}', [BatchController::class, 'destroy'])->name('batches.destroy');
+        Route::patch('/batches/{id}', [BatchController::class, 'update'])->name('batches.update');
+
+        Route::get('/add-subject', [SubjectController::class, 'index'])->name('admin.add-subject');
+        Route::post('/subjects', [SubjectController::class, 'store'])->name('subjects.store');
+        Route::get('/subjects/{id}/edit', [SubjectController::class, 'edit'])->name('subjects.edit');
+        Route::delete('/subjects/{id}', [SubjectController::class, 'destroy'])->name('subjects.destroy');
+        Route::patch('/subjects/{id}', [SubjectController::class, 'update'])->name('subjects.update');
+    });
        
 });
 
