@@ -11,9 +11,11 @@
                         <h4 class="fs-18 fw-semibold m-0">Profile</h4>
                     </div>
                     <div class="mt-2 mt-sm-0">
+                        @if(auth()->user()->type === 'student')
                         <button id="export-pdf-btn" class="btn btn-primary">
                             <i class="mdi mdi-file-pdf-box me-1"></i> Export as PDF
                         </button>
+                        @endif
                     </div>
                 </div>
 
@@ -28,9 +30,11 @@
                                                 class="rounded-circle img-fluid avatar-xxl img-thumbnail float-start"
                                                 alt="image profile"
                                                 id="profile-image">
+                                            @if(auth()->user()->type === 'student')
                                             <span class="sil-profile_main-pic-change img-thumbnail" onclick="document.getElementById('photograph-input').click();">
                                                 <i class="mdi mdi-camera text-white"></i>
                                             </span>
+                                            @endif
                                             <input type="file" id="photograph-input" name="photograph" accept="image/*" style="display: none;" onchange="updateProfilePicture(this)">
                                         </div>
                                         <div class="overflow-hidden ms-md-4 ms-0">
@@ -51,35 +55,38 @@
                         <div class="card shadow sm:rounded-lg">
                             <div class="card-body pt-0">
                                 <ul class="nav nav-underline border-bottom pt-2" id="pills-tab" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <a class="nav-link active p-2" id="profile_about_tab" data-bs-toggle="tab"
-                                            href="#profile_about" role="tab">
-                                            <span class="d-block d-sm-none"><i class="mdi mdi-information"></i></span>
-                                            <span class="d-none d-sm-block">About</span>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link p-2" id="portfolio_education_tab" data-bs-toggle="tab"
-                                            href="#profile_education" role="tab">
-                                            <span class="d-block d-sm-none"><i class="mdi mdi-school"></i></span>
-                                            <span class="d-none d-sm-block">Education</span>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link p-2" id="portfolio_payment_tab" data-bs-toggle="tab"
-                                            href="#profile_payment" role="tab">
-                                            <span class="d-block d-sm-none"><i class="mdi mdi-school"></i></span>
-                                            <span class="d-none d-sm-block">Payment</span>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link p-2" id="setting_tab" data-bs-toggle="tab"
-                                            href="#profile_setting" role="tab">
-                                            <span class="d-block d-sm-none"><i class="mdi mdi-information"></i></span>
-                                            <span class="d-none d-sm-block">Setting</span>
-                                        </a>
-                                    </li>
-                                </ul>
+    @if(auth()->user()->type === 'student')
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active p-2" id="profile_about_tab" data-bs-toggle="tab"
+                href="#profile_about" role="tab">
+                <span class="d-block d-sm-none"><i class="mdi mdi-information"></i></span>
+                <span class="d-none d-sm-block">About</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link p-2" id="portfolio_education_tab" data-bs-toggle="tab"
+                href="#profile_education" role="tab">
+                <span class="d-block d-sm-none"><i class="mdi mdi-school"></i></span>
+                <span class="d-none d-sm-block">Education</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link p-2" id="portfolio_payment_tab" data-bs-toggle="tab"
+                href="#profile_payment" role="tab">
+                <span class="d-block d-sm-none"><i class="mdi mdi-school"></i></span>
+                <span class="d-none d-sm-block">Payment</span>
+            </a>
+        </li>
+    @endif
+
+    <li class="nav-item">
+        <a class="nav-link p-2" id="setting_tab" data-bs-toggle="tab"
+            href="#profile_setting" role="tab">
+            <span class="d-block d-sm-none"><i class="mdi mdi-information"></i></span>
+            <span class="d-none d-sm-block">Setting</span>
+        </a>
+    </li>
+</ul>
 
                                 <div class="tab-content text-muted">
                                     <div class="tab-pane active show pt-4" id="profile_about" role="tabpanel">
@@ -238,13 +245,16 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            @else
-                                                <div class="alert alert-info text-center" role="alert">
-                                                    <h5 class="alert-heading">No Application Found</h5>
-                                                    <p>Please complete your application to view your profile details.</p>
-                                                    <a href="{{ route('user.dashboard') }}" class="btn btn-primary">Complete
-                                                        Application</a>
-                                                </div>
+                                           @else
+                                                @if(auth()->user()->type === 'student')
+                                                    <div class="alert alert-info text-center" role="alert">
+                                                        <h5 class="alert-heading">No Application Found</h5>
+                                                        <p>Please complete your application to view your profile details.</p>
+                                                        <a href="{{ route('user.dashboard') }}" class="btn btn-primary">
+                                                            Complete Application
+                                                        </a>
+                                                    </div>
+                                                @endif
                                             @endif
                                         </div>
                                     </div>

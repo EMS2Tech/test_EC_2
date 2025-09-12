@@ -64,8 +64,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/user/payment/{id}/update', [PaymentController::class, 'updateUserPayment'])->name('user.payment.update.post');
 
 
-    // Admin payment status update
-    Route::post('/admin/payment/{userId}/status', [AdminController::class, 'updatePaymentStatus'])->name('admin.payment.status')->middleware(RestrictType::class . ':admin');
+    
 
     // View application details
     Route::get('/admin/application/{id}/view', [AdminController::class, 'viewApplicationDetails'])->name('admin.application.details')->middleware(RestrictType::class . ':admin');
@@ -77,7 +76,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/course-apply', [CourseApplicationController::class, 'store'])->name('course-application.store');
     Route::put('/user/courseapplication/update-documents', [CourseApplicationController::class, 'userUpdateDocuments'])->name('user.courseapplication.update.documents')->middleware('auth');
 
-    // Admin pages route
+    // Admin only pages route
     Route::middleware(['auth', RestrictType::class . ':admin'])->group(function () {
         Route::get('/add-studyprogram', [StudyProgramController::class, 'index'])->name('admin.add-studyprogram');
         Route::post('/study-programs', [StudyProgramController::class, 'store'])->name('study-programs.store');
@@ -109,27 +108,38 @@ Route::middleware('auth')->group(function () {
         // New routes for course application management
         Route::get('/admin/courseapplication/{id}/view', [CourseApplicationController::class, 'view'])->name('admin.courseapplication.view');
         Route::put('/admin/courseapplication/{id}/update-status', [CourseApplicationController::class, 'updateStatus'])->name('admin.courseapplication.update.status');
+       
+        Route::get('/admin/students', [AdminController::class, 'studentsIndex'])->name('admin.students.index');
+        Route::get('/admin/students/{id}', [AdminController::class, 'studentDetails'])->name('admin.student.details');
+        Route::get('/admin/students/export', [AdminController::class, 'studentsExport'])->name('admin.students.export');
 
+    Route::get('/admin/get-courses', [AdminController::class, 'getCourses'])->name('admin.getCourses');
+    Route::get('/admin/get-batches', [AdminController::class, 'getBatches'])->name('admin.getBatches');
+
+    Route::get('/add-manager', [AdminController::class, 'showAddManagerForm'])->name('admin.manager.add');
+    Route::post('/manager/store', [AdminController::class, 'storeManager'])->name('admin.manager.store');
+    Route::delete('/manager/{id}/delete', [AdminController::class, 'deleteManager'])->name('admin.manager.delete');
+        });
+
+    // Finance Manager and Admin
+    Route::middleware(['auth', RestrictType::class . ':admin,finance_manager'])->group(function () {
         Route::get('/admin/payment/manage', [PaymentController::class, 'manage'])->name('admin.payment.manage');
         Route::get('/admin/payment/{id}/details', [PaymentController::class, 'details'])->name('admin.payment.details');
         Route::put('/admin/payment/{id}/update', [PaymentController::class, 'update'])->name('admin.payment.update');
         Route::get('/admin/payment/export', [PaymentController::class, 'export'])->name('admin.payment.export');
 
-
-        Route::get('/admin/students', [AdminController::class, 'studentsIndex'])->name('admin.students.index');
-        Route::get('/admin/students/{id}', [AdminController::class, 'studentDetails'])->name('admin.student.details');
-        Route::get('/admin/students/export', [AdminController::class, 'studentsExport'])->name('admin.students.export');
-
-
-
         // Payment Request
-    Route::get('/admin/payment/request', [AdminController::class, 'showPaymentRequestForm'])->name('admin.payment.request');
-    Route::post('/admin/payment/request/send', [AdminController::class, 'sendPaymentRequest'])->name('admin.payment.request.send');
-    Route::get('/admin/get-batches/{course_id}', [AdminController::class, 'getBatches'])->name('admin.get.batches');
+        Route::get('/admin/payment/request', [AdminController::class, 'showPaymentRequestForm'])->name('admin.payment.request');
+        Route::post('/admin/payment/request/send', [AdminController::class, 'sendPaymentRequest'])->name('admin.payment.request.send');
+        Route::get('/admin/get-batches/{course_id}', [AdminController::class, 'getBatches'])->name('admin.get.batches');
 
-    Route::get('/admin/get-courses', [AdminController::class, 'getCourses'])->name('admin.getCourses');
-Route::get('/admin/get-batches', [AdminController::class, 'getBatches'])->name('admin.getBatches');
-        });
+        // Admin payment status update
+        Route::post('/admin/payment/{userId}/status', [AdminController::class, 'updatePaymentStatus'])->name('admin.payment.status');
+    });
+        
+       
 });
+
+ 
 
 require __DIR__.'/auth.php';

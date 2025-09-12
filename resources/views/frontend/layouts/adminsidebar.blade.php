@@ -41,9 +41,6 @@
                     <div class="collapse" id="sidebarCourse">
                         <ul class="nav-second-level">
                             <li>
-                                <a class='tp-link' href='/course-applications'>Course Applications</a>
-                            </li>
-                            <li>
                                 <a class='tp-link' href='/add-studyprogram'>Study Program</a>
                             </li>
                             <li>
@@ -60,11 +57,21 @@
                 </li>
 
                 <li>
-                    <a href="/admin/applications">
+                    <a href="#sidebarApplication" data-bs-toggle="collapse">
                         <i data-feather="file-text"></i>
-                        <span> Application </span>
+                        <span> Applications </span>
+                        <span class="menu-arrow"></span>
                     </a>
-                    <div class="collapse" id="sidebarDashboards"> </div>
+                    <div class="collapse" id="sidebarApplication">
+                        <ul class="nav-second-level">
+                            <li>
+                                <a class='tp-link' href='/admin/applications'>Reg Application</a>
+                            </li>
+                            <li>
+                                <a class='tp-link' href='/course-applications'>Course Application</a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
 
                 <li>

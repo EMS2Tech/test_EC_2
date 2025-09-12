@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RestrictType
 {
-    public function handle(Request $request, Closure $next, string $type): Response
+    public function handle(Request $request, Closure $next, ...$types): Response
     {
         if (!Auth::check()) {
             return redirect()->route('login');
@@ -17,8 +17,9 @@ class RestrictType
 
         $user = Auth::user();
 
-        if ($user->type !== $type) {
-          abort(403, 'You do not have permission to access this page.');
+        // Check if the user's type is in the allowed list
+        if (!in_array($user->type, $types)) {
+            abort(403, 'You do not have permission to access this page.');
         }
 
         return $next($request);

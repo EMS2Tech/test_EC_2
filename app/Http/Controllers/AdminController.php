@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -511,5 +512,43 @@ public function getBatches(Request $request)
     $batches = Batch::where('course_id', $courseId)->get(['id', 'batch_no']);
     return response()->json(['batches' => $batches]);
 }
+
+public function showAddManagerForm()
+    {
+        $managers = User::whereIn('type', ['manager', 'finance_manager', 'course_manager', 'front_manager'])->get();
+        return view('frontend.addmanager', compact('managers'));
+    }
+
+    public function storeManager(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email|max:255',
+            'password' => 'required|string|min:8|confirmed',
+            'type' => 'required|in:finance_manager,course_manager,front_manager',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'type' => $request->type,
+        ]);
+
+        return redirect()->route('admin.manager.add')->with('success', 'Manager added successfully.');
+    }
+
+    public function deleteManager($id)
+    {
+        $user = User::findOrFail($id);
+
+        if (!in_array($user->type, ['manager', 'finance_manager', 'course_manager', 'front_manager'])) {
+            return redirect()->route('admin.manager.add')->with('error', 'Cannot delete this user type.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('admin.manager.add')->with('success', 'Manager deleted successfully.');
+    }
 
 }

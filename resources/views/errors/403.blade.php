@@ -98,7 +98,7 @@
             'admin' => 'admin.dashboard',
             'user' => 'user.dashboard',
             'manager' => 'manager.dashboard',
-            default => 'user.dashboard',
+            default => 'profile.edit',
         }) : route('login') }}" class="btn btn-go-back">
             {{ Auth::check() ? 'Go to Dashboard' : 'Login' }}
         </a>

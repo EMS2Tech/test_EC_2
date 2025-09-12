@@ -30,15 +30,21 @@
     <div id="app-layout">
 
         <!-- Topbar Start -->
+@if (Auth::check())
+    @if (Auth::user()->isAdmin())
+        @include('frontend.layouts.admintopbar')
+    @else
         @include('frontend.layouts.topbar')
-        <!-- end Topbar -->
+    @endif
+@endif
+<!-- end Topbar -->
 
         <!-- Left Sidebar Start -->
         @if (Auth::check())
             @if (Auth::user()->isAdmin())
                 @include('frontend.layouts.adminsidebar')
-            @elseif (Auth::user()->isManager())
-                @include('frontend.layouts.managersidebar')
+            @elseif (Auth::user()->isFinanceManager())
+                @include('frontend.layouts.financesidebar')
             @else
                 @include('frontend.layouts.sidebar')
             @endif
