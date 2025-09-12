@@ -22,7 +22,7 @@ class User extends Authenticatable
     ];
 
     protected $attributes = [
-        'type' => 'user',
+        'type' => 'student', // Changed default to 'student' for new users, adjust as needed
     ];
 
     protected $hidden = [
@@ -40,14 +40,18 @@ class User extends Authenticatable
         ];
     }
 
+    // Define all possible user types
+    public static $userTypes = ['student', 'admin', 'manager', 'finance_manager', 'course_manager', 'front_manager'];
+
+    // Check methods for all user types
     public function isAdmin(): bool
     {
         return $this->type === 'admin';
     }
 
-    public function isUser(): bool
+    public function isStudent(): bool
     {
-        return $this->type === 'user';
+        return $this->type === 'student';
     }
 
     public function isManager(): bool
@@ -55,6 +59,22 @@ class User extends Authenticatable
         return $this->type === 'manager';
     }
 
+    public function isFinanceManager(): bool
+    {
+        return $this->type === 'finance_manager';
+    }
+
+    public function isCourseManager(): bool
+    {
+        return $this->type === 'course_manager';
+    }
+
+    public function isFrontManager(): bool
+    {
+        return $this->type === 'front_manager';
+    }
+
+    // Relationships
     public function application()
     {
         return $this->hasOne(Application::class);

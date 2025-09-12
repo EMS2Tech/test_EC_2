@@ -42,6 +42,9 @@ class AuthenticatedSessionController extends Controller
             'admin' => route('admin.dashboard'),
             'student' => $applicationCompleted ? route('profile.edit') : route('user.dashboard'),
             'manager' => route('manager.dashboard'),
+            'finance_manager' => route('profile.edit'),
+            'front_manager' => route('profile.edit'),
+            'course_manager' => route('profile.edit'),
             default => route('user.dashboard'),
         };
 
