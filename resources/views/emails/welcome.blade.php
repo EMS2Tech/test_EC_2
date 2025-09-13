@@ -13,7 +13,7 @@
             <a href="{{ route('login') }}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Log In Now</a>
         </p>
         <p>If you have any questions, feel free to contact our support team.</p>
-        <p>Best regards,<br>Support Team <br>Eurasian Campus</p>
+        <p>Best regards,<br>Support Team,<br>Eurasian Campus.</p>
     </div>
     <div class="footer">
             <p>&copy; {{ date('Y') }} Eurasian Campus. All rights reserved.</p>

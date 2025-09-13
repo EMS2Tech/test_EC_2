@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Mail\RegistrationApplicationStatus;
+use Illuminate\Support\Facades\Mail;
 
 class AdminController extends Controller
 {
@@ -222,36 +224,46 @@ class AdminController extends Controller
     }
 
     public function updateApplicationStatus(Request $request, $id)
-{
-    $request->validate([
-        'status' => 'required|in:Approved,Rejected',
-        'reason' => 'required_if:status,Rejected|string|max:500',
-    ]);
+    {
+        $request->validate([
+            'status' => 'required|in:Approved,Rejected',
+            'reason' => 'required_if:status,Rejected|string|max:500',
+        ]);
 
-    $application = Application::where('id', $id)->orWhere('user_id', $id)->firstOrFail();
+        $application = Application::where('id', $id)->orWhere('user_id', $id)->firstOrFail();
 
-    $application->status = $request->status;
-    if ($request->status === 'Rejected') {
-        $application->rejection_reason = $request->reason;
-    } else {
-        $application->rejection_reason = null; // Clear rejection reason on approval
+        $application->status = $request->status;
+        if ($request->status === 'Rejected') {
+            $application->rejection_reason = $request->reason;
+        } else {
+            $application->rejection_reason = null; // Clear rejection reason on approval
+        }
+
+        // Set the admin who updated the status
+        $application->updated_by = Auth::id();
+
+        $application->save();
+
+        Log::info('Application status updated', [
+            'application_id' => $application->id,
+            'user_id' => $application->user_id,
+            'status' => $application->status,
+            'rejection_reason' => $application->rejection_reason,
+            'updated_by' => $application->updated_by,
+        ]);
+
+        // Send email notification
+        if (in_array($request->status, ['Approved', 'Rejected'])) {
+            Mail::to($application->user->email)->send(new RegistrationApplicationStatus($application, $request->status));
+            Log::info('Email notification sent for registration application status update', [
+                'application_id' => $application->id,
+                'user_email' => $application->user->email,
+                'status' => $request->status,
+            ]);
+        }
+
+        return redirect()->route('admin.applications')->with('success', 'Application status updated successfully.');
     }
-
-    // Set the admin who updated the status
-    $application->updated_by = Auth::id();
-
-    $application->save();
-
-    Log::info('Application status updated', [
-        'application_id' => $application->id,
-        'user_id' => $application->user_id,
-        'status' => $application->status,
-        'rejection_reason' => $application->rejection_reason,
-        'updated_by' => $application->updated_by,
-    ]);
-
-    return redirect()->back()->with('success', 'Application status updated successfully.');
-}
 
 
 
@@ -526,9 +538,5 @@ public function showAddManagerForm()
         return redirect()->route('admin.manager.add')->with('success', 'Manager deleted successfully.');
     }
 
-    public function dashboard()
-    {
-        
-    }
 
 }

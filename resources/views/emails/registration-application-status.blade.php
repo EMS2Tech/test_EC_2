@@ -19,7 +19,7 @@
         </div>
         <div class="content">
             <h3>Hello {{ $userName }},</h3>
-            <p>Your course application for <strong>{{ $programName }}</strong> - <strong>{{ $courseName }}</strong> has been {{ strtolower($status) }}.</p>
+            <p>Your registration application for <strong>{{ $fullName }}</strong> has been {{ strtolower($status) }}.</p>
             @if ($reason)
                 <p><strong>Reason for Rejection:</strong> {{ $reason }}</p>
             @endif

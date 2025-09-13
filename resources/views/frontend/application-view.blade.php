@@ -225,6 +225,7 @@
         </div>
     </div>
 
+    @section('scripts')
     <script>
     function loadFile(src, containerId) {
         const container = document.getElementById(containerId);
@@ -279,4 +280,5 @@
     }
 </script>
 
+@endsection
 @endsection
