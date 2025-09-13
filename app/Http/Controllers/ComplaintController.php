@@ -11,11 +11,11 @@ use Illuminate\Support\Facades\Log;
 class ComplaintController extends Controller
 {
     public function index()
-    {
-        $complaints = Complaint::with(['reportedBy', 'application'])->get();
+{
+    $complaints = Complaint::with('reportedBy')->get();
 
-        return view('frontend.complaints_list', compact('complaints'));
-    }
+    return view('frontend.complaints_list', compact('complaints'));
+}
 
     public function create()
     {

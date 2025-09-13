@@ -31,11 +31,12 @@ class Complaint extends Model
     }
 
     /**
-     * Get the associated application.
+     * Get the associated application based on nic_number or passport_number.
      */
-    public function application()
+    public function getApplicationAttribute()
     {
-        return $this->belongsTo(Application::class, 'nic_number', 'nic_number')
-                    ->orWhere('passport_number', $this->nic_number);
+        return Application::where('nic_number', $this->nic_number)
+                         ->orWhere('passport_number', $this->nic_number)
+                         ->first();
     }
 }
