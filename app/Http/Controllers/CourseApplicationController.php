@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\DB;
+use App\Mail\CourseApplicationStatus;
+use Illuminate\Support\Facades\Mail;
 
 class CourseApplicationController extends Controller
 {
@@ -135,67 +137,77 @@ class CourseApplicationController extends Controller
     }
 
     public function updateStatus(Request $request, $id)
-{
-    $courseApplication = CourseApplication::findOrFail($id);
-    $status = $request->input('status');
-    $reason = $request->input('reason');
+    {
+        $courseApplication = CourseApplication::findOrFail($id);
+        $status = $request->input('status');
+        $reason = $request->input('reason');
 
-    $courseApplication->status = $status;
-    if ($status === 'Rejected' && $reason) {
-        $courseApplication->rejection_reason = $reason;
-    } elseif ($status === 'Rejected' && !$reason) {
-        return redirect()->back()->with('error', 'Rejection reason is required when rejecting an application.');
-    } elseif ($status === 'Pending') {
-        // If status is set to Pending manually by admin (e.g., for review), retain rejection reason
-        if ($courseApplication->rejection_reason) {
-            $courseApplication->rejection_reason = $courseApplication->rejection_reason; // Keep existing reason
-        }
-    } else {
-        $courseApplication->rejection_reason = null; // Clear reason for Approved
-    }
-
-    // Set the admin who updated the status
-    $courseApplication->updated_by = Auth::id();
-
-    $courseApplication->save();
-
-    if ($status === 'Approved') {
-        $userId = $courseApplication->user_id;
-        $existingStudent = Student::where('user_id', $userId)->first();
-
-        if (!$existingStudent) {
-            $application = Application::where('user_id', $userId)->first();
-            $course = Course::find($courseApplication->course_id);
-            $batch = $course->batches()->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
-            $fullName = $application->full_name ?? 'Unknown';
-            $shortName = $course->short_name;
-            $batchNo = $batch ? $batch->batch_no : '01';
-            $currentYear = date('Y');
-            $applicationNo = $application->id;
-
-            $studentId = "EC/{$shortName}/{$batchNo}/{$currentYear}/{$applicationNo}";
-            Student::create([
-                'user_id' => $userId,
-                'student_id' => $studentId,
-                'full_name' => $fullName,
-            ]);
-
-            Log::info('Student ID created on first approval', ['user_id' => $userId, 'student_id' => $studentId]);
+        $courseApplication->status = $status;
+        if ($status === 'Rejected' && $reason) {
+            $courseApplication->rejection_reason = $reason;
+        } elseif ($status === 'Rejected' && !$reason) {
+            return redirect()->back()->with('error', 'Rejection reason is required when rejecting an application.');
+        } elseif ($status === 'Pending') {
+            // If status is set to Pending manually by admin (e.g., for review), retain rejection reason
+            if ($courseApplication->rejection_reason) {
+                $courseApplication->rejection_reason = $courseApplication->rejection_reason; // Keep existing reason
+            }
         } else {
-            Log::info('Student ID already exists, no new student ID created', ['user_id' => $userId, 'existing_student_id' => $existingStudent->student_id]);
+            $courseApplication->rejection_reason = null; // Clear reason for Approved
         }
+
+        // Set the admin who updated the status
+        $courseApplication->updated_by = Auth::id();
+
+        $courseApplication->save();
+
+        if ($status === 'Approved') {
+            $userId = $courseApplication->user_id;
+            $existingStudent = Student::where('user_id', $userId)->first();
+
+            if (!$existingStudent) {
+                $application = Application::where('user_id', $userId)->first();
+                $course = Course::find($courseApplication->course_id);
+                $batch = $course->batches()->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
+                $fullName = $application->full_name ?? 'Unknown';
+                $shortName = $course->short_name;
+                $batchNo = $batch ? $batch->batch_no : '01';
+                $currentYear = date('Y');
+                $applicationNo = $application->id;
+
+                $studentId = "EC/{$shortName}/{$batchNo}/{$currentYear}/{$applicationNo}";
+                Student::create([
+                    'user_id' => $userId,
+                    'student_id' => $studentId,
+                    'full_name' => $fullName,
+                ]);
+
+                Log::info('Student ID created on first approval', ['user_id' => $userId, 'student_id' => $studentId]);
+            } else {
+                Log::info('Student ID already exists, no new student ID created', ['user_id' => $userId, 'existing_student_id' => $existingStudent->student_id]);
+            }
+        }
+
+        // Send email notification
+        if (in_array($status, ['Approved', 'Rejected'])) {
+            Mail::to($courseApplication->user->email)->send(new CourseApplicationStatus($courseApplication, $status));
+            Log::info('Email notification sent for course application status update', [
+                'course_application_id' => $courseApplication->id,
+                'user_email' => $courseApplication->user->email,
+                'status' => $status,
+            ]);
+        }
+
+        Log::info('Course application status updated', [
+            'course_application_id' => $courseApplication->id,
+            'user_id' => $courseApplication->user_id,
+            'status' => $courseApplication->status,
+            'rejection_reason' => $courseApplication->rejection_reason,
+            'updated_by' => $courseApplication->updated_by,
+        ]);
+
+        return redirect()->route('admin.course.applications')->with('status', 'Application status updated successfully!');
     }
-
-    Log::info('Course application status updated', [
-        'course_application_id' => $courseApplication->id,
-        'user_id' => $courseApplication->user_id,
-        'status' => $courseApplication->status,
-        'rejection_reason' => $courseApplication->rejection_reason,
-        'updated_by' => $courseApplication->updated_by,
-    ]);
-
-    return redirect()->route('admin.course.applications')->with('status', 'Application status updated successfully!');
-}
 
     public function userUpdateDocuments(Request $request)
 {
