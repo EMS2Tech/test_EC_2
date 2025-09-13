@@ -60,7 +60,7 @@
                                 @error('required_documents')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                                <small class="form-text text-muted">Select all documents required for this program (e.g., Degree might need Degree Certificate and Transcript).</small>
+                                <small class="form-text text-muted">Select all documents required for this program</small>
                             </div>
                         </div>
                         <div class="card-footer text-end">
