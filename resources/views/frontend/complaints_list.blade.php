@@ -33,6 +33,7 @@
                                         <th>Type</th>
                                         <th>Message</th>
                                         <th>Reported By</th>
+                                        <th>Reported Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -43,10 +44,11 @@
                                             <td>{{ $complaint->complaint_type }}</td>
                                             <td>{{ $complaint->message }}</td>
                                             <td>{{ $complaint->reportedBy->name ?? 'Unknown' }}</td>
+                                            <td>{{ $complaint->created_at->format('Y-m-d') ?? 'N/A' }}</td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="text-center">No complaints found.</td>
+                                            <td colspan="6" class="text-center">No complaints found.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
