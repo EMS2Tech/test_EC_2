@@ -32,7 +32,7 @@
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h3 class="mb-0 fs-22 text-dark me-3"><b>{{ $program->total_count }}</b></h3>
                                         </div>
-                                        <hr>
+                                        <br>
                                         <div class="d-flex justify-content-between align-items-center">
                                             <p class="mb-0 text-success fs-10">Approved</p>
                                             <p class="mb-0 text-warning fs-10">Pending</p>
