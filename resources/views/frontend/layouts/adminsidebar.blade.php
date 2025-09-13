@@ -100,6 +100,25 @@
                         </ul>
                     </div>
                 </li>
+
+                <li>
+                    <a href="#sidebarComplaints" data-bs-toggle="collapse">
+                        <i data-feather="alert-circle"></i>
+                        <span> Complaints </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="sidebarComplaints">
+                        <ul class="nav-second-level">
+                            <li>
+                                <a class='tp-link' href='#'>Add Complaints</a>
+                            </li>
+                            <li>
+                                <a class='tp-link' href='#'>Complaints List</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
             </ul>
 
         </div>
