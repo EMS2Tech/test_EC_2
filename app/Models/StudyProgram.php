@@ -20,4 +20,8 @@ class StudyProgram extends Model
     {
         return $this->hasMany(Course::class, 'program_id');
     }
+    public function courseApplications()
+    {
+        return $this->hasMany(CourseApplication::class, 'study_programme_id');
+    }
 }

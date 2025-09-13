@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AdminController extends Controller
 {
@@ -39,7 +40,23 @@ class AdminController extends Controller
         ->orderBy('students.id')
         ->paginate(10); // 10 items per page
 
-        return view('frontend.admin', compact('students'));
+        $studyPrograms = StudyProgram::withCount([
+            'courseApplications as total_count' => function ($query) {
+                $query->select(DB::raw('COUNT(*)'));
+            },
+            'courseApplications as approved_count' => function ($query) {
+                $query->where('status', 'Approved');
+            },
+            'courseApplications as pending_count' => function ($query) {
+                $query->where('status', 'Pending');
+            },
+        ])->get();
+
+        return view('frontend.admin', compact('students','studyPrograms'));
+
+        
+
+        
     }
     
     public function applications(Request $request)
@@ -244,67 +261,67 @@ class AdminController extends Controller
 
 
     public function studentsIndex(Request $request)
-{
-    $query = Student::with(['user', 'application', 'application.courseApplications']);
+    {
+        $query = Student::with(['user', 'application', 'application.courseApplications']);
 
-    // Apply search by Student ID or NIC
-    if ($request->filled('search')) {
-        $search = $request->input('search');
-        $query->where(function ($q) use ($search) {
-            $q->where('student_id', 'like', "%{$search}%")
-              ->orWhereHas('application', function ($q2) use ($search) {
-                  $q2->where('nic_number', 'like', "%{$search}%")
-                     ->orWhere('passport_number', 'like', "%{$search}%");
-              });
-        });
-        Log::info('Applied student search filter', ['search' => $search]);
-    }
+        // Apply search by Student ID or NIC
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('student_id', 'like', "%{$search}%")
+                  ->orWhereHas('application', function ($q2) use ($search) {
+                      $q2->where('nic_number', 'like', "%{$search}%")
+                         ->orWhere('passport_number', 'like', "%{$search}%");
+                  });
+            });
+            Log::info('Applied student search filter', ['search' => $search]);
+        }
 
-    // Apply filters
-    if ($request->filled('study_program')) {
-        $query->whereHas('application.courseApplications', function ($q) use ($request) {
-            $q->where('study_programme_id', $request->input('study_program'));
-        });
-    }
-    if ($request->filled('course')) {
-        $query->whereHas('application.courseApplications', function ($q) use ($request) {
-            $q->where('course_id', $request->input('course'));
-        });
-    }
-    if ($request->filled('batch')) {
-        $query->whereHas('application.courseApplications', function ($q) use ($request) {
-            $q->where('batch_id', $request->input('batch'));
-        });
-    }
-    if ($request->filled('start_date') && $request->filled('end_date')) {
-        $query->whereHas('application', function ($q) use ($request) {
-            $q->whereBetween('created_at', [$request->input('start_date'), $request->input('end_date')]);
-        });
-    }
-    if ($request->filled('no_of_courses')) {
-        $noOfCourses = $request->input('no_of_courses');
-        $query->whereHas('application.courseApplications', function ($q) use ($noOfCourses) {
-            $q->groupBy('course_applications.user_id')
-              ->select('course_applications.user_id'); // Select only grouped column
-            if ($noOfCourses === '6+') {
-                $q->havingRaw('COUNT(*) >= 6');
-            } else {
-                $q->havingRaw('COUNT(*) = ?', [$noOfCourses]);
-            }
-        });
-    }
+        // Apply filters
+        if ($request->filled('study_program')) {
+            $query->whereHas('application.courseApplications', function ($q) use ($request) {
+                $q->where('study_programme_id', $request->input('study_program'));
+            });
+        }
+        if ($request->filled('course')) {
+            $query->whereHas('application.courseApplications', function ($q) use ($request) {
+                $q->where('course_id', $request->input('course'));
+            });
+        }
+        if ($request->filled('batch')) {
+            $query->whereHas('application.courseApplications', function ($q) use ($request) {
+                $q->where('batch_id', $request->input('batch'));
+            });
+        }
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereHas('application', function ($q) use ($request) {
+                $q->whereBetween('created_at', [$request->input('start_date'), $request->input('end_date')]);
+            });
+        }
+        if ($request->filled('no_of_courses')) {
+            $noOfCourses = $request->input('no_of_courses');
+            $query->whereHas('application.courseApplications', function ($q) use ($noOfCourses) {
+                $q->groupBy('course_applications.user_id')
+                  ->select('course_applications.user_id');
+                if ($noOfCourses === '6+') {
+                    $q->havingRaw('COUNT(*) >= 6');
+                } else {
+                    $q->havingRaw('COUNT(*) = ?', [$noOfCourses]);
+                }
+            });
+        }
 
-    $students = $query->paginate(10);
-    $currentPage = $students->currentPage();
-    $lastPage = $students->lastPage();
+        $students = $query->paginate(10);
+        $currentPage = $students->currentPage();
+        $lastPage = $students->lastPage();
 
-    // Fetch filter options
-    $studyPrograms = StudyProgram::all();
-    $courses = Course::all();
-    $batches = Batch::all();
+        // Fetch filter options
+        $studyPrograms = StudyProgram::all();
+        $courses = Course::all();
+        $batches = Batch::all();
 
-    return view('frontend.students_index', compact('students', 'currentPage', 'lastPage', 'studyPrograms', 'courses', 'batches'))->with($request->all());
-}
+        return view('frontend.students_index', compact('students', 'currentPage', 'lastPage', 'studyPrograms', 'courses', 'batches'))->with($request->all());
+    }
 
     public function studentDetails($id)
     {
@@ -327,12 +344,12 @@ class AdminController extends Controller
             'students.full_name',
             DB::raw('COALESCE(applications.nic_number, applications.passport_number, "N/A") as nic_or_passport'),
             DB::raw('COALESCE(applications.contact_number, "N/A") as contact_number'),
-            DB::raw('(SELECT COUNT(*) FROM course_applications WHERE course_applications.user_id = students.user_id) as no_of_courses')
+            DB::raw('COALESCE((SELECT COUNT(*) FROM course_applications WHERE course_applications.user_id = students.user_id), 0) as no_of_courses')
         )
         ->leftJoin('applications', 'students.user_id', '=', 'applications.user_id')
         ->leftJoin('users', 'students.user_id', '=', 'users.id');
 
-        // Apply filters
+        // Apply filters to match studentsIndex
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
@@ -375,9 +392,23 @@ class AdminController extends Controller
                   ->whereBetween('applications.created_at', [$request->input('start_date'), $request->input('end_date')]);
             });
         }
+        if ($request->filled('no_of_courses')) {
+            $noOfCourses = $request->input('no_of_courses');
+            $query->whereExists(function ($q) use ($request, $noOfCourses) {
+                $q->select(DB::raw(1))
+                  ->from('course_applications')
+                  ->whereColumn('course_applications.user_id', 'students.user_id')
+                  ->groupBy('course_applications.user_id');
+                if ($noOfCourses === '6+') {
+                    $q->havingRaw('COUNT(*) >= 6');
+                } else {
+                    $q->havingRaw('COUNT(*) = ?', [(int)$noOfCourses]);
+                }
+            });
+        }
 
         $students = $query->get();
-        Log::info('Students fetched for export', ['count' => $students->count()]);
+        Log::info('Students fetched for export', ['count' => $students->count(), 'url' => url()->current()]);
 
         $headers = [
             'Content-Type' => 'text/csv',
@@ -401,7 +432,6 @@ class AdminController extends Controller
 
         return Response::stream($callback, 200, $headers);
     }
-
     
 
 
@@ -494,6 +524,11 @@ public function showAddManagerForm()
         $user->delete();
 
         return redirect()->route('admin.manager.add')->with('success', 'Manager deleted successfully.');
+    }
+
+    public function dashboard()
+    {
+        
     }
 
 }
