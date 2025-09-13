@@ -12,7 +12,7 @@
                         <h4 class="fs-18 fw-semibold m-0">Students List</h4>
                     </div>
                     <div>
-                        <a href="{{ route('admin.students.export') . '?' . http_build_query(request()->query()) }}" class="btn btn-success">Export to CSV</a>
+                        <a href="{{ route('admin.students.export', request()->all()) }}" class="btn btn-success">Export to CSV</a>
                     </div>
                 </div>
 

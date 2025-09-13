@@ -4,6 +4,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CourseApplicationController;
+use App\Http\Controllers\StudentController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\StudyProgramController;
 use App\Http\Controllers\CourseController;
@@ -65,7 +66,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['auth', RestrictType::class . ':admin'])->group(function () {
         Route::get('/admin/students', [AdminController::class, 'studentsIndex'])->name('admin.students.index');
         Route::get('/admin/students/{id}', [AdminController::class, 'studentDetails'])->name('admin.student.details');
-        Route::get('/admin/students/export', [AdminController::class, 'studentsExport'])->name('admin.students.export');
+        Route::get('/students/export', [StudentController::class, 'export'])->name('admin.students.export');
 
         Route::get('/add-manager', [AdminController::class, 'showAddManagerForm'])->name('admin.manager.add');
         Route::post('/manager/store', [AdminController::class, 'storeManager'])->name('admin.manager.store');
