@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use App\Mail\PaymentStatusUpdate;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
@@ -183,38 +185,48 @@ class PaymentController extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    $payment = Payment::findOrFail($id);
+    {
+        $payment = Payment::findOrFail($id);
 
-    $request->validate([
-        'status' => 'required|in:Pending,Approved,Rejected',
-        'rejection_reason' => 'required_if:status,Rejected|string|max:255',
-    ]);
+        $request->validate([
+            'status' => 'required|in:Pending,Approved,Rejected',
+            'rejection_reason' => 'required_if:status,Rejected|string|max:255',
+        ]);
 
-    $payment->status = $request->input('status');
-    if ($request->input('status') === 'Rejected' && $request->filled('rejection_reason')) {
-        $payment->rejection_reason = $request->input('rejection_reason');
-    } elseif ($request->input('status') === 'Rejected' && !$request->filled('rejection_reason')) {
-        return redirect()->back()->with('error', 'Rejection reason is required when rejecting a payment.');
-    } else {
-        $payment->rejection_reason = null;
+        $payment->status = $request->input('status');
+        if ($request->input('status') === 'Rejected' && $request->filled('rejection_reason')) {
+            $payment->rejection_reason = $request->input('rejection_reason');
+        } elseif ($request->input('status') === 'Rejected' && !$request->filled('rejection_reason')) {
+            return redirect()->back()->with('error', 'Rejection reason is required when rejecting a payment.');
+        } else {
+            $payment->rejection_reason = null;
+        }
+
+        // Set the admin who updated the status
+        $payment->updated_by = Auth::id(); // Assuming the admin is authenticated
+
+        $payment->save();
+
+        Log::info('Payment status updated', [
+            'payment_id' => $payment->id,
+            'user_id' => $payment->user_id,
+            'status' => $payment->status,
+            'rejection_reason' => $payment->rejection_reason,
+            'updated_by' => $payment->updated_by,
+        ]);
+
+        // Send email notification
+        if (in_array($payment->status, ['Approved', 'Rejected'])) {
+            Mail::to($payment->user->email)->send(new PaymentStatusUpdate($payment, $payment->status));
+            Log::info('Email notification sent for payment status update', [
+                'payment_id' => $payment->id,
+                'user_email' => $payment->user->email,
+                'status' => $payment->status,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Payment status updated successfully.');
     }
-
-    // Set the admin who updated the status
-    $payment->updated_by = Auth::id(); // Assuming the admin is authenticated
-
-    $payment->save();
-
-    Log::info('Payment status updated', [
-        'payment_id' => $payment->id,
-        'user_id' => $payment->user_id,
-        'status' => $payment->status,
-        'rejection_reason' => $payment->rejection_reason,
-        'updated_by' => $payment->updated_by,
-    ]);
-
-    return redirect()->back()->with('success', 'Payment status updated successfully.');
-}
 
     public function store(Request $request)
     {
