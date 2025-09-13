@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Application;
+use App\Http\Controllers\ComplaintController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -71,6 +72,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/add-manager', [AdminController::class, 'showAddManagerForm'])->name('admin.manager.add');
         Route::post('/manager/store', [AdminController::class, 'storeManager'])->name('admin.manager.store');
         Route::delete('/manager/{id}/delete', [AdminController::class, 'deleteManager'])->name('admin.manager.delete');
+
+        Route::get('/complaints/create', [ComplaintController::class, 'create'])->name('admin.complaints.create');
+    Route::post('/complaints/store', [ComplaintController::class, 'store'])->name('admin.complaints.store');
+    Route::get('/complaints', [ComplaintController::class, 'index'])->name('admin.complaints.index');
     });
 
     // Finance Manager and Admin

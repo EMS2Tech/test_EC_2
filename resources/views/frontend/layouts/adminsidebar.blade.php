@@ -110,10 +110,10 @@
                     <div class="collapse" id="sidebarComplaints">
                         <ul class="nav-second-level">
                             <li>
-                                <a class='tp-link' href='#'>Add Complaints</a>
+                                <a class='tp-link' href='/complaints/create'>Add Complaints</a>
                             </li>
                             <li>
-                                <a class='tp-link' href='#'>Complaints List</a>
+                                <a class='tp-link' href='/complaints'>Complaints List</a>
                             </li>
                         </ul>
                     </div>
