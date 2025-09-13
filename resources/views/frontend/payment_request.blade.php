@@ -55,33 +55,39 @@
     </div>
 
     @section('scripts')
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
-            $(document).ready(function() {
-                $('#course_id').change(function() {
-                    const courseId = $(this).val();
-                    if (courseId) {
-                        $.ajax({
-                            url: '{{ route('admin.get.batches', ':course_id') }}'.replace(':course_id', courseId),
-                            method: 'GET',
-                            success: function(response) {
-                                const $batchSelect = $('#batch_id');
-                                $batchSelect.empty();
-                                $batchSelect.append('<option value="">Select Batch</option>');
-                                $.each(response, function(index, batch) {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#course_id').change(function() {
+                const courseId = $(this).val();
+                console.log('Selected Course ID:', courseId); // Debug course ID
+                if (courseId) {
+                    $.ajax({
+                        url: '{{ route('admin.get.batches', ':course_id') }}'.replace(':course_id', courseId),
+                        method: 'GET',
+                        success: function(response) {
+                            console.log('AJAX Response:', response); // Debug response
+                            const $batchSelect = $('#batch_id');
+                            $batchSelect.empty();
+                            $batchSelect.append('<option value="">Select Batch</option>');
+                            if (response.batches && Array.isArray(response.batches)) {
+                                $.each(response.batches, function(index, batch) {
                                     $batchSelect.append('<option value="' + batch.id + '">' + batch.batch_no + '</option>');
                                 });
-                            },
-                            error: function() {
-                                alert('Failed to load batches.');
+                            } else {
+                                console.error('Invalid batches data:', response);
                             }
-                        });
-                    } else {
-                        $('#batch_id').empty().append('<option value="">Select Batch</option>');
-                    }
-                });
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('AJAX Error:', error, xhr.responseText); // Debug error
+                        }
+                    });
+                } else {
+                    $('#batch_id').empty().append('<option value="">Select Batch</option>');
+                }
             });
-        </script>
-    @endsection
+        });
+    </script>
+@endsection
 @endsection

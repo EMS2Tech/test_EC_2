@@ -24,8 +24,7 @@
                 <p><strong>Reason for Rejection:</strong> {{ $reason }}</p>
             @endif
             <p>Please contact the administration if you have any questions or need further assistance.</p>
-        </div>
-        <div>
+            <br>
             <p>Best regards,<br>Support Team,<br>Eurasian Campus.</p>
         </div>
         <div class="footer">

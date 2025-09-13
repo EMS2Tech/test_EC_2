@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $subject }}</title>
+    <title>Payment Request</title>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -18,12 +18,14 @@
             <h2>Eurasian Campus</h2>
         </div>
         <div class="content">
-            <h3>Hello {{ $userName }},</h3>
-            <p>Your payment has been {{ strtolower($status) }}.</p>
-            @if ($reason)
-                <p><strong>Reason for Rejection:</strong> {{ $reason }}</p>
-            @endif
-            <p>Please contact the administration if you have any questions or need further assistance.</p>
+            <h3>Hello {{ $application->user->name ?? 'User' }},</h3>
+            <p>You have a pending payment request for the following:</p>
+            <ul>
+                <li><strong>Course:</strong> {{ $course }}</li>
+                <li><strong>Batch:</strong> {{ $batch }}</li>
+            </ul>
+            <p><strong>Message:</strong> {{ $emailMessage }}</p>
+            <p>Please complete the payment at your earliest convenience.</p>
             <br>
             <p>Best regards,<br>Support Team,<br>Eurasian Campus.</p>
         </div>

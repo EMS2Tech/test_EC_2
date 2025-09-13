@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Mail\RegistrationApplicationStatus;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\PaymentRequestMail;
 
 class AdminController extends Controller
 {
@@ -355,34 +356,29 @@ class AdminController extends Controller
     }
 
     public function sendPaymentRequest(Request $request)
-    {
-        $request->validate([
-            'course_id' => 'required|exists:courses,id',
-            'batch_id' => 'required|exists:batches,id',
-            'message' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'course_id' => 'required|exists:courses,id',
+        'batch_id' => 'required|exists:batches,id',
+        'message' => 'required|string',
+    ]);
 
-        $courseApplications = CourseApplication::where('course_id', $request->course_id)
-            ->where('batch_id', $request->batch_id)
-            ->get();
+    $courseApplications = CourseApplication::where('course_id', $request->course_id)
+        ->where('batch_id', $request->batch_id)
+        ->with('user')
+        ->get();
 
-        foreach ($courseApplications as $application) {
-            PaymentRequest::updateOrCreate(
-                [
-                    'user_id' => $application->user_id,
-                    'course_id' => $request->course_id,
-                    'batch_id' => $request->batch_id,
-                ],
-                [
-                    'status' => 'pending',
-                    'message' => $request->message,
-                    'updated_at' => now(),
-                ]
-            );
+    foreach ($courseApplications as $application) {
+        try {
+            Mail::to($application->user->email)->send(new PaymentRequestMail($application, $request->message));
+            \Log::info('Email sent successfully for user_id: ' . $application->user_id);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send email for user_id: ' . $application->user_id . ' - ' . $e->getMessage());
         }
-
-        return back()->with('success', 'Payment request sent to all users in the selected course and batch.');
     }
+
+    return back()->with('success', 'Payment requests sent via email to all users in the selected course and batch.');
+}
 
     public function getCourses(Request $request)
     {
@@ -391,12 +387,18 @@ class AdminController extends Controller
         return response()->json(['courses' => $courses]);
     }
 
-    public function getBatches(Request $request)
-    {
-        $courseId = $request->input('course_id');
-        $batches = Batch::where('course_id', $courseId)->get(['id', 'batch_no']);
-        return response()->json(['batches' => $batches]);
-    }
+    public function getBatches($courseId)
+{
+    // Fetch unique batch_ids from course_applications for the given course_id
+    $batchIds = CourseApplication::where('course_id', $courseId)
+        ->distinct()
+        ->pluck('batch_id');
+
+    // Fetch batches with batch_no for the retrieved batch_ids
+    $batches = Batch::whereIn('id', $batchIds)->get(['id', 'batch_no']);
+
+    return response()->json(['batches' => $batches]);
+}
 
     public function showAddManagerForm()
     {
