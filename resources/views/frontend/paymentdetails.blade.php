@@ -36,6 +36,8 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <p><strong>Remark:</strong> {{ $payment->remark ?? 'N/A' }}</p>
+                                                <p><strong>Program:</strong> {{ $payment->program ?? 'N/A' }}</p> <!-- New field -->
+                                                <p><strong>Amount (Rs.):</strong> {{ $payment->amount ?? 'N/A' }}</p> <!-- New field -->
                                             </div>
                                         </div>
                                     </div>

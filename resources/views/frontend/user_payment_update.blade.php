@@ -37,6 +37,22 @@
                                 <label class="form-label">Remark (NIC Number)<span class="text-danger">*</span></label>
                                 <textarea class="form-control" name="remark" rows="3" placeholder="Enter any additional remarks">{{ $payment->remark ?? '' }}</textarea>
                             </div>
+                            <div class="mb-3">
+                                <label class="form-label">Program<span class="text-danger">*</span></label>
+                                <select class="form-select" name="program" required>
+                                    <option value="" disabled {{ !$payment->program ? 'selected' : '' }}>Select Program</option>
+                                    <option value="Diploma" {{ $payment->program === 'Diploma' ? 'selected' : '' }}>Diploma</option>
+                                    <option value="Higher Diploma" {{ $payment->program === 'Higher Diploma' ? 'selected' : '' }}>Higher Diploma</option>
+                                    <option value="Postgraduate Diploma" {{ $payment->program === 'Postgraduate Diploma' ? 'selected' : '' }}>Postgraduate Diploma</option>
+                                    <option value="Degree" {{ $payment->program === 'Degree' ? 'selected' : '' }}>Degree</option>
+                                    <option value="Master Program" {{ $payment->program === 'Master Program' ? 'selected' : '' }}>Master Program</option>
+                                    <option value="PhD" {{ $payment->program === 'PhD' ? 'selected' : '' }}>PhD</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Amount (Rs.)<span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" name="amount" step="1" min="0" value="{{ $payment->amount ?? '' }}" required>
+                            </div>
                             <button type="submit" class="btn btn-primary">Update Payment</button>
                         </form>
                     </div>

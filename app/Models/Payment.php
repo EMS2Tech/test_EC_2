@@ -15,10 +15,12 @@ class Payment extends Model
         'payment_type',
         'remark',
         'rejection_reason',
-        'updated_by', // Added to track the admin who updated the status
+        'updated_by',
+        'program', // New field for program type
+        'amount',  // New field for payment amount
     ];
 
-    public $timestamps = true; // Enable timestamps
+    public $timestamps = true;
 
     public function user()
     {
@@ -30,7 +32,6 @@ class Payment extends Model
         return $this->belongsTo(Application::class);
     }
 
-    // Optional: Relationship to the admin who updated the status
     public function updatedBy()
     {
         return $this->belongsTo(User::class, 'updated_by');

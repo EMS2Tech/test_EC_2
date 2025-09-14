@@ -418,6 +418,8 @@
                                             <th scope="col">Slip</th>
                                             <th scope="col">Uploaded At</th>
                                             <th scope="col">Payment Type</th>
+                                            <th scope="col">Program</th> <!-- New column -->
+                                            <th scope="col">Amount (Rs.)</th> <!-- New column -->
                                             <th scope="col">Remark</th>
                                             <th scope="col">Status</th>
                                             <th scope="col">Rejection Reason</th>
@@ -440,6 +442,8 @@
                                                 </td>
                                                 <td>{{ $payment->created_at ? $payment->created_at->format('Y-m-d') : 'N/A' }}</td>
                                                 <td>{{ $payment->payment_type ?? 'N/A' }}</td>
+                                                <td>{{ $payment->program ?? 'N/A' }}</td> <!-- New field -->
+                                                <td>{{ $payment->amount ?? 'N/A' }}</td> <!-- New field -->
                                                 <td>{{ $payment->remark ?? 'N/A' }}</td>
                                                 <td>
                                                     <span class="badge bg-{{ 

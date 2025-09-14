@@ -25,11 +25,12 @@
                                     <div class="d-flex align-items-center">
                                         <form class="d-flex align-items-center me-3" method="GET" action="{{ route('admin.payment.manage') }}">
                                             <input type="text" class="form-control me-2" name="search" placeholder="Search by User Full Name" value="{{ request('search') }}" style="width: 250px;">
+                                            <input type="text" class="form-control me-2" name="nic_passport_search" placeholder="Search by NIC/Passport" value="{{ request('nic_passport_search') }}" style="width: 200px;">
                                             <button type="submit" class="btn btn-primary btn-sm">
                                                 <i class="mdi mdi-magnify me-1"></i> Search
                                             </button>
                                             @foreach (request()->query() as $key => $value)
-                                                @if ($key !== 'search')
+                                                @if (!in_array($key, ['search', 'nic_passport_search']))
                                                     <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                                                 @endif
                                             @endforeach
@@ -42,7 +43,7 @@
                                                 <option value="Rejected" {{ request('status') === 'Rejected' ? 'selected' : '' }}>Rejected</option>
                                             </select>
                                             @foreach (request()->query() as $key => $value)
-                                                @if ($key !== 'status')
+                                                @if (!in_array($key, ['status']))
                                                     <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                                                 @endif
                                             @endforeach
@@ -58,6 +59,18 @@
                                             <option value="" {{ !request('payment_type') ? 'selected' : '' }}>All Types</option>
                                             <option value="registration" {{ request('payment_type') === 'registration' ? 'selected' : '' }}>Registration Payment</option>
                                             <option value="course" {{ request('payment_type') === 'course' ? 'selected' : '' }}>Course Payment</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="program" class="form-label">Program</label>
+                                        <select name="program" id="program" class="form-select" onchange="this.form.submit()">
+                                            <option value="" {{ !request('program') ? 'selected' : '' }}>All Programs</option>
+                                            <option value="Diploma" {{ request('program') === 'Diploma' ? 'selected' : '' }}>Diploma</option>
+                                            <option value="Higher Diploma" {{ request('program') === 'Higher Diploma' ? 'selected' : '' }}>Higher Diploma</option>
+                                            <option value="Postgraduate Diploma" {{ request('program') === 'Postgraduate Diploma' ? 'selected' : '' }}>Postgraduate Diploma</option>
+                                            <option value="Degree" {{ request('program') === 'Degree' ? 'selected' : '' }}>Degree</option>
+                                            <option value="Master Program" {{ request('program') === 'Master Program' ? 'selected' : '' }}>Master Program</option>
+                                            <option value="PhD" {{ request('program') === 'PhD' ? 'selected' : '' }}>PhD</option>
                                         </select>
                                     </div>
                                     <div class="col-md-2">
@@ -83,7 +96,7 @@
                                         <a href="{{ route('admin.payment.manage') }}" class="btn btn-secondary">Clear Filters</a>
                                     </div>
                                     @foreach (request()->query() as $key => $value)
-                                        @if (!in_array($key, ['date_range', 'start_date', 'end_date', 'payment_type']))
+                                        @if (!in_array($key, ['date_range', 'start_date', 'end_date', 'payment_type', 'program']))
                                             <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                                         @endif
                                     @endforeach
@@ -106,6 +119,8 @@
                                                 <th>User Full Name</th>
                                                 <th>Uploaded At</th>
                                                 <th>Payment Type</th>
+                                                <th>Program</th> <!-- New column -->
+                                                <th>Amount (Rs.)</th> <!-- New column -->
                                                 <th>Remark</th>
                                                 <th>Status</th>
                                                 <th>Action</th>
@@ -117,6 +132,8 @@
                                                     <td>{{ $payment->user->application->full_name ?? 'N/A' }}</td>
                                                     <td>{{ $payment->created_at ? $payment->created_at->format('Y-m-d') : 'N/A' }}</td>
                                                     <td>{{ $payment->payment_type ?? 'N/A' }}</td>
+                                                    <td>{{ $payment->program ?? 'N/A' }}</td> <!-- New field -->
+                                                    <td>{{ $payment->amount ?? 'N/A' }}</td> <!-- New field -->
                                                     <td>{{ $payment->remark ?? 'N/A' }}</td>
                                                     <td>
                                                         <span class="badge {{ 
@@ -135,7 +152,7 @@
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="6" class="text-center">No payments found for the selected filters.</td>
+                                                    <td colspan="8" class="text-center">No payments found for the selected filters.</td>
                                                 </tr>
                                             @endforelse
                                         </tbody>
