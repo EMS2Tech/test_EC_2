@@ -175,7 +175,7 @@ class CourseApplicationController extends Controller
                 $currentYear = date('Y');
                 $applicationNo = $application->id;
 
-                $studentId = "EC/{$shortName}/{$batchNo}/{$currentYear}/{$applicationNo}";
+                $studentId = "{$shortName}-{$currentYear}-{$applicationNo}";
                 Student::create([
                     'user_id' => $userId,
                     'student_id' => $studentId,

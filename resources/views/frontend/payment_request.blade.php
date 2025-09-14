@@ -54,20 +54,20 @@
         </div>
     </div>
 
-    @section('scripts')
+   @section('scripts')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#course_id').change(function() {
                 const courseId = $(this).val();
-                console.log('Selected Course ID:', courseId); // Debug course ID
+                console.log('Selected Course ID:', courseId); // Debug
                 if (courseId) {
                     $.ajax({
                         url: '{{ route('admin.get.batches', ':course_id') }}'.replace(':course_id', courseId),
                         method: 'GET',
                         success: function(response) {
-                            console.log('AJAX Response:', response); // Debug response
+                            console.log('AJAX Response:', response); // Debug
                             const $batchSelect = $('#batch_id');
                             $batchSelect.empty();
                             $batchSelect.append('<option value="">Select Batch</option>');
@@ -80,7 +80,7 @@
                             }
                         },
                         error: function(xhr, status, error) {
-                            console.error('AJAX Error:', error, xhr.responseText); // Debug error
+                            console.error('AJAX Error:', error, xhr.responseText); // Debug
                         }
                     });
                 } else {

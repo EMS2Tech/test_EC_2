@@ -389,14 +389,7 @@ class AdminController extends Controller
 
     public function getBatches($courseId)
 {
-    // Fetch unique batch_ids from course_applications for the given course_id
-    $batchIds = CourseApplication::where('course_id', $courseId)
-        ->distinct()
-        ->pluck('batch_id');
-
-    // Fetch batches with batch_no for the retrieved batch_ids
-    $batches = Batch::whereIn('id', $batchIds)->get(['id', 'batch_no']);
-
+    $batches = Batch::where('course_id', $courseId)->get(['id', 'batch_no']);
     return response()->json(['batches' => $batches]);
 }
 
