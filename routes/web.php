@@ -18,6 +18,9 @@ use App\Models\Application;
 use App\Http\Controllers\ComplaintController;
 
 Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect()->route('profile.edit'); // or your profile/dashboard route
+    }
     return view('auth.login');
 })->name('login');
 

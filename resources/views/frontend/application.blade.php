@@ -187,7 +187,32 @@
                                         </div>
                                         <hr>
 
-                                        <!-- Address Section -->
+        <!-- Country -->
+<div class="col-md-12 mb-3">
+    <label class="form-label">Country</label>
+    <select class="form-select" id="country" name="country" required onchange="updateFields(); updatePhonePrefix();">
+        <option value="">-- Select Country --</option>
+        @php
+            $countries = [
+                ['name' => 'Sri Lanka', 'code' => '94'],
+                ['name' => 'United States', 'code' => '1'],
+                ['name' => 'India', 'code' => '91'],
+                ['name' => 'United Kingdom', 'code' => '44'],
+                ['name' => 'Australia', 'code' => '61'],
+                // add more countries as needed
+            ];
+        @endphp
+        @foreach($countries as $country)
+            <option value="{{ $country['name'] }}" data-code="+{{ $country['code'] }}"
+                {{ old('country', $application->country ?? '') === $country['name'] ? 'selected' : '' }}>
+                {{ $country['name'] }} (+{{ $country['code'] }})
+            </option>
+        @endforeach
+    </select>
+    <x-input-error :messages="$errors->get('country')" class="mt-2" />
+</div>
+
+<!-- Address Section -->
 <div class="mb-3">
     <label class="form-label">Address</label>
     <div class="row g-3">
@@ -213,8 +238,8 @@
         </div>
 
         <!-- District -->
-        <div class="col-md-6">
-            <select class="form-select" id="district" name="district" required>
+        <div class="col-md-6 district-province-fields" style="display: {{ old('country', $application->country ?? '') === 'Sri Lanka' ? 'block' : 'none' }};">
+            <select class="form-select" id="district" name="district" {{ old('country', $application->country ?? '') === 'Sri Lanka' ? 'required' : '' }}>
                 <option value="">-- Select District --</option>
                 @foreach(['Colombo','Gampaha','Kalutara','Kandy','Matale','Nuwara Eliya','Galle','Matara','Hambantota',
                           'Jaffna','Kilinochchi','Mannar','Vavuniya','Mullaitivu','Batticaloa','Ampara','Trincomalee',
@@ -228,8 +253,8 @@
         </div>
 
         <!-- Province -->
-        <div class="col-md-6">
-            <select class="form-select" id="province" name="province" required>
+        <div class="col-md-6 district-province-fields" style="display: {{ old('country', $application->country ?? '') === 'Sri Lanka' ? 'block' : 'none' }};">
+            <select class="form-select" id="province" name="province" {{ old('country', $application->country ?? '') === 'Sri Lanka' ? 'required' : '' }}>
                 <option value="">-- Select Province --</option>
                 @foreach(['Western','Central','Southern','Northern','Eastern','North Western','North Central','Uva','Sabaragamuwa'] as $province)
                     <option value="{{ $province }}" {{ old('province', $application->province ?? '') === $province ? 'selected' : '' }}>
@@ -239,32 +264,9 @@
             </select>
             <x-input-error :messages="$errors->get('province')" class="mt-2" />
         </div>
-
-        @php
-    $countries = [
-        ['name' => 'Sri Lanka', 'code' => '94'],
-        ['name' => 'United States', 'code' => '1'],
-        ['name' => 'India', 'code' => '91'],
-        ['name' => 'United Kingdom', 'code' => '44'],
-        ['name' => 'Australia', 'code' => '61'],
-        // add more countries as needed
-    ];
-@endphp
-
-        <!-- Country -->
-<div class="col-md-6 mb-3">
-    <label class="form-label">Country</label>
-    <select class="form-select" id="country" name="country" required onchange="updatePhonePrefix()">
-        <option value="">-- Select Country --</option>
-        @foreach($countries as $country)
-            <option value="{{ $country['name'] }}" data-code="+{{ $country['code'] }}"
-                {{ old('country', $application->country ?? '') === $country['name'] ? 'selected' : '' }}>
-                {{ $country['name'] }} (+{{ $country['code'] }})
-            </option>
-        @endforeach
-    </select>
-    <x-input-error :messages="$errors->get('country')" class="mt-2" />
+    </div>
 </div>
+<!-- End Address Section -->
 
 <!-- Contact Phone -->
 <div class="mb-3">
@@ -407,7 +409,7 @@
                             <script>
 function updatePhonePrefix() {
     const countrySelect = document.getElementById('country');
-    const phonePrefix = countrySelect.selectedOptions[0]?.dataset.code || '+94';
+    const phonePrefix = countrySelect.selectedOptions[0]?.dataset.code || '+94'; // Default to +94 if no country selected
     const prefixSpans = document.querySelectorAll('.phone-prefix');
 
     prefixSpans.forEach(span => {
@@ -415,8 +417,29 @@ function updatePhonePrefix() {
     });
 }
 
-// Initialize on page load
+function updateFields() {
+    const country = document.getElementById('country').value;
+    const districtSelect = document.getElementById('district');
+    const provinceSelect = document.getElementById('province');
+    const districtProvinceFields = document.querySelectorAll('.district-province-fields');
+
+    if (country === 'Sri Lanka') {
+        districtProvinceFields.forEach(field => field.style.display = 'block');
+        districtSelect.setAttribute('required', 'required');
+        provinceSelect.setAttribute('required', 'required');
+    } else {
+        districtProvinceFields.forEach(field => field.style.display = 'none');
+        districtSelect.removeAttribute('required');
+        provinceSelect.removeAttribute('required');
+        districtSelect.value = '-';
+        provinceSelect.value = '-';
+    }
+    updatePhonePrefix(); // Update phone prefix when country changes
+}
+
+// Trigger updates on page load based on preselected country
 document.addEventListener('DOMContentLoaded', function () {
+    updateFields();
     updatePhonePrefix();
 });
 </script>

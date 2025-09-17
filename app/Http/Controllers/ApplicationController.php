@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ApplicationController extends Controller
 {
@@ -70,8 +71,12 @@ class ApplicationController extends Controller
     'house_number' => 'nullable|string|max:50',
     'street_name' => 'required|string|max:255',
     'apartment' => 'nullable|string|max:255',
-    'district' => 'required|string|max:100',
-    'province' => 'required|string|max:100',
+    'district' => Rule::requiredIf(function () use ($request) {
+            return $request->input('country') === 'Sri Lanka';
+        }),
+    'province' => Rule::requiredIf(function () use ($request) {
+            return $request->input('country') === 'Sri Lanka';
+        }),
     'country' => 'required|string',
 
     // Phones (+94 format, store only 9 digits after +94)
