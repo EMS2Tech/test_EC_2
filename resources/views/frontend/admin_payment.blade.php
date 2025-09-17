@@ -11,7 +11,8 @@
                         <h4 class="fs-18 fw-semibold m-0">Payment Management</h4>
                     </div>
                     <div>
-                        <a href="{{ route('admin.payment.export') . '?' . http_build_query(request()->query()) }}" class="btn btn-success">Export to CSV</a>
+                        <a href="{{ route('admin.payment.export') . '?' . http_build_query(request()->query()) }}"
+                            class="btn btn-success">Export to CSV</a>
                     </div>
                 </div>
 
@@ -20,80 +21,98 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">All Payment Records</h5>
-                                    <div class="d-flex align-items-center">
-                                        <form class="d-flex align-items-center me-3" method="GET" action="{{ route('admin.payment.manage') }}">
-                                            <input type="text" class="form-control me-2" name="search" placeholder="Search by User Full Name" value="{{ request('search') }}" style="width: 250px;">
-                                            <input type="text" class="form-control me-2" name="nic_passport_search" placeholder="Search by NIC/Passport" value="{{ request('nic_passport_search') }}" style="width: 200px;">
-                                            <button type="submit" class="btn btn-primary btn-sm">
-                                                <i class="mdi mdi-magnify me-1"></i> Search
-                                            </button>
-                                            @foreach (request()->query() as $key => $value)
-                                                @if (!in_array($key, ['search', 'nic_passport_search']))
-                                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                                                @endif
-                                            @endforeach
-                                        </form>
-                                        <form class="d-flex align-items-center" method="GET" action="{{ route('admin.payment.manage') }}">
-                                            <select name="status" class="form-select me-2" style="width: 150px;" onchange="this.form.submit()">
-                                                <option value="" {{ !request('status') ? 'selected' : '' }}>All Statuses</option>
-                                                <option value="Pending" {{ request('status') === 'Pending' ? 'selected' : '' }}>Pending</option>
-                                                <option value="Approved" {{ request('status') === 'Approved' ? 'selected' : '' }}>Approved</option>
-                                                <option value="Rejected" {{ request('status') === 'Rejected' ? 'selected' : '' }}>Rejected</option>
-                                            </select>
-                                            @foreach (request()->query() as $key => $value)
-                                                @if (!in_array($key, ['status']))
-                                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                                                @endif
-                                            @endforeach
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                    <h5 class="card-title mb-2 mb-md-0">All Payment Records</h5>
+                    <div class="d-flex flex-column flex-md-row align-items-center">
+                        <form class="d-flex align-items-center me-0 me-md-3 mb-2 mb-md-0" method="GET" action="{{ route('admin.payment.manage') }}">
+                            <input type="text" class="form-control me-2" name="search" placeholder="Search by Name or NIC/Passport" value="{{ request('search') }}" style="width: 200px; min-width: 150px;">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="mdi mdi-magnify me-1"></i> Search
+                            </button>
+                            @foreach (request()->query() as $key => $value)
+                                @if (!in_array($key, ['search']))
+                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                @endif
+                            @endforeach
+                        </form>
+                        <form class="d-flex align-items-center mb-2 mb-md-0" method="GET" action="{{ route('admin.payment.manage') }}">
+                            <select name="status" class="form-select me-2" style="width: 150px; min-width: 120px;" onchange="this.form.submit()">
+                                <option value="" {{ !request('status') ? 'selected' : '' }}>All Statuses</option>
+                                <option value="Pending" {{ request('status') === 'Pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="Approved" {{ request('status') === 'Approved' ? 'selected' : '' }}>Approved</option>
+                                <option value="Rejected" {{ request('status') === 'Rejected' ? 'selected' : '' }}>Rejected</option>
+                            </select>
+                            @foreach (request()->query() as $key => $value)
+                                @if (!in_array($key, ['status']))
+                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                @endif
+                            @endforeach
+                        </form>
+                    </div>
+                </div>
+            </div>
                             <div class="card-body">
-                                <form method="GET" action="{{ route('admin.payment.manage') }}" class="row g-3" id="filterForm">
+                                <form method="GET" action="{{ route('admin.payment.manage') }}" class="row g-3"
+                                    id="filterForm">
                                     <div class="col-md-3">
                                         <label for="payment_type" class="form-label">Payment Type</label>
-                                        <select name="payment_type" id="payment_type" class="form-select" onchange="this.form.submit()">
-                                            <option value="" {{ !request('payment_type') ? 'selected' : '' }}>All Types</option>
+                                        <select name="payment_type" id="payment_type" class="form-select"
+                                            onchange="this.form.submit()">
+                                            <option value="" {{ !request('payment_type') ? 'selected' : '' }}>All Types
+                                            </option>
                                             <option value="registration" {{ request('payment_type') === 'registration' ? 'selected' : '' }}>Registration Payment</option>
                                             <option value="course" {{ request('payment_type') === 'course' ? 'selected' : '' }}>Course Payment</option>
                                         </select>
                                     </div>
                                     <div class="col-md-3">
                                         <label for="program" class="form-label">Program</label>
-                                        <select name="program" id="program" class="form-select" onchange="this.form.submit()">
-                                            <option value="" {{ !request('program') ? 'selected' : '' }}>All Programs</option>
-                                            <option value="Diploma" {{ request('program') === 'Diploma' ? 'selected' : '' }}>Diploma</option>
+                                        <select name="program" id="program" class="form-select"
+                                            onchange="this.form.submit()">
+                                            <option value="" {{ !request('program') ? 'selected' : '' }}>All Programs
+                                            </option>
+                                            <option value="Diploma" {{ request('program') === 'Diploma' ? 'selected' : '' }}>
+                                                Diploma</option>
                                             <option value="Higher Diploma" {{ request('program') === 'Higher Diploma' ? 'selected' : '' }}>Higher Diploma</option>
                                             <option value="Postgraduate Diploma" {{ request('program') === 'Postgraduate Diploma' ? 'selected' : '' }}>Postgraduate Diploma</option>
-                                            <option value="Degree" {{ request('program') === 'Degree' ? 'selected' : '' }}>Degree</option>
+                                            <option value="Degree" {{ request('program') === 'Degree' ? 'selected' : '' }}>
+                                                Degree</option>
                                             <option value="Master Program" {{ request('program') === 'Master Program' ? 'selected' : '' }}>Master Program</option>
-                                            <option value="PhD" {{ request('program') === 'PhD' ? 'selected' : '' }}>PhD</option>
+                                            <option value="PhD" {{ request('program') === 'PhD' ? 'selected' : '' }}>PhD
+                                            </option>
                                         </select>
                                     </div>
                                     <div class="col-md-2">
                                         <label for="date_range" class="form-label">Date Range</label>
-                                        <select name="date_range" id="date_range" class="form-select" onchange="toggleDateFields()">
-                                            <option value="" {{ !request('date_range') ? 'selected' : '' }}>Select Date Range</option>
+                                        <select name="date_range" id="date_range" class="form-select"
+                                            onchange="toggleDateFields()">
+                                            <option value="" {{ !request('date_range') ? 'selected' : '' }}>Select Date
+                                                Range</option>
                                             <option value="last_24h" {{ request('date_range') === 'last_24h' ? 'selected' : '' }}>Last 24 Hours</option>
                                             <option value="last_7d" {{ request('date_range') === 'last_7d' ? 'selected' : '' }}>Last 7 Days</option>
                                             <option value="last_month" {{ request('date_range') === 'last_month' ? 'selected' : '' }}>Last Month</option>
-                                            <option value="custom" {{ request('date_range') === 'custom' ? 'selected' : '' }}>Custom Date Range</option>
+                                            <option value="custom" {{ request('date_range') === 'custom' ? 'selected' : '' }}>
+                                                Custom Date Range</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-2 custom-date-fields" style="display: {{ request('date_range') === 'custom' ? 'block' : 'none' }};">
+                                    <div class="col-md-2 custom-date-fields"
+                                        style="display: {{ request('date_range') === 'custom' ? 'block' : 'none' }};">
                                         <label for="start_date" class="form-label">Start Date</label>
-                                        <input type="date" name="start_date" id="start_date" class="form-control" value="{{ request('start_date') }}" max="{{ now('Asia/Colombo')->format('Y-m-d') }}">
+                                        <input type="date" name="start_date" id="start_date" class="form-control"
+                                            value="{{ request('start_date') }}"
+                                            max="{{ now('Asia/Colombo')->format('Y-m-d') }}">
                                     </div>
-                                    <div class="col-md-2 custom-date-fields" style="display: {{ request('date_range') === 'custom' ? 'block' : 'none' }};">
+                                    <div class="col-md-2 custom-date-fields"
+                                        style="display: {{ request('date_range') === 'custom' ? 'block' : 'none' }};">
                                         <label for="end_date" class="form-label">End Date</label>
-                                        <input type="date" name="end_date" id="end_date" class="form-control" value="{{ request('end_date') }}" max="{{ now('Asia/Colombo')->format('Y-m-d') }}">
+                                        <input type="date" name="end_date" id="end_date" class="form-control"
+                                            value="{{ request('end_date') }}"
+                                            max="{{ now('Asia/Colombo')->format('Y-m-d') }}">
                                     </div>
                                     <div class="col-12 text-end">
-                                        <button type="submit" class="btn btn-primary" onclick="return validateDateRange()">Filter</button>
-                                        <a href="{{ route('admin.payment.manage') }}" class="btn btn-secondary">Clear Filters</a>
+                                        <button type="submit" class="btn btn-primary"
+                                            onclick="return validateDateRange()">Filter</button>
+                                        <a href="{{ route('admin.payment.manage') }}" class="btn btn-secondary">Clear
+                                            Filters</a>
                                     </div>
                                     @foreach (request()->query() as $key => $value)
                                         @if (!in_array($key, ['date_range', 'start_date', 'end_date', 'payment_type', 'program']))
@@ -128,31 +147,36 @@
                                         </thead>
                                         <tbody>
                                             @forelse ($payments as $payment)
-                                                <tr>
-                                                    <td>{{ $payment->user->application->full_name ?? 'N/A' }}</td>
-                                                    <td>{{ $payment->created_at ? $payment->created_at->format('Y-m-d') : 'N/A' }}</td>
-                                                    <td>{{ $payment->payment_type ?? 'N/A' }}</td>
-                                                    <td>{{ $payment->program ?? 'N/A' }}</td> <!-- New field -->
-                                                    <td>{{ $payment->amount ?? 'N/A' }}</td> <!-- New field -->
-                                                    <td>{{ $payment->remark ?? 'N/A' }}</td>
-                                                    <td>
-                                                        <span class="badge {{ 
-                                                            $payment->status === 'Approved' ? 'bg-success-subtle text-success' : 
-                                                            ($payment->status === 'Pending' ? 'bg-warning-subtle text-warning' : 
-                                                            ($payment->status === 'Rejected' ? 'bg-danger-subtle text-danger' : 'bg-secondary-subtle text-secondary')) 
-                                                        }} fw-semibold">
-                                                            {{ $payment->status ?? 'Pending' }}
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <a href="{{ route('admin.payment.details', $payment->id) }}" class="btn btn-icon btn-sm bg-info-subtle me-1" data-bs-toggle="tooltip" data-bs-original-title="View" onclick="return confirm('View details for {{ $payment->user->application->full_name ?? 'User' }}?');">
-                                                            <i class="mdi mdi-eye-outline fs-12 text-info"></i>
-                                                        </a>
-                                                    </td>
-                                                </tr>
+                                                                                <tr>
+                                                                                    <td>{{ $payment->user->application->full_name ?? 'N/A' }}</td>
+                                                                                    <td>{{ $payment->created_at ? $payment->created_at->format('Y-m-d') : 'N/A' }}
+                                                                                    </td>
+                                                                                    <td>{{ $payment->payment_type ?? 'N/A' }}</td>
+                                                                                    <td>{{ $payment->program ?? 'N/A' }}</td> <!-- New field -->
+                                                                                    <td>{{ $payment->amount ?? 'N/A' }}</td> <!-- New field -->
+                                                                                    <td>{{ $payment->remark ?? 'N/A' }}</td>
+                                                                                    <td>
+                                                                                        <span class="badge {{ 
+                                                                                                                                            $payment->status === 'Approved' ? 'bg-success-subtle text-success' :
+                                                ($payment->status === 'Pending' ? 'bg-warning-subtle text-warning' :
+                                                    ($payment->status === 'Rejected' ? 'bg-danger-subtle text-danger' : 'bg-secondary-subtle text-secondary')) 
+                                                                                                                                        }} fw-semibold">
+                                                                                            {{ $payment->status ?? 'Pending' }}
+                                                                                        </span>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <a href="{{ route('admin.payment.details', $payment->id) }}"
+                                                                                            class="btn btn-icon btn-sm bg-info-subtle me-1"
+                                                                                            data-bs-toggle="tooltip" data-bs-original-title="View"
+                                                                                            onclick="return confirm('View details for {{ $payment->user->application->full_name ?? 'User' }}?');">
+                                                                                            <i class="mdi mdi-eye-outline fs-12 text-info"></i>
+                                                                                        </a>
+                                                                                    </td>
+                                                                                </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="8" class="text-center">No payments found for the selected filters.</td>
+                                                    <td colspan="8" class="text-center">No payments found for the selected
+                                                        filters.</td>
                                                 </tr>
                                             @endforelse
                                         </tbody>
@@ -165,20 +189,27 @@
                                     <div class="col-12">
                                         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                                             <div class="text-block text-muted">
-                                                <span class="fw-medium">{{ $payments->firstItem() }} - {{ $payments->lastItem() }} of {{ $payments->total() }}</span>
+                                                <span class="fw-medium">{{ $payments->firstItem() }} -
+                                                    {{ $payments->lastItem() }} of {{ $payments->total() }}</span>
                                             </div>
                                             <nav aria-label="Page navigation">
                                                 <ul class="pagination">
                                                     <li class="page-item {{ $currentPage == 1 ? 'disabled' : '' }}">
-                                                        <a class="page-link" href="{{ $payments->url($currentPage - 1) . ($currentPage > 1 ? '&' . http_build_query(request()->except('page')) : '') }}" tabindex="-1" aria-disabled="{{ $currentPage == 1 ? 'true' : 'false' }}">Previous</a>
+                                                        <a class="page-link"
+                                                            href="{{ $payments->url($currentPage - 1) . ($currentPage > 1 ? '&' . http_build_query(request()->except('page')) : '') }}"
+                                                            tabindex="-1"
+                                                            aria-disabled="{{ $currentPage == 1 ? 'true' : 'false' }}">Previous</a>
                                                     </li>
                                                     @for ($i = max(1, $currentPage - 1); $i <= min($lastPage, $currentPage + 1); $i++)
                                                         <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
-                                                            <a class="page-link" href="{{ $payments->url($i) . ($i != $currentPage ? '&' . http_build_query(request()->except('page')) : '') }}">{{ $i }}</a>
+                                                            <a class="page-link"
+                                                                href="{{ $payments->url($i) . ($i != $currentPage ? '&' . http_build_query(request()->except('page')) : '') }}">{{ $i }}</a>
                                                         </li>
                                                     @endfor
                                                     <li class="page-item {{ $currentPage == $lastPage ? 'disabled' : '' }}">
-                                                        <a class="page-link" href="{{ $payments->url($currentPage + 1) . ($currentPage < $lastPage ? '&' . http_build_query(request()->except('page')) : '') }}" aria-disabled="{{ $currentPage == $lastPage ? 'true' : 'false' }}">Next</a>
+                                                        <a class="page-link"
+                                                            href="{{ $payments->url($currentPage + 1) . ($currentPage < $lastPage ? '&' . http_build_query(request()->except('page')) : '') }}"
+                                                            aria-disabled="{{ $currentPage == $lastPage ? 'true' : 'false' }}">Next</a>
                                                     </li>
                                                 </ul>
                                             </nav>

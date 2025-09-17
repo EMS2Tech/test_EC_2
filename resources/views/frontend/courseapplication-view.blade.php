@@ -105,6 +105,61 @@
                                 </div>
                             </div>
 
+                            <!-- Course History -->
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-header bg-light">
+                                        <h6 class="card-title mb-0">Course History</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover table-bordered">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Study Programme</th>
+                                                        <th>Course</th>
+                                                        <th>Batch</th>
+                                                        <th>Apply Date</th>
+                                                        <th>Status</th>
+                                                        <th>Rejection Reason</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @php
+    $courseHistory = \App\Models\CourseApplication::where('user_id', $courseApplication->user_id)->get();
+@endphp
+@foreach ($courseHistory as $history)
+    <tr>
+        <td>{{ $history->study_programme_name ?? 'N/A' }}</td>
+        <td>{{ $history->course_name ?? 'N/A' }}</td>
+        <td>{{ $history->batch_no ?? 'N/A' }}</td>
+        <td>{{ $history->apply_date ?? 'N/A' }}</td>
+        <td>
+            <span class="badge bg-{{ $history->status == 'Approved' ? 'success' : ($history->status == 'Pending' ? 'warning' : 'danger') }}">
+                {{ $history->status ?? 'N/A' }}
+            </span>
+        </td>
+        <td>
+            @if ($history->rejection_reason)
+                <span class="badge bg-danger-subtle text-danger">
+                    {{ $history->rejection_reason }}
+                </span>
+                @if ($history->status === 'Pending' && $history->rejection_reason)
+                    <small class="text-muted">(Previously Rejected)</small>
+                @endif
+            @else
+                <span class="text-muted">N/A</span>
+            @endif
+        </td>
+    </tr>
+@endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Payment Details -->
                             <div class="col-12">
                                 <div class="card border-0 shadow-sm">

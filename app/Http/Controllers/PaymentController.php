@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use App\Mail\PaymentStatusUpdate;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Response;
 
 class PaymentController extends Controller
 {
@@ -34,173 +35,172 @@ class PaymentController extends Controller
     }
 
     public function manage(Request $request)
-{
-    $query = Payment::with('user.application')->latest();
+    {
+        $query = Payment::with('user.application')->latest();
 
-    // Debugging: Log the incoming request parameters
-    Log::info('Manage Payments Request', $request->all());
+        // Debugging: Log the incoming request parameters
+        Log::info('Manage Payments Request', $request->all());
 
-    // Apply search by full name
-    if ($request->filled('search')) {
-        $search = $request->input('search');
-        $query->whereHas('user.application', function ($q) use ($search) {
-            $q->where('full_name', 'like', "%{$search}%");
-        });
-        Log::info('Applied search filter by full name', ['search' => $search]);
-    }
-
-    // Apply search by NIC or passport number
-    if ($request->filled('nic_passport_search')) {
-        $nicPassportSearch = $request->input('nic_passport_search');
-        $query->whereHas('user.application', function ($q) use ($nicPassportSearch) {
-            $q->where(function ($query) use ($nicPassportSearch) {
-                $query->where('nic_number', 'like', "%{$nicPassportSearch}%")
-                      ->orWhere('passport_number', 'like', "%{$nicPassportSearch}%");
+        // Apply unified search for full name, NIC, or passport number
+        if ($request->filled('search')) {
+            $searchTerm = $request->input('search');
+            $query->whereHas('user.application', function ($q) use ($searchTerm) {
+                $q->where(function ($query) use ($searchTerm) {
+                    $query->where('full_name', 'like', "%{$searchTerm}%")
+                          ->orWhere('nic_number', 'like', "%{$searchTerm}%")
+                          ->orWhere('passport_number', 'like', "%{$searchTerm}%");
+                });
             });
-        });
-        Log::info('Applied search filter by NIC/Passport', ['nic_passport_search' => $nicPassportSearch]);
-    }
-
-    // Apply status filter
-    if ($request->filled('status')) {
-        $query->where('status', $request->input('status'));
-        Log::info('Applied status filter', ['status' => $request->input('status')]);
-    }
-
-    // Apply payment type filter
-    if ($request->filled('payment_type')) {
-        $query->where('payment_type', $request->input('payment_type'));
-        Log::info('Applied payment type filter', ['payment_type' => $request->input('payment_type')]);
-    }
-
-    // Apply program filter
-    if ($request->filled('program')) {
-        $query->where('program', $request->input('program'));
-        Log::info('Applied program filter', ['program' => $request->input('program')]);
-    }
-
-    // Apply date range filter
-    if ($request->filled('date_range')) {
-        $today = Carbon::now('Asia/Colombo');
-        Log::info('Applying date range filter', ['date_range' => $request->date_range, 'start_date' => $request->start_date, 'end_date' => $request->end_date]);
-        switch ($request->date_range) {
-            case 'last_24h':
-                $query->where('created_at', '>=', $today->subHours(24));
-                break;
-            case 'last_7d':
-                $query->where('created_at', '>=', $today->subDays(7));
-                break;
-            case 'last_month':
-                $query->where('created_at', '>=', $today->subMonth());
-                break;
-            case 'custom':
-                if ($request->filled('start_date') && $request->filled('end_date')) {
-                    $start = Carbon::parse($request->start_date)->startOfDay();
-                    $end = Carbon::parse($request->end_date)->endOfDay();
-                    if ($start->lte($end)) {
-                        $query->whereBetween('created_at', [$start, $end]);
-                        Log::info('Applied custom date range', ['start' => $start, 'end' => $end]);
-                    } else {
-                        Log::warning('Invalid custom date range: start date after end date', ['start' => $start, 'end' => $end]);
-                    }
-                } else {
-                    Log::warning('Custom date range selected but start_date or end_date missing', ['start_date' => $request->start_date, 'end_date' => $request->end_date]);
-                }
-                break;
-            default:
-                Log::warning('Invalid date range value', ['date_range' => $request->date_range]);
+            Log::info('Applied unified search filter', ['search' => $searchTerm]);
         }
+
+        // Apply status filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+            Log::info('Applied status filter', ['status' => $request->input('status')]);
+        }
+
+        // Apply payment type filter
+        if ($request->filled('payment_type')) {
+            $query->where('payment_type', $request->input('payment_type'));
+            Log::info('Applied payment type filter', ['payment_type' => $request->input('payment_type')]);
+        }
+
+        // Apply program filter
+        if ($request->filled('program')) {
+            $query->where('program', $request->input('program'));
+            Log::info('Applied program filter', ['program' => $request->input('program')]);
+        }
+
+        // Apply date range filter
+        if ($request->filled('date_range')) {
+            $today = Carbon::now('Asia/Colombo');
+            Log::info('Applying date range filter', ['date_range' => $request->date_range, 'start_date' => $request->start_date, 'end_date' => $request->end_date]);
+            switch ($request->date_range) {
+                case 'last_24h':
+                    $query->where('created_at', '>=', $today->subHours(24));
+                    break;
+                case 'last_7d':
+                    $query->where('created_at', '>=', $today->subDays(7));
+                    break;
+                case 'last_month':
+                    $query->where('created_at', '>=', $today->subMonth());
+                    break;
+                case 'custom':
+                    if ($request->filled('start_date') && $request->filled('end_date')) {
+                        $start = Carbon::parse($request->start_date)->startOfDay();
+                        $end = Carbon::parse($request->end_date)->endOfDay();
+                        if ($start->lte($end)) {
+                            $query->whereBetween('created_at', [$start, $end]);
+                            Log::info('Applied custom date range', ['start' => $start, 'end' => $end]);
+                        } else {
+                            Log::warning('Invalid custom date range: start date after end date', ['start' => $start, 'end' => $end]);
+                        }
+                    } else {
+                        Log::warning('Custom date range selected but start_date or end_date missing', ['start_date' => $request->start_date, 'end_date' => $request->end_date]);
+                    }
+                    break;
+                default:
+                    Log::warning('Invalid date range value', ['date_range' => $request->date_range]);
+            }
+        }
+
+        $payments = $query->paginate(10);
+        Log::info('Payments retrieved', ['total' => $payments->total(), 'current_page' => $payments->currentPage(), 'last_page' => $payments->lastPage()]);
+
+        $currentPage = $payments->currentPage();
+        $lastPage = $payments->lastPage();
+
+        // Pass the request parameters back to the view to maintain filter state
+        return view('frontend.admin_payment', compact('payments', 'currentPage', 'lastPage'))->with($request->all());
     }
-
-    $payments = $query->paginate(10);
-    Log::info('Payments retrieved', ['total' => $payments->total(), 'current_page' => $payments->currentPage(), 'last_page' => $payments->lastPage()]);
-
-    $currentPage = $payments->currentPage();
-    $lastPage = $payments->lastPage();
-
-    // Pass the request parameters back to the view to maintain filter state
-    return view('frontend.admin_payment', compact('payments', 'currentPage', 'lastPage'))->with($request->all());
-}
 
     public function export(Request $request)
-{
-    $query = Payment::with('user.application')->latest();
+    {
+        $query = Payment::with('user.application')->latest();
 
-    // Apply filters from the request
-    if ($request->has('search')) {
-        $search = $request->input('search');
-        $query->whereHas('user.application', function ($q) use ($search) {
-            $q->where('full_name', 'like', "%{$search}%");
-        });
-    }
+        // Apply unified search for full name, NIC, or passport number
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->whereHas('user.application', function ($q) use ($search) {
+                $q->where(function ($query) use ($search) {
+                    $query->where('full_name', 'like', "%{$search}%")
+                          ->orWhere('nic_number', 'like', "%{$search}%")
+                          ->orWhere('passport_number', 'like', "%{$search}%");
+                });
+            });
+        }
 
-    if ($request->has('status') && $request->input('status') !== '') {
-        $query->where('status', $request->input('status'));
-    }
+        // Apply status filter
+        if ($request->has('status') && $request->input('status') !== '') {
+            $query->where('status', $request->input('status'));
+        }
 
-    if ($request->has('payment_type') && $request->input('payment_type') !== '') {
-        $query->where('payment_type', $request->input('payment_type'));
-    }
+        // Apply payment type filter
+        if ($request->has('payment_type') && $request->input('payment_type') !== '') {
+            $query->where('payment_type', $request->input('payment_type'));
+        }
 
-    if ($request->has('program') && $request->input('program') !== '') {
-        $query->where('program', $request->input('program'));
-    }
+        // Apply program filter
+        if ($request->has('program') && $request->input('program') !== '') {
+            $query->where('program', $request->input('program'));
+        }
 
-    // Apply date range filter
-    if ($request->has('date_range')) {
-        $now = Carbon::now('Asia/Colombo');
-        switch ($request->input('date_range')) {
-            case 'last_24h':
-                $query->where('created_at', '>=', $now->subHours(24));
-                break;
-            case 'last_7d':
-                $query->where('created_at', '>=', $now->subDays(7));
-                break;
-            case 'last_month':
-                $query->where('created_at', '>=', $now->subMonth());
-                break;
-            case 'custom':
-                if ($request->has('start_date') && $request->has('end_date')) {
-                    $startDate = Carbon::parse($request->input('start_date'))->startOfDay();
-                    $endDate = Carbon::parse($request->input('end_date'))->endOfDay();
-                    if ($startDate->lte($endDate)) {
-                        $query->whereBetween('created_at', [$startDate, $endDate]);
+        // Apply date range filter
+        if ($request->has('date_range')) {
+            $now = Carbon::now('Asia/Colombo');
+            switch ($request->input('date_range')) {
+                case 'last_24h':
+                    $query->where('created_at', '>=', $now->subHours(24));
+                    break;
+                case 'last_7d':
+                    $query->where('created_at', '>=', $now->subDays(7));
+                    break;
+                case 'last_month':
+                    $query->where('created_at', '>=', $now->subMonth());
+                    break;
+                case 'custom':
+                    if ($request->has('start_date') && $request->has('end_date')) {
+                        $startDate = Carbon::parse($request->input('start_date'))->startOfDay();
+                        $endDate = Carbon::parse($request->input('end_date'))->endOfDay();
+                        if ($startDate->lte($endDate)) {
+                            $query->whereBetween('created_at', [$startDate, $endDate]);
+                        }
                     }
-                }
-                break;
+                    break;
+            }
         }
+
+        $payments = $query->get();
+
+        // Generate CSV content
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="payments_export_' . date('Ymd_His') . '.csv"',
+        ];
+
+        $callback = function () use ($payments) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['User Full Name', 'Uploaded At', 'Payment Type', 'Program', 'Amount (Rs.)', 'Remark', 'Status', 'Rejection Reason']);
+
+            foreach ($payments as $payment) {
+                fputcsv($file, [
+                    $payment->user->application->full_name ?? 'N/A',
+                    $payment->created_at ? $payment->created_at->format('Y-m-d H:i:s') : 'N/A',
+                    $payment->payment_type ?? 'N/A',
+                    $payment->program ?? 'N/A',
+                    $payment->amount ?? 'N/A',
+                    $payment->remark ?? 'N/A',
+                    $payment->status ?? 'Pending',
+                    $payment->rejection_reason ?? 'N/A',
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
     }
-
-    $payments = $query->get();
-
-    // Generate CSV content
-    $headers = [
-        'Content-Type' => 'text/csv',
-        'Content-Disposition' => 'attachment; filename="payments_export_' . date('Ymd_His') . '.csv"',
-    ];
-
-    $callback = function () use ($payments) {
-        $file = fopen('php://output', 'w');
-        fputcsv($file, ['User Full Name', 'Uploaded At', 'Payment Type', 'Program', 'Amount (Rs.)', 'Remark', 'Status', 'Rejection Reason']);
-
-        foreach ($payments as $payment) {
-            fputcsv($file, [
-                $payment->user->application->full_name ?? 'N/A',
-                $payment->created_at ? $payment->created_at->format('Y-m-d H:i:s') : 'N/A',
-                $payment->payment_type ?? 'N/A',
-                $payment->program ?? 'N/A',
-                $payment->amount ?? 'N/A',
-                $payment->remark ?? 'N/A',
-                $payment->status ?? 'Pending',
-                $payment->rejection_reason ?? 'N/A',
-            ]);
-        }
-
-        fclose($file);
-    };
-
-    return response()->stream($callback, 200, $headers);
-}
 
     public function details($id)
     {

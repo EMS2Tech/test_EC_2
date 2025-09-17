@@ -21,30 +21,40 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">All Students</h5>
-                                    <div class="d-flex align-items-center">
-                                        <form class="d-flex align-items-center me-3" method="GET" action="{{ route('admin.students.index') }}">
-                                            <input type="text" class="form-control me-2" name="search" placeholder="Search by Application no or NIC" value="{{ request('search') }}" style="width: 250px;">
-                                            <button type="submit" class="btn btn-primary btn-sm">
-                                                <i class="mdi mdi-magnify me-1"></i> Search
-                                            </button>
-                                        </form>
-                                        <form class="d-flex align-items-center" method="GET" action="{{ route('admin.students.index') }}">
-                                            <select name="no_of_courses" class="form-select me-2" style="width: 150px;" onchange="this.form.submit()">
-                                                <option value="" {{ !request('no_of_courses') ? 'selected' : '' }}>All Courses Count</option>
-                                                @for ($i = 0; $i <= 5; $i++)
-                                                    <option value="{{ $i }}" {{ request('no_of_courses') == $i ? 'selected' : '' }}>
-                                                        {{ $i }} Course{{ $i != 1 ? 's' : '' }}
-                                                    </option>
-                                                @endfor
-                                                <option value="6+" {{ request('no_of_courses') === '6+' ? 'selected' : '' }}>6+ Courses</option>
-                                            </select>
-                                            <input type="hidden" name="search" value="{{ request('search') }}">
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                    <h5 class="card-title mb-2 mb-md-0">All Students</h5>
+                    <div class="d-flex flex-column flex-md-row align-items-center">
+                        <form class="d-flex align-items-center me-0 me-md-3 mb-2 mb-md-0" method="GET" action="{{ route('admin.students.index') }}">
+                            <input type="text" class="form-control me-2" name="search" placeholder="Search by Application no or NIC" value="{{ request('search') }}" style="width: 200px; min-width: 150px;">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="mdi mdi-magnify me-1"></i> Search
+                            </button>
+                            @foreach (request()->query() as $key => $value)
+                                @if ($key !== 'search')
+                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                @endif
+                            @endforeach
+                        </form>
+                        <form class="d-flex align-items-center mb-2 mb-md-0" method="GET" action="{{ route('admin.students.index') }}">
+                            <select name="no_of_courses" class="form-select me-2" style="width: 150px; min-width: 120px;" onchange="this.form.submit()">
+                                <option value="" {{ !request('no_of_courses') ? 'selected' : '' }}>All Courses Count</option>
+                                @for ($i = 0; $i <= 5; $i++)
+                                    <option value="{{ $i }}" {{ request('no_of_courses') == $i ? 'selected' : '' }}>
+                                        {{ $i }} Course{{ $i != 1 ? 's' : '' }}
+                                    </option>
+                                @endfor
+                                <option value="6+" {{ request('no_of_courses') === '6+' ? 'selected' : '' }}>6+ Courses</option>
+                            </select>
+                            <input type="hidden" name="search" value="{{ request('search') }}">
+                            @foreach (request()->query() as $key => $value)
+                                @if ($key !== 'no_of_courses' && $key !== 'search')
+                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                @endif
+                            @endforeach
+                        </form>
+                    </div>
+                </div>
+            </div>
                             <div class="card-body">
                                 <form method="GET" action="{{ route('admin.students.index') }}" class="row g-3" id="filterForm">
                                     <div class="col-md-3">

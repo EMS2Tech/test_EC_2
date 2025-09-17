@@ -99,7 +99,7 @@ class StudentController extends Controller
 
         $callback = function () use ($students) {
             $output = fopen('php://output', 'w');
-            fputcsv($output, ['Student ID', 'Full Name', 'NIC or Passport', 'Contact Number', 'WhatsApp Number', 'Home Number', 'No of Courses']);
+            fputcsv($output, ['Application No', 'Full Name', 'NIC or Passport', 'Contact Number', 'WhatsApp Number', 'Home Number', 'No of Courses']);
             foreach ($students as $student) {
                 fputcsv($output, [
                     $student->student_id ?? 'N/A',
