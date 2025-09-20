@@ -113,7 +113,8 @@
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">Application No</label>
                                                                     <p class="text-muted mb-1">
-                                                                        {{ $student ? $student->student_id : 'N/A' }}</p>
+                                                                        {{ $student ? $student->student_id : 'N/A' }}
+                                                                    </p>
                                                                 </div>
                                                                 <div class="mb-3">
                                                                     <label class="fw-semibold">Name with Initials</label>
@@ -191,7 +192,8 @@
                                                                     <div class="mb-3">
                                                                         <label class="fw-semibold">NIC Number</label>
                                                                         <p class="text-muted mb-1">
-                                                                            {{ $application->nic_number ?? 'N/A' }}</p>
+                                                                            {{ $application->nic_number ?? 'N/A' }}
+                                                                        </p>
                                                                     </div>
 
                                                                     @if ($application->nic_photo)
@@ -219,7 +221,8 @@
                                                                     <div class="mb-3">
                                                                         <label class="fw-semibold">Other Nationality</label>
                                                                         <p class="text-muted mb-1">
-                                                                            {{ $application->other_nationality ?? 'N/A' }}</p>
+                                                                            {{ $application->other_nationality ?? 'N/A' }}
+                                                                        </p>
                                                                     </div>
 
                                                                     @if ($application->passport_photo)
@@ -397,96 +400,101 @@
                                     </div>
 
                                     <div class="tab-pane pt-4" id="profile_payment" role="tabpanel">
-    <div class="container-fluid">
-        @php
-            $payments = \App\Models\Payment::where('user_id', auth()->id())->get();
-            $courseApplications = \App\Models\CourseApplication::where('user_id', auth()->id())->with('course.batches')->get();
-        @endphp
+                                        <div class="container-fluid">
+                                            @php
+                                                $payments = \App\Models\Payment::where('user_id', auth()->id())->get();
+                                                $courseApplications = \App\Models\CourseApplication::where('user_id', auth()->id())->with('course.batches')->get();
+                                            @endphp
 
-        @if ($payments->isNotEmpty())
-            <div class="row g-4">
-                <div class="col-12">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="card-title mb-0">Payment History</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover table-bordered">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th scope="col">Slip</th>
-                                            <th scope="col">Uploaded At</th>
-                                            <th scope="col">Payment Type</th>
-                                            <th scope="col">Program</th> <!-- New column -->
-                                            <th scope="col">Amount (Rs.)</th> <!-- New column -->
-                                            <th scope="col">Remark</th>
-                                            <th scope="col">Status</th>
-                                            <th scope="col">Rejection Reason</th>
-                                            <th scope="col">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($payments as $payment)
-                                            <tr>
-                                                <td>
-                                                    @if ($payment->payment_slip)
-                                                        <a href="{{ Storage::url($payment->payment_slip) }}"
-                                                            target="_blank"
-                                                            class="btn btn-sm btn-info">
-                                                            View Slip
-                                                        </a>
-                                                    @else
-                                                        <span class="text-muted">Not uploaded</span>
-                                                    @endif
-                                                </td>
-                                                <td>{{ $payment->created_at ? $payment->created_at->format('Y-m-d') : 'N/A' }}</td>
-                                                <td>{{ $payment->payment_type ?? 'N/A' }}</td>
-                                                <td>{{ $payment->program ?? 'N/A' }}</td> <!-- New field -->
-                                                <td>{{ $payment->amount ?? 'N/A' }}</td> <!-- New field -->
-                                                <td>{{ $payment->remark ?? 'N/A' }}</td>
-                                                <td>
-                                                    <span class="badge bg-{{ 
-                                                        $payment->status === 'Approved' ? 'success' :
-                                                        ($payment->status === 'Pending' ? 'warning' :
-                                                            ($payment->status === 'Rejected' ? 'danger' : 'secondary')) 
-                                                    }} me-2">
-                                                        {{ $payment->status ?? 'Pending' }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    @if ($payment->status === 'Rejected' && $payment->rejection_reason)
-                                                        {{ $payment->rejection_reason }}
-                                                    @else
-                                                        <span class="text-muted">N/A</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if ($payment->status === 'Rejected')
-                                                        <a href="{{ route('user.payment.update', $payment->id) }}"
-                                                            class="btn btn-sm btn-warning">Update</a>
-                                                    @else
-                                                        <span class="text-muted">N/A</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @else
-            <div class="alert alert-info text-center" role="alert">
-                <h5 class="alert-heading">No Payment Found</h5>
-                <p class="text-muted">Please make a payment to view your payment history.</p>
-                <a href="{{ route('payment.verify') }}" class="btn btn-primary">Pay Now</a>
-            </div>
-        @endif
-    </div>
-</div>
+                                            @if ($payments->isNotEmpty())
+                                                <div class="row g-4">
+                                                    <div class="col-12">
+                                                        <div class="card border-0 shadow-sm">
+                                                            <div class="card-header bg-primary text-white">
+                                                                <h5 class="card-title mb-0">Payment History</h5>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <div class="table-responsive">
+                                                                    <table class="table table-hover table-bordered">
+                                                                        <thead class="table-light">
+                                                                            <tr>
+                                                                                <th scope="col">Slip</th>
+                                                                                <th scope="col">Uploaded At</th>
+                                                                                <th scope="col">Payment Type</th>
+                                                                                <th scope="col">Program</th> <!-- New column -->
+                                                                                <th scope="col">Amount (Rs.)</th>
+                                                                                <!-- New column -->
+                                                                                <th scope="col">Remark</th>
+                                                                                <th scope="col">Status</th>
+                                                                                <th scope="col">Rejection Reason</th>
+                                                                                <th scope="col">Action</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            @foreach ($payments as $payment)
+                                                                                                                                        <tr>
+                                                                                                                                            <td>
+                                                                                                                                                @if ($payment->payment_slip)
+                                                                                                                                                    <a href="{{ Storage::url($payment->payment_slip) }}"
+                                                                                                                                                        target="_blank"
+                                                                                                                                                        class="btn btn-sm btn-info">
+                                                                                                                                                        View Slip
+                                                                                                                                                    </a>
+                                                                                                                                                @else
+                                                                                                                                                    <span class="text-muted">Not uploaded</span>
+                                                                                                                                                @endif
+                                                                                                                                            </td>
+                                                                                                                                            <td>{{ $payment->created_at ? $payment->created_at->format('Y-m-d') : 'N/A' }}
+                                                                                                                                            </td>
+                                                                                                                                            <td>{{ $payment->payment_type ?? 'N/A' }}</td>
+                                                                                                                                            <td>{{ $payment->program ?? 'N/A' }}</td>
+                                                                                                                                            <!-- New field -->
+                                                                                                                                            <td>{{ $payment->amount ?? 'N/A' }}</td>
+                                                                                                                                            <!-- New field -->
+                                                                                                                                            <td>{{ $payment->remark ?? 'N/A' }}</td>
+                                                                                                                                            <td>
+                                                                                                                                                <span class="badge bg-{{ 
+                                                                                                                            $payment->status === 'Approved' ? 'success' :
+                                                                                ($payment->status === 'Pending' ? 'warning' :
+                                                                                    ($payment->status === 'Rejected' ? 'danger' : 'secondary')) 
+                                                                                                                        }} me-2">
+                                                                                                                                                    {{ $payment->status ?? 'Pending' }}
+                                                                                                                                                </span>
+                                                                                                                                            </td>
+                                                                                                                                            <td>
+                                                                                                                                                @if ($payment->status === 'Rejected' && $payment->rejection_reason)
+                                                                                                                                                    {{ $payment->rejection_reason }}
+                                                                                                                                                @else
+                                                                                                                                                    <span class="text-muted">N/A</span>
+                                                                                                                                                @endif
+                                                                                                                                            </td>
+                                                                                                                                            <td>
+                                                                                                                                                @if ($payment->status === 'Rejected')
+                                                                                                                                                    <a href="{{ route('user.payment.update', $payment->id) }}"
+                                                                                                                                                        class="btn btn-sm btn-warning">Update</a>
+                                                                                                                                                @else
+                                                                                                                                                    <span class="text-muted">N/A</span>
+                                                                                                                                                @endif
+                                                                                                                                            </td>
+                                                                                                                                        </tr>
+                                                                            @endforeach
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <div class="alert alert-info text-center" role="alert">
+                                                    <h5 class="alert-heading">No Payment Found</h5>
+                                                    <p class="text-muted">Please make a payment to view your payment history.
+                                                    </p>
+                                                    <a href="{{ route('payment.verify') }}" class="btn btn-primary">Pay Now</a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
 
                                     <div class="tab-pane pt-4" id="profile_setting" role="tabpanel">
                                         <div class="row">
@@ -590,45 +598,71 @@
                                                             @csrf
                                                             @method('put')
 
-                                                            <div class="form-group mb-3 row">
+                                                            <div class="form-group mb-3 row position-relative">
                                                                 <x-input-label for="update_password_current_password"
                                                                     :value="__('Current Password')" class="form-label" />
-                                                                <div class="col-lg-12 col-xl-12">
+                                                                <div class="col-lg-12 col-xl-12 position-relative">
                                                                     <x-text-input id="update_password_current_password"
                                                                         name="current_password" type="password"
-                                                                        class="form-control"
+                                                                        class="form-control pr-5"
                                                                         autocomplete="current-password" />
+                                                                    <i class="fas fa-eye password-toggle"
+                                                                        onclick="togglePassword('update_password_current_password', this)"
+                                                                        style="position:absolute; right:15px; top:50%; transform:translateY(-50%); cursor:pointer;"></i>
                                                                     <x-input-error
                                                                         :messages="$errors->updatePassword->get('current_password')"
                                                                         class="mt-2" />
                                                                 </div>
                                                             </div>
 
-                                                            <div class="form-group mb-3 row">
+                                                            <div class="form-group mb-3 row position-relative">
                                                                 <x-input-label for="update_password_password"
                                                                     :value="__('New Password')" class="form-label" />
-                                                                <div class="col-lg-12 col-xl-12">
+                                                                <div class="col-lg-12 col-xl-12 position-relative">
                                                                     <x-text-input id="update_password_password"
-                                                                        name="password" type="password" class="form-control"
+                                                                        name="password" type="password"
+                                                                        class="form-control pr-5"
                                                                         autocomplete="new-password" />
+                                                                    <i class="fas fa-eye password-toggle"
+                                                                        onclick="togglePassword('update_password_password', this)"
+                                                                        style="position:absolute; right:15px; top:50%; transform:translateY(-50%); cursor:pointer;"></i>
                                                                     <x-input-error
                                                                         :messages="$errors->updatePassword->get('password')"
                                                                         class="mt-2" />
                                                                 </div>
                                                             </div>
 
-                                                            <div class="form-group mb-3 row">
+                                                            <div class="form-group mb-3 row position-relative">
                                                                 <x-input-label for="update_password_password_confirmation"
                                                                     :value="__('Confirm Password')" class="form-label" />
-                                                                <div class="col-lg-12 col-xl-12">
+                                                                <div class="col-lg-12 col-xl-12 position-relative">
                                                                     <x-text-input id="update_password_password_confirmation"
                                                                         name="password_confirmation" type="password"
-                                                                        class="form-control" autocomplete="new-password" />
+                                                                        class="form-control pr-5"
+                                                                        autocomplete="new-password" />
+                                                                    <i class="fas fa-eye password-toggle"
+                                                                        onclick="togglePassword('update_password_password_confirmation', this)"
+                                                                        style="position:absolute; right:15px; top:50%; transform:translateY(-50%); cursor:pointer;"></i>
                                                                     <x-input-error
                                                                         :messages="$errors->updatePassword->get('password_confirmation')"
                                                                         class="mt-2" />
                                                                 </div>
                                                             </div>
+
+                                                            <script>
+                                                                function togglePassword(inputId, icon) {
+                                                                    const passwordInput = document.getElementById(inputId);
+                                                                    if (passwordInput.type === "password") {
+                                                                        passwordInput.type = "text";
+                                                                        icon.classList.remove("fa-eye");
+                                                                        icon.classList.add("fa-eye-slash");
+                                                                    } else {
+                                                                        passwordInput.type = "password";
+                                                                        icon.classList.remove("fa-eye-slash");
+                                                                        icon.classList.add("fa-eye");
+                                                                    }
+                                                                }
+                                                            </script>
 
                                                             <div class="form-group row">
                                                                 <div class="col-lg-12 col-xl-12 d-flex gap-2">

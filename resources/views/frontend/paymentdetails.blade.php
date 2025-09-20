@@ -36,8 +36,8 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <p><strong>Remark:</strong> {{ $payment->remark ?? 'N/A' }}</p>
-                                                <p><strong>Program:</strong> {{ $payment->program ?? 'N/A' }}</p> <!-- New field -->
-                                                <p><strong>Amount (Rs.):</strong> {{ $payment->amount ?? 'N/A' }}</p> <!-- New field -->
+                                                <p><strong>Program:</strong> {{ $payment->program ?? 'N/A' }}</p>
+                                                <p><strong>Amount (Rs.):</strong> {{ $payment->amount ?? 'N/A' }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -94,8 +94,59 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+
+   <!-- Payment History -->
+<div class="col-12">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+            <h6 class="card-title mb-0">Payment History</h6>
+        </div>
+        <div class="card-body">
+            @php
+                $payments = \App\Models\Payment::where('user_id', $payment->user_id)->get();
+            @endphp
+            @if ($payments->isNotEmpty())
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Amount (Rs.)</th>
+                                <th scope="col">Remark</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($payments as $historyPayment)
+                                <tr>
+                                    <td>{{ $historyPayment->created_at ?? 'N/A' }}</td>
+                                    <td>{{ $historyPayment->payment_type ?? 'N/A' }}</td>
+                                    <td>{{ $historyPayment->amount ?? 'N/A' }}</td>
+                                    <td>{{ $historyPayment->remark ?? 'N/A' }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 
+                                            $historyPayment->status === 'Approved' ? 'success' : 
+                                            ($historyPayment->status === 'Pending' ? 'warning' : 
+                                            ($historyPayment->status === 'Rejected' ? 'danger' : 'secondary')) 
+                                        }} me-2">
+                                            {{ $historyPayment->status ?? 'Pending' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="alert alert-info text-center" role="alert">
+                    <h5 class="alert-heading">No Payments Done Yet</h5>
+                    <p>No payment records found for this user.</p>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
                     <div class="card-footer">
                         <form method="POST" action="{{ route('admin.payment.update', $payment->id) }}" enctype="multipart/form-data">
                             @csrf

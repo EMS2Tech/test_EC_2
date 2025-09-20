@@ -23,10 +23,13 @@
                                                     </a>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="auth-title-section mb-4 text-lg-start text-center">
-                                                <h3 class="text-dark fw-semibold mb-3">Welcome back! Please Sign in to continue.</h3>
-                                                <p class="text-muted fs-14 mb-0">Sign in to access your personalized dashboard, stay updated, and make the most of your campus experience.</p>
+                                                <h3 class="text-dark fw-semibold mb-3">Welcome back! Please Sign in to
+                                                    continue.</h3>
+                                                <p class="text-muted fs-14 mb-0">Sign in to access your personalized
+                                                    dashboard, stay updated, and make the most of your campus experience.
+                                                </p>
                                             </div>
 
                                             <div class="pt-0">
@@ -35,26 +38,53 @@
 
                                                     <div class="form-group mb-3">
                                                         <x-input-label for="emailaddress" :value="__('Email address')" />
-                                                        <x-text-input id="emailaddress" class="form-control" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" placeholder="Enter your email" />
+                                                        <x-text-input id="emailaddress" class="form-control" type="email"
+                                                            name="email" :value="old('email')" required autofocus
+                                                            autocomplete="username" placeholder="Enter your email" />
                                                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                                     </div>
 
-                                                    <div class="form-group mb-3">
+                                                    <div class="form-group mb-3 position-relative">
                                                         <x-input-label for="password" :value="__('Password')" />
-                                                        <x-text-input id="password" class="form-control" type="password" name="password" required autocomplete="current-password" placeholder="Enter your password" />
+                                                        <x-text-input id="password" class="form-control pr-5"
+                                                            type="password" name="password" required
+                                                            autocomplete="current-password"
+                                                            placeholder="Enter your password" />
+                                                        <i class="fas fa-eye password-toggle input-icon"
+                                                            onclick="togglePassword('password', this)"
+                                                            style="position:absolute; right:15px; top:33px; cursor:pointer;"></i>
                                                         <x-input-error :messages="$errors->get('password')" class="mt-2" />
                                                     </div>
+
+                                                    <script>
+                                                        function togglePassword(inputId, icon) {
+                                                            const passwordInput = document.getElementById(inputId);
+                                                            if (passwordInput.type === "password") {
+                                                                passwordInput.type = "text";
+                                                                icon.classList.remove("fa-eye");
+                                                                icon.classList.add("fa-eye-slash");
+                                                            } else {
+                                                                passwordInput.type = "password";
+                                                                icon.classList.remove("fa-eye-slash");
+                                                                icon.classList.add("fa-eye");
+                                                            }
+                                                        }
+                                                    </script>
 
                                                     <div class="form-group d-flex mb-3">
                                                         <div class="col-sm-6">
                                                             <div class="form-check">
-                                                                <input type="checkbox" class="form-check-input rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" id="checkbox-signin" name="remember" {{ old('remember') ? 'checked' : '' }}>
-                                                                <label class="form-check-label" for="checkbox-signin">Remember me</label>
+                                                                <input type="checkbox"
+                                                                    class="form-check-input rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                                                    id="checkbox-signin" name="remember" {{ old('remember') ? 'checked' : '' }}>
+                                                                <label class="form-check-label"
+                                                                    for="checkbox-signin">Remember me</label>
                                                             </div>
                                                         </div>
                                                         <div class="col-sm-6 text-end">
                                                             @if (Route::has('password.request'))
-                                                                <a class="text-muted fs-14" href="{{ route('password.request') }}">Forgot password?</a>
+                                                                <a class="text-muted fs-14"
+                                                                    href="{{ route('password.request') }}">Forgot password?</a>
                                                             @endif
                                                         </div>
                                                     </div>
@@ -71,7 +101,9 @@
                                                 </form>
 
                                                 <div class="text-center text-muted">
-                                                    <p class="mb-0">Don't have an account? <a class="text-primary ms-2 fw-medium" href="{{ route('register') }}">Sign up</a></p>
+                                                    <p class="mb-0">Don't have an account? <a
+                                                            class="text-primary ms-2 fw-medium"
+                                                            href="{{ route('register') }}">Sign up</a></p>
                                                 </div>
                                             </div>
                                         </div>

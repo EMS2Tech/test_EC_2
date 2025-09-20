@@ -30,7 +30,8 @@
 
                                             <div class="auth-title-section mb-4 text-lg-start text-center">
                                                 <h3 class="text-dark fw-semibold mb-3">Sign Up Now!</h3>
-                                                <p class="text-muted fs-14 mb-0">Unlock exclusive student perks, special offers, and be the first to know about exciting updates!</p>
+                                                <p class="text-muted fs-14 mb-0">Unlock exclusive student perks, special
+                                                    offers, and be the first to know about exciting updates!</p>
                                             </div>
 
                                             <div class="pt-0">
@@ -39,34 +40,69 @@
 
                                                     <div class="form-group mb-3">
                                                         <x-input-label for="username" :value="__('Username')" />
-                                                        <x-text-input id="username" class="form-control" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" placeholder="Enter your Username" />
+                                                        <x-text-input id="username" class="form-control" type="text"
+                                                            name="name" :value="old('name')" required autofocus
+                                                            autocomplete="name" placeholder="Enter your Username" />
                                                         <x-input-error :messages="$errors->get('name')" class="mt-2" />
                                                     </div>
 
                                                     <div class="form-group mb-3">
                                                         <x-input-label for="emailaddress" :value="__('Email address')" />
-                                                        <x-text-input id="emailaddress" class="form-control" type="email" name="email" :value="old('email')" required autocomplete="username" placeholder="Enter your email" />
+                                                        <x-text-input id="emailaddress" class="form-control" type="email"
+                                                            name="email" :value="old('email')" required
+                                                            autocomplete="username" placeholder="Enter your email" />
                                                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                                     </div>
 
-                                                    <div class="form-group mb-3">
+                                                    <div class="form-group mb-3 position-relative">
                                                         <x-input-label for="password" :value="__('Password')" />
-                                                        <x-text-input id="password" class="form-control" type="password" name="password" required autocomplete="new-password" placeholder="Enter your password" />
+                                                        <x-text-input id="password" class="form-control pr-5"
+                                                            type="password" name="password" required
+                                                            autocomplete="new-password" placeholder="Enter your password" />
+                                                        <i class="fas fa-eye password-toggle input-icon"
+                                                            onclick="togglePassword('password', this)"
+                                                            style="position:absolute; right:15px; top:33px; cursor:pointer;"></i>
                                                         <x-input-error :messages="$errors->get('password')" class="mt-2" />
                                                     </div>
 
-                                                    <div class="form-group mb-3">
+                                                    <div class="form-group mb-3 position-relative">
                                                         <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-                                                        <x-text-input id="password_confirmation" class="form-control" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Enter your password" />
-                                                        <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+                                                        <x-text-input id="password_confirmation" class="form-control pr-5"
+                                                            type="password" name="password_confirmation" required
+                                                            autocomplete="new-password" placeholder="Enter your password" />
+                                                        <i class="fas fa-eye password-toggle input-icon"
+                                                            onclick="togglePassword('password_confirmation', this)"
+                                                            style="position:absolute; right:15px; top:33px; cursor:pointer;"></i>
+                                                        <x-input-error :messages="$errors->get('password_confirmation')"
+                                                            class="mt-2" />
                                                     </div>
+
+                                                    <script>
+                                                        function togglePassword(inputId, icon) {
+                                                            const passwordInput = document.getElementById(inputId);
+                                                            if (passwordInput.type === "password") {
+                                                                passwordInput.type = "text";
+                                                                icon.classList.remove("fa-eye");
+                                                                icon.classList.add("fa-eye-slash");
+                                                            } else {
+                                                                passwordInput.type = "password";
+                                                                icon.classList.remove("fa-eye-slash");
+                                                                icon.classList.add("fa-eye");
+                                                            }
+                                                        }
+                                                    </script>
 
                                                     <div class="form-group d-flex mb-3">
                                                         <div class="col-12">
                                                             <div class="form-check">
-                                                                <input type="checkbox" class="form-check-input" id="checkbox-signin" name="terms" {{ old('terms') ? 'checked' : '' }}>
-                                                                <label class="form-check-label" for="checkbox-signin">I agree to the <a href="#" class="text-primary fw-medium">Terms and Conditions</a></label>
-                                                                <x-input-error :messages="$errors->get('terms')" class="mt-2" />
+                                                                <input type="checkbox" class="form-check-input"
+                                                                    id="checkbox-signin" name="terms" {{ old('terms') ? 'checked' : '' }}>
+                                                                <label class="form-check-label" for="checkbox-signin">I
+                                                                    agree to the <a href="#"
+                                                                        class="text-primary fw-medium">Terms and
+                                                                        Conditions</a></label>
+                                                                <x-input-error :messages="$errors->get('terms')"
+                                                                    class="mt-2" />
                                                             </div>
                                                         </div>
                                                     </div>
@@ -83,7 +119,9 @@
                                                 </form><br>
 
                                                 <div class="text-center text-muted">
-                                                    <p class="mb-0">Already have an account? <a class="text-primary ms-2 fw-medium" href="{{ route('login') }}">Login here</a></p>
+                                                    <p class="mb-0">Already have an account? <a
+                                                            class="text-primary ms-2 fw-medium"
+                                                            href="{{ route('login') }}">Login here</a></p>
                                                 </div>
 
                                             </div>
